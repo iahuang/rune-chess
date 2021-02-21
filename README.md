@@ -36,7 +36,7 @@ Refers to squares next to (or on top of) a square. Excludes diagonals.
 
 **Displaced**
 
-Units that are displaced are moved to the nearest empty space, prioritizing those directly adjacent, then corners. If there are no empty spaces, the Unit is displaced to an empty square 2 units away, and so on.
+Units that are displaced are moved to a random adjacent empty space, prioritizing those directly adjacent, then corners. If there are no empty spaces, the Unit is displaced to an empty square 2 units away, and so on.
 
 **Dashes to**
 
@@ -73,3 +73,77 @@ On the following turn, the Q deals additional magic damage in the line from wher
 **R - Chronobreak**
 
 Ekko returns to his position four turns ago, dealing magic damage to those directly adjacent and healing for % max HP. Ekko Displaces any Units present where he lands.
+
+### Jax
+
+**P - Grandmaster at Arms**
+
+Each consecutive Basic Attack on a target does extra damage. 
+
+**Q - Counter Strike**
+
+Jax enters a defensive stance, blocking all Basic Attacks for the following turn. On the turn after that, all enemy Units directly adjacent to Jax are Stunned.
+
+### Tryndamere
+
+**Q - Mocking Shout**
+
+Lowers the base AD of enemy Champions within three squares for the next turn.
+
+**R - Grasp of the Undying**
+
+Tryndamere cannot be reduced below 50 HP for the next two turns.
+
+### Sylas
+
+**Q - Kingslayer**
+
+Sylas attacks a directly adjacent enemy Unit, healing and dealing magic damage. Cannot be cast while rooted.
+
+**R - The Unshackled**
+
+Sylas casts the ultimate of a chosen Champion on the enemy team.
+
+### Aphelios
+
+**Q - Weapon of the Faithful**
+
+Aphelios casts his active weapon
+
+- Calibrum - Deals % max HP physical damage to a target up to 3 squares away.
+- Severum - Heals for every enemy Champion within 1 square, and deals physical damage
+- Gravitum - Roots a target enemy Champion within 2 squares, and deals physical damage
+
+**W - Phase**
+
+Aphelios cycles his active weapon. This ability may be used independently of your turn's actions, and has no cooldown.
+
+### Anivia
+
+**P - Rebirth**
+
+Upon dying, Anivia reverts to an egg and is reborn at full health, unless the egg is destroyed. Anivia cannot cast abilities or move while in egg form.
+
+**Q - Crystallize**
+
+Anivia creates an ice wall that takes up 1 square and lasts for two turns. If casted on an occupied square, the occupying Unit is Displaced.
+
+### Teemo
+
+**Q - Blinding Dart**
+
+Teemo blinds an enemy Unit up to two squares away, preventing them from performing auto attacks for the three turns.
+
+**R - Noxious Trap**
+
+Teemo places a shroom in a directly adjacent square. The shroom lasts until tripped by an ally or enemy Unit. If tripped by an enemy Unit, it deals magic damage to all units within 1 square.
+
+### Katarina
+
+**P - The Sinister Blade**
+
+All of Katarina's abilities have 400% AP, AD, level, and max HP scaling, and apply on-hit effects at 120% damage.
+
+**R - Death Lotus**
+
+Instantly executes all enemy Champions on the board
