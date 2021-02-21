@@ -54,7 +54,7 @@ All enemy champions in a 3x3 square around Diana take magic damage, scaling with
 
 ### Fiora
 
-**Q - Riposte**
+**W - Riposte**
 
 For the following turn, Fiora becomes immune to enemy abilities. If a immobilizing effect is parried, all enemies in a 3x3 radius are Stunned.
 
@@ -80,13 +80,13 @@ Ekko returns to his position four turns ago, dealing magic damage to those direc
 
 Each consecutive Basic Attack on a target does extra damage. 
 
-**Q - Counter Strike**
+**E - Counter Strike**
 
 Jax enters a defensive stance, blocking all Basic Attacks for the following turn. On the turn after that, all enemy Units directly adjacent to Jax are Stunned.
 
 ### Tryndamere
 
-**Q - Mocking Shout**
+**W - Mocking Shout**
 
 Lowers the base AD of enemy Champions within three squares for the next turn.
 
@@ -96,7 +96,7 @@ Tryndamere cannot be reduced below 50 HP for the next two turns.
 
 ### Sylas
 
-**Q - Kingslayer**
+**W - Kingslayer**
 
 Sylas attacks a directly adjacent enemy Unit, healing and dealing magic damage. Cannot be cast while rooted.
 
@@ -124,7 +124,7 @@ Aphelios cycles his active weapon. This ability may be used independently of you
 
 Upon dying, Anivia reverts to an egg and is reborn at full health, unless the egg is destroyed. Anivia cannot cast abilities or move while in egg form.
 
-**Q - Crystallize**
+**W - Crystallize**
 
 Anivia creates an ice wall that takes up 1 square and lasts for two turns. If casted on an occupied square, the occupying Unit is Displaced.
 
@@ -144,7 +144,7 @@ Teemo places a shroom in a directly adjacent square. The shroom lasts until trip
 
 Katarina throws a blade onto an enemy Unit within 1 square, which then bounces to a directly adjacent enemy Unit.
 
-**W - Shunpo**
+**E - Shunpo**
 
 Katarina dashes to a square up to two squares away that is directly adjacent to an enemy or allied Unit. If next to an enemy Unit, Katarina applies a Basic Attack to the lowest health Unit, prioritizing Champions.
 
