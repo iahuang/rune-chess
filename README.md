@@ -140,10 +140,22 @@ Teemo places a shroom in a directly adjacent square. The shroom lasts until trip
 
 ### Katarina
 
-**P - The Sinister Blade**
+**Q - Bouncing Blade**
 
-All of Katarina's abilities have 400% AP, AD, level, and max HP scaling, and apply on-hit effects at 120% damage.
+Katarina throws a blade onto an enemy Unit within 1 square, which then bounces to a directly adjacent enemy Unit.
+
+**W - Shunpo**
+
+Katarina dashes to a square up to two squares away that is directly adjacent to an enemy or allied Unit. If next to an enemy Unit, Katarina applies a Basic Attack to the lowest health Unit, prioritizing Champions.
 
 **R - Death Lotus**
 
-Instantly executes all enemy Champions on the board
+Katarina enters her ultimate stance, dealing magic damage to all enemies within 1 square for the next two turns. Will be cancelled if Katarina is immobilized.
+
+## Game Structure
+
+The game starts with each player alternating placing one Unit on their board, starting with the Champions, then the Minions.
+
+The game alternates between the two players, each able to move a Unit, cast an Ability, *or* perform a Basic Attack on their turn. Ultimate abilities may only be cast once per Champion.
+
+The game ends once one team's Champions have all been killed.
