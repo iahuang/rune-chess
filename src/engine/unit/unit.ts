@@ -1,6 +1,7 @@
 import Board from "../board";
 import BoardPosition from "../board_position";
 import { calculateDamageTaken, DamageType } from "../damage";
+import { EffectConstructor, StatusEffect } from "../status_effect";
 import { Team, TeamColor } from "../team";
 import UnitAttributes from "./unit_attributes";
 
@@ -13,12 +14,21 @@ export default class Unit {
     name: string;
     teamColor: TeamColor;
 
+    statusEffects: StatusEffect[];
+
     constructor(attributes: UnitAttributes) {
         this.baseAttributes = attributes;
         this.hp = this.baseAttributes.maxHP;
         this.pos = new BoardPosition(0, 0);
         this.name = "unit";
         this.teamColor = TeamColor.Neutral;
+        this.statusEffects = [];
+    }
+
+    applyStatusEffect(constructor: EffectConstructor, to: Unit) {
+        let effect = constructor(this, to);
+        to.statusEffects.push(effect);
+        effect.refreshEffect();
     }
 
     getTeam() {

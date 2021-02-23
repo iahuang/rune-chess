@@ -4,4 +4,6 @@ export default interface UnitAttributes {
     magicResistance: number;
     attackDamage: number;
     abilityPower: number;
+    ranged: boolean;
+    attackRange: number;
 }

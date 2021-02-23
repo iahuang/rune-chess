@@ -6,3 +6,4 @@ import Unit from "./engine/unit/unit";
 let chess = new RuneChess();
 chess.board.placeUnit(Diana(), BoardPosition.at(0,0));
 console.log(chess.debugRenderer.renderBoard(chess.board));
+console.log(chess.board.units);

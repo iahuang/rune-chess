@@ -1,6 +1,7 @@
 import Board from "../../../board";
 import BoardPosition from "../../../board_position";
 import { DamageType } from "../../../damage";
+import { EffectType, StatusEffect } from "../../../status_effect";
 import Unit from "../../unit";
 import { AbilityEffectMask, AbilityIdentifier } from "../ability/base_ability";
 import { LocationTargetedAbility } from "../ability/location_target_ability";
@@ -23,9 +24,17 @@ class DianaQ extends LocationTargetedAbility {
         return (dx === 2 && dy === 1) || (dx === 1 && dy === 2);
     }
 
-    onHitUnit(unit: Unit) {
-        unit.takeDamage(90, this.caster, DamageType.Magic);
+    onHitUnit(hit: Unit) {
+        hit.takeDamage(90, this.caster, DamageType.Magic);
+        hit.applyStatusEffect(MoonlightDebuff.effectConstructor, hit);
     }
+}
+
+class MoonlightDebuff extends StatusEffect {
+    name = "Moonlight";
+    description = "Doesn't do anything at the moment";
+    type = EffectType.Debuff;
+    effectDuration = 1;
 }
 
 export default function Diana() {
@@ -35,10 +44,13 @@ export default function Diana() {
         magicResistance: 37,
         abilityPower: 60,
         attackDamage: 70,
+        attackRange: 1,
+        ranged: false
     });
 
     diana.name = "Diana";
 
     diana.abilityQ = new DianaQ(diana);
+
     return diana;
 }
