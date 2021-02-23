@@ -3,7 +3,7 @@ import UnitAttributes from "../unit_attributes";
 import AbilityTarget from "./ability/ability_target";
 import { AbilityIdentifier, BaseAbility, NoAbility } from "./ability/base_ability";
 
-export default class Champion extends Unit {
+export default abstract class Champion extends Unit {
     abilityQ: BaseAbility = NoAbility(this);
     abilityW: BaseAbility = NoAbility(this);
     abilityE: BaseAbility = NoAbility(this);

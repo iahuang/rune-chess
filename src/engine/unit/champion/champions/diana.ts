@@ -37,20 +37,22 @@ class MoonlightDebuff extends StatusEffect {
     effectDuration = 1;
 }
 
+class ChampionDiana extends Champion {
+    constructor() {
+        super({
+            maxHP: 945,
+            armor: 45,
+            magicResistance: 37,
+            abilityPower: 60,
+            attackDamage: 70,
+            attackRange: 1,
+            ranged: false,
+        });
+        this.name = "Diana";
+        this.abilityQ = new DianaQ(this);
+    }
+}
+
 export default function Diana() {
-    let diana = new Champion({
-        maxHP: 945,
-        armor: 45,
-        magicResistance: 37,
-        abilityPower: 60,
-        attackDamage: 70,
-        attackRange: 1,
-        ranged: false
-    });
-
-    diana.name = "Diana";
-
-    diana.abilityQ = new DianaQ(diana);
-
-    return diana;
+    return new ChampionDiana();
 }
