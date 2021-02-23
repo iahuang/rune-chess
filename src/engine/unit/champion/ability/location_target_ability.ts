@@ -19,7 +19,7 @@ export abstract class LocationTargetedAbility extends BaseAbility {
         return false;
     }
 
-    _cast(target: AbilityTarget) {
+    _onCast(target: AbilityTarget) {
         let unit = this.caster.board.getUnitAt(target.location!);
         if (unit) {
             if (this.canAffect(unit, this.collidesWith)) {

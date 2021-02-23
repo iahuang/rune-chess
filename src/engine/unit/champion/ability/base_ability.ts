@@ -40,7 +40,7 @@ export abstract class BaseAbility {
         return false;
     }
 
-    abstract _cast(target: AbilityTarget): void;
+    abstract _onCast(target: AbilityTarget): void;
 
     onHitUnit(unit: Unit) {
         
@@ -73,7 +73,7 @@ class _NoAbility extends BaseAbility {
     identifier = AbilityIdentifier.None;
     targetType = TargetType.None
 
-    _cast(target: AbilityTarget) {
+    _onCast(target: AbilityTarget) {
 
     }
 }
@@ -102,6 +102,21 @@ export class AbilityEffectMask {
 
     allowEnemyChampionTarget() {
         this.enemyChampions = true;
+        return this;
+    }
+
+    allowAllyMinionTarget() {
+        this.allyMinions = true;
+        return this;
+    }
+
+    allowAllyChampionTarget() {
+        this.allyChampions = true;
+        return this;
+    }
+
+    allowSelfTarget() {
+        this.self = true;
         return this;
     }
 }

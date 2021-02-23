@@ -31,6 +31,6 @@ export default abstract class Champion extends Unit {
             throw new Error("cannot cast ability onto target of type "+target.targetType);
         }
 
-        ability._cast(target);
+        ability._onCast(target);
     }
 }
