@@ -1,6 +1,7 @@
 import Board from "../board";
 import BoardPosition from "../board_position";
 import { calculateDamageTaken, DamageType } from "../damage";
+import { Team, TeamColor } from "../team";
 import UnitAttributes from "./unit_attributes";
 
 export default class Unit {
@@ -10,12 +11,18 @@ export default class Unit {
     _board?: Board;
     pos: BoardPosition;
     name: string;
+    teamColor: TeamColor;
 
     constructor(attributes: UnitAttributes) {
         this.baseAttributes = attributes;
         this.hp = this.baseAttributes.maxHP;
         this.pos = new BoardPosition(0, 0);
         this.name = "unit";
+        this.teamColor = TeamColor.Neutral;
+    }
+
+    getTeam() {
+        return this.getGameInstance().getTeamWithColor(this.teamColor);
     }
 
     get board() {
@@ -23,6 +30,10 @@ export default class Unit {
             throw new Error("Unit has not been placed on a board yet");
         }
         return this._board;
+    }
+
+    getGameInstance() {
+        return this.board.gameInstance;
     }
 
     private _takeDamage(rawDamage: number) {
@@ -50,4 +61,10 @@ export default class Unit {
     percentageOfMaxHP(percent: number) {
         return percent*this.calculateMaxHP();
     }
+
+    dealDamage(amount: number, to: Unit, type: DamageType) {
+        to.takeDamage(amount, this, type);
+    }
+
+    
 }
