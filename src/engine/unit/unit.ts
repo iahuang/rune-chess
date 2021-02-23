@@ -1,7 +1,7 @@
 import Board from "../board";
 import BoardPosition from "../board_position";
 import { calculateDamageTaken, DamageType } from "../damage";
-import { EffectConstructor, StatusEffect } from "../status_effect";
+import { StatusEffect } from "../status_effect";
 import { Team, TeamColor } from "../team";
 import UnitAttributes from "./unit_attributes";
 
@@ -25,8 +25,8 @@ export default class Unit {
         this.statusEffects = [];
     }
 
-    applyStatusEffect(constructor: EffectConstructor, to: Unit) {
-        let effect = constructor(this, to);
+    applyStatusEffect(Effect: any, to: Unit) {
+        let effect = Effect(this, to);
         to.statusEffects.push(effect);
         effect.refreshEffect();
     }

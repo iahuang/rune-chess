@@ -6,7 +6,6 @@ export enum EffectType {
     Hidden
 }
 
-export type EffectConstructor = (source: Unit, user: Unit)=>StatusEffect;
 
 export abstract class StatusEffect {
     abstract name: string;
@@ -27,11 +26,6 @@ export abstract class StatusEffect {
     refreshEffect() {
         this.durationLeft = this.effectDuration;
     }
-
-    static get effectConstructor() {
-        return this.constructor as EffectConstructor;
-    }
-
     onActiveTurn() {
 
     }
