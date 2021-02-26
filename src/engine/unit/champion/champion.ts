@@ -1,5 +1,6 @@
 import Unit from "../unit";
 import UnitAttributes from "../unit_attributes";
+import UnitType from "../unit_type";
 import AbilityTarget from "./ability/ability_target";
 import { AbilityIdentifier, BaseAbility, NoAbility } from "./ability/base_ability";
 
@@ -11,7 +12,7 @@ export default abstract class Champion extends Unit {
 
     constructor(attributes: UnitAttributes) {
         super(attributes);
-        this.isChampion = true;
+        this.unitType = UnitType.Champion;
     }
 
     getAbilityByIdentifier(identifier: AbilityIdentifier) {

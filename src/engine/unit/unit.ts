@@ -4,12 +4,13 @@ import { calculateDamageTaken, DamageType } from "../damage";
 import { StatusEffect } from "../status_effect";
 import { Team, TeamColor } from "../team";
 import UnitAttributes from "./unit_attributes";
+import UnitType from "./unit_type";
 
 export default class Unit {
     baseAttributes: UnitAttributes;
     hp: number;
-    isChampion = false;
-    _board?: Board;
+    unitType: UnitType;
+    private _board?: Board;
     pos: BoardPosition;
     name: string;
     teamColor: TeamColor;
@@ -23,6 +24,7 @@ export default class Unit {
         this.name = "unit";
         this.teamColor = TeamColor.Neutral;
         this.statusEffects = [];
+        this.unitType = UnitType.Other;
     }
 
     applyStatusEffect(Effect: any, to: Unit) {
@@ -76,5 +78,15 @@ export default class Unit {
         to.takeDamage(amount, this, type);
     }
 
-    
+    linkBoard(board: Board) {
+        this._board = board;
+    }
+
+    unlinkBoard() {
+        this._board = undefined;
+    }
+
+    get isChampion() {
+        return this.unitType === UnitType.Champion;
+    }
 }

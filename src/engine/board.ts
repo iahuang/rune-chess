@@ -1,13 +1,19 @@
 import BoardPosition from "./board_position";
+import GameConstants from "./constants";
 import RuneChess from "./game";
 import Unit from "./unit/unit";
 
 export default class Board {
-    units: Unit[];
+    private _board: (Unit | null)[]; // flattened 2d array, row-first
     private _game?: RuneChess;
 
     constructor() {
-        this.units = [];
+        this._board = [];
+
+        // initialize board
+        for (let i = 0; i < GameConstants.boardSize * GameConstants.boardSize; i++) {
+            this._board.push(null);
+        }
     }
 
     get gameInstance() {
@@ -18,18 +24,50 @@ export default class Board {
         return this._game;
     }
 
+    private _boardDataIndex(pos: BoardPosition) {
+        return pos.y * GameConstants.boardSize + pos.x;
+    }
+
     placeUnit(unit: Unit, pos: BoardPosition) {
-        unit._board = this;
+        unit.linkBoard(this);
         unit.pos = pos;
-        this.units.push(unit);
+        if (this.getUnitAt(pos)) {
+            throw new Error("There is already a piece here");
+        }
+        this._board[this._boardDataIndex(pos)] = unit;
+    }
+
+    popUnit(pos: BoardPosition) {
+        /* "pop" a unit at a position off the board and returns it. retains the 
+            reference to this board.
+        */
+
+        if (!this.getUnitAt(pos)) {
+            throw new Error("There is no unit here");
+        }
+
+        let unit = this.getUnitAt(pos);
+        this._board[this._boardDataIndex(pos)] = null;
+        return unit;
+    }
+
+    moveUnit(unit: Unit, to: BoardPosition) {
+        // ensure this unit is linked to this board
+        if (unit.board !== this) {
+            throw new Error("Cannot move a unit not linked to this board");
+        }
+
+        this.popUnit(unit.pos);
+        this.placeUnit(unit, to);
     }
 
     getUnitAt(pos: BoardPosition) {
-        for (let unit of this.units) {
-            if (unit.pos.isEqual(pos)) {
-                return unit;
-            }
-        }
-        return null;
+        return this._board[this._boardDataIndex(pos)];
     }
+
+    allUnits() {
+        return this._board.filter(u=>u!==null) as Unit[];
+    }
+
+    
 }

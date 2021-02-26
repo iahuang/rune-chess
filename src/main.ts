@@ -10,8 +10,8 @@ import fs from "fs";
 let chess = new RuneChess();
 chess.board.placeUnit(Diana(), BoardPosition.at(0, 0));
 
-let gameRenderer = new GameRenderer();
+let gameRenderer = new GameRenderer(chess);
 gameRenderer.init().then(() => {
-    gameRenderer.render(chess);
+    gameRenderer.render();
     gameRenderer.display.saveImageData("test.png");
 });

@@ -1,12 +1,17 @@
 import { Image, loadImage } from "canvas";
+import AssetCache from "./asset_cache";
+import fetch from "node-fetch";
 
 export default class AssetManager {
     private _assets: { [name: string]: ImageAsset };
+    cache: AssetCache;
     assetsLoaded: number;
 
     constructor() {
         this._assets = {};
         this.assetsLoaded = 0;
+        this.cache = new AssetCache();
+        this.cache.init();
     }
 
     register(name: string, path: string) {
@@ -18,15 +23,36 @@ export default class AssetManager {
         return Object.keys(this._assets).length;
     }
 
-    loadAll(): Promise<void> {
+    async loadAll(): Promise<void> {
+        // cache assets
+        for (let asset of this.allAssets()) {
+            if (this.cache.containsURI(asset.path)) {
+                continue;
+            }
+            if (this.cache.isResourceCacheable(asset.path)) {
+                let resp = await fetch(asset.path);
+                let buffer = await resp.arrayBuffer();
+                this.cache.cache(asset.path, Buffer.from(buffer));
+                console.log("[AssetManager] Caching",asset.path);
+            }
+        }
         return new Promise((resolve, reject) => {
             for (let asset of this.allAssets()) {
-                loadImage(asset.path)
+                let cachePath = this.cache.getCachedPath(asset.path);
+                let uri = asset.path;
+                if (cachePath) {
+                    uri = cachePath;
+                }
+                loadImage(uri)
                     .then((image) => {
                         asset.image = image;
                         this.assetsLoaded += 1;
-                        console.log(`[AssetManager] Loaded ${asset.path}`);
-
+                        if (uri !== asset.path) {
+                            console.log(`[AssetManager] Loaded ${asset.path} (cache: ${uri})`);
+                        } else {
+                            console.log(`[AssetManager] Loaded ${asset.path}`);
+                        }
+                        
                         if (this.assetsLoaded === this.size) {
                             resolve();
                         }
@@ -67,4 +93,3 @@ class ImageAsset {
         return this.image != null;
     }
 }
-
