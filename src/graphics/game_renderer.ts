@@ -2,6 +2,7 @@ import { createContext } from "vm";
 import BoardPosition from "../engine/board_position";
 import GameConstants from "../engine/constants";
 import RuneChess from "../engine/game";
+import { TeamColor } from "../engine/team";
 import DataDragon from "../riot/data_dragon";
 import AssetManager from "./asset_manager";
 import Display from "./display";
@@ -66,7 +67,21 @@ export class GameRenderer {
         for (let unit of this.game.board.allUnits()) {
             let pos = boardPosToScreenPos(unit.pos);
             let championIconAsset = this.iconAssetForChampion(unit.name);
-            this.display.context.drawImage(championIconAsset.image, pos.x, pos.y, cellSize, cellSize);
+            this.display.clipped(
+                () => {
+                    this.display.context.beginPath();
+                    this.display.circlePath(pos.plus(Vector2.pair(cellSize / 2)), cellSize / 2 - 5);
+                },
+                () => {
+                    this.display.context.fillStyle = "red";
+                    //this.display.context.fillRect(pos.x, pos.y, cellSize, cellSize);
+                    this.display.context.drawImage(championIconAsset.image, pos.x, pos.y, cellSize, cellSize);
+                }
+            );
+            let teamColor = { [TeamColor.Blue]: "blue", [TeamColor.Red]: "red", [TeamColor.Neutral]: "white" }[unit.teamColor];
+            this.display.draw(() => {
+                this.display.circlePath(pos.plus(Vector2.pair(cellSize / 2)), cellSize / 2 - 5);
+            }, {stroke: teamColor, lineWidth: 3});
         }
     }
 

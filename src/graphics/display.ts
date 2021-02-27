@@ -2,48 +2,19 @@ import { Canvas, CanvasGradient, CanvasRenderingContext2D, createCanvas } from "
 import { createWriteStream } from "fs";
 import Vector2 from "./vector2";
 
-type CanvasDrawStyle = string | CanvasGradient | CanvasPattern;
-
-interface CanvasStyleState {
-    fillStyle: CanvasDrawStyle;
-    strokeStyle: CanvasDrawStyle;
-    globalAlpha: number;
-    lineWidth: number;
-}
-
-class StyleStack {
-    private _stack: CanvasStyleState[];
-    context: CanvasRenderingContext2D;
-
-    constructor(context: CanvasRenderingContext2D) {
-        this.context = context;
-        this._stack = [];
-    }
-
-    push() {
-        this._stack.push({
-            fillStyle: this.context.fillStyle,
-            strokeStyle: this.context.strokeStyle,
-            globalAlpha: this.context.globalAlpha,
-            lineWidth: this.context.lineWidth,
-        });
-    }
-
-    pop() {
-        let styleState = this._stack.pop();
-
-    }
+interface DrawStyle {
+    fill?: string;
+    stroke?: string;
+    lineWidth?: number;
 }
 
 export default class Display {
     private _canvas: Canvas;
     private _context: CanvasRenderingContext2D;
-    private strokeStack: CanvasDrawStyle[];
 
     private constructor(canvas: Canvas) {
         this._canvas = canvas;
-        this._context = this._canvas.getContext("2d", { pixelFormat: "RGBA32" });
-        this.strokeStack = [];
+        this._context = this._canvas.getContext("2d", { pixelFormat: "RGBA32" });   
     }
 
     static create(width: number, height: number) {
@@ -68,6 +39,33 @@ export default class Display {
         this.context.save();
         this.context.fillStyle = color;
         this.context.fillRect(corner.x, corner.y, size.x, size.y);
+        this.context.restore();
+    }
+
+    circlePath(center: Vector2, radius: number) {
+        this.context.arc(center.x, center.y, radius, 0, Math.PI * 2);
+    }
+
+    draw(pathFunction: Function, style: DrawStyle) {
+        this.context.save();
+        this.context.fillStyle = style.fill || "black";
+        this.context.strokeStyle = style.stroke || "black";
+        this.context.lineWidth = style.lineWidth || 1;
+        this.context.beginPath();
+        pathFunction();
+        if (style.fill) {
+            this.context.fill();
+        }
+        if (style.stroke) {
+            this.context.stroke();
+        }
+    }
+
+    clipped(clipFunction: Function, drawFunction: Function) {
+        this.context.save();
+        clipFunction();
+        this.context.clip();
+        drawFunction();
         this.context.restore();
     }
 

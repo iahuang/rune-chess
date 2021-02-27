@@ -103,8 +103,9 @@ dist
 # TernJS port file
 .tern-port
 
+# runechess
+
 build
-
 test.png
-
 _cache
+config.json
