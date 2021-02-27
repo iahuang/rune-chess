@@ -1,4 +1,4 @@
-import ASCIIRenderer from "./ascii_render";
+import ASCIIRenderer from "./debug/ascii_render";
 import Board from "./board";
 import { Team, TeamColor } from "./team";
 import Champion from "./unit/champion/champion";

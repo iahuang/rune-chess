@@ -1,6 +1,8 @@
 import Discord from "discord.js";
 import { format } from "path";
+import { TeamColor } from "../engine/team";
 import { makeErrorEmbed, makeHelpEmbed } from "./embed";
+import Match from "./match";
 import { ArgumentFormat, ArgumentType, CommandParser, ParsedCommand } from "./parser";
 
 export class BotConfig {
@@ -29,17 +31,20 @@ export class RunechessBot extends Discord.Client {
     config: BotConfig;
     private commandHandlers: CommandHandlerTable;
 
+    ongoingMatches: Match[];
+
     constructor(params: BotConfig) {
         super();
         this.config = params;
         this.commandHandlers = {};
+        this.ongoingMatches = [];
 
         this.parser = new CommandParser(params.prefix);
         this.initDiscordEventHandlers();
         this.initCommandHandlers();
     }
 
-    onCommand(args: CommandHandlerArgs) {
+    registerCommand(args: CommandHandlerArgs) {
         this.commandHandlers[args.name] = {
             callback: args.callback,
             format: args.format,
@@ -76,8 +81,43 @@ export class RunechessBot extends Discord.Client {
         });
     }
 
+    hasOngoingMatchInChannel(channel: Discord.TextChannel) {
+        for (let match of this.ongoingMatches) {
+            if (match.channel.id === channel.id) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    getUserMatchInfo(user: Discord.User) {
+        /* Gets the match info for the given user. returns null if the user is not in game */
+        for (let match of this.ongoingMatches) {
+            if (match.hasUser(user)) {
+                return {
+                    match: match,
+                    teamColor: match.playerBlue.id === user.id ? TeamColor.Blue : TeamColor.Red,
+                };
+            }
+        }
+        return null;
+    }
+
+    isUserInMatch(user: Discord.User) {
+        return this.getUserMatchInfo(user) !== null;
+    }
+
+    startMatch(playerRed: Discord.User, playerBlue: Discord.User, inChannel: Discord.TextChannel) {
+        let match = new Match({
+            playerRed: playerRed,
+            playerBlue: playerBlue,
+            channel: inChannel,
+        });
+        this.ongoingMatches.push(match);
+    }
+
     private initCommandHandlers() {
-        this.onCommand({
+        this.registerCommand({
             name: "test",
             description: "a test command",
             format: new ArgumentFormat()
@@ -88,12 +128,48 @@ export class RunechessBot extends Discord.Client {
             },
         });
 
-        this.onCommand({
+        this.registerCommand({
+            name: "startmatch",
+            description: "Starts a Runechess match in the current channel",
+            format: new ArgumentFormat().add("player1", ArgumentType.User).add("player2", ArgumentType.User),
+            callback: (args, command) => {
+                let channel = command.message.channel;
+
+                if (!(channel instanceof Discord.TextChannel)) {
+                    channel.send(makeErrorEmbed("Cannot create match in this channel"));
+                    return;
+                }
+
+                if (this.hasOngoingMatchInChannel(channel)) {
+                    channel.send(makeErrorEmbed("There is already an ongoing match in this channel"));
+                    return;
+                }
+
+                let playerRed: Discord.User = args[0];
+                let playerBlue: Discord.User = args[1];
+
+                // validate users
+
+                if (playerRed.id === playerBlue.id) {
+                    channel.send(makeErrorEmbed("The two users must be different"));
+                    return;
+                }
+
+                if (this.isUserInMatch(playerRed) || this.isUserInMatch(playerBlue)) {
+                    channel.send(makeErrorEmbed("One or more of the given players is already in a match"));
+                    return;
+                }
+
+                this.startMatch(playerRed, playerBlue, channel);
+            },
+        });
+
+        this.registerCommand({
             name: "help",
             description: "displays this message",
             format: new ArgumentFormat(),
             callback: (args, command) => {
-                command.message.channel.send(makeHelpEmbed(this.commandHandlers))
+                command.message.channel.send(makeHelpEmbed(this.commandHandlers));
             },
         });
 

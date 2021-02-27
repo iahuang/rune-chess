@@ -1,9 +1,9 @@
 /* Used for debug-rendering the board */
 
-import Board from "./board";
-import GameConstants from "./constants";
+import Board from "../board";
+import GameConstants from "../constants";
 import child_process from "child_process";
-import BoardPosition from "./board_position";
+import BoardPosition from "../board_position";
 
 interface Config {
     cellWidth: number;
