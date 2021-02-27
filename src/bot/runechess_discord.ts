@@ -1,6 +1,6 @@
 import Discord from "discord.js";
 import { format } from "path";
-import { makeHelpEmbed } from "./embed";
+import { makeErrorEmbed, makeHelpEmbed } from "./embed";
 import { ArgumentFormat, ArgumentType, CommandParser, ParsedCommand } from "./parser";
 
 export class BotConfig {
@@ -59,7 +59,7 @@ export class RunechessBot extends Discord.Client {
                     try {
                         args = command.castArgs(handler.format);
                     } catch (err) {
-                        message.channel.send("Error: " + err.message);
+                        message.channel.send(makeErrorEmbed(err.message));
                     }
 
                     if (args) {

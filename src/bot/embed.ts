@@ -28,3 +28,8 @@ export function makeHelpEmbed(commandTable: CommandHandlerTable) {
     }
     return embed;
 }
+
+export function makeErrorEmbed(errorMessage: string) {
+    let embed = makeEmbedBase("Command Error");
+    return embed.setDescription(`> ${errorMessage}\nUse the help command for more information`);
+}
