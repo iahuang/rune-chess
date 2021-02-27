@@ -24,12 +24,12 @@ export interface Argument {
 }
 
 export class ArgumentFormat {
-    _argTypes: Argument[];
+    _args: Argument[];
     constructor() {
-        this._argTypes = [];
+        this._args = [];
     }
     add(name: string, type: ArgumentType) {
-        this._argTypes.push({
+        this._args.push({
             type: type,
             name: name,
             optional: false,
@@ -37,7 +37,7 @@ export class ArgumentFormat {
         return this;
     }
     addOptional(name: string, type: ArgumentType) {
-        this._argTypes.push({
+        this._args.push({
             type: type,
             name: name,
             optional: true,
@@ -60,13 +60,13 @@ export class ParsedCommand {
     castArgs(format: ArgumentFormat) {
         /* This is terrible code; please excuse */
 
-        if (this.rawArgs.length > format._argTypes.length) {
+        if (this.rawArgs.length > format._args.length) {
             throw new Error("Too many arguments");
         }
         let rawArgIndex = 0;
         let typedArgs: any[] = [];
         
-        for (let expectedArg of format._argTypes) {
+        for (let expectedArg of format._args) {
             let rawArg = this.rawArgs[rawArgIndex];
             if (rawArg === undefined) {
                 if (!expectedArg.optional) {

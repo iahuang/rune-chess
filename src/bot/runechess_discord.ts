@@ -1,5 +1,6 @@
 import Discord from "discord.js";
 import { format } from "path";
+import { makeHelpEmbed } from "./embed";
 import { ArgumentFormat, ArgumentType, CommandParser, ParsedCommand } from "./parser";
 
 export class BotConfig {
@@ -8,16 +9,25 @@ export class BotConfig {
 }
 
 type CommandCallback = (parsedArgs: any[], command: ParsedCommand) => void;
+export type CommandHandlerTable = { [cmd: string]: CommandHandler };
 
-interface CommandHandler {
+export interface CommandHandler {
     callback: CommandCallback;
     format: ArgumentFormat;
+    description: string;
+}
+
+interface CommandHandlerArgs {
+    name: string;
+    description: string;
+    format: ArgumentFormat;
+    callback: CommandCallback;
 }
 
 export class RunechessBot extends Discord.Client {
     parser: CommandParser;
     config: BotConfig;
-    private commandHandlers: { [cmd: string]: CommandHandler };
+    private commandHandlers: CommandHandlerTable;
 
     constructor(params: BotConfig) {
         super();
@@ -29,10 +39,11 @@ export class RunechessBot extends Discord.Client {
         this.initCommandHandlers();
     }
 
-    onCommand(command: string, format: ArgumentFormat, callback: CommandCallback) {
-        this.commandHandlers[command] = {
-            callback: callback,
-            format: format,
+    onCommand(args: CommandHandlerArgs) {
+        this.commandHandlers[args.name] = {
+            callback: args.callback,
+            format: args.format,
+            description: args.description,
         };
     }
 
@@ -66,15 +77,27 @@ export class RunechessBot extends Discord.Client {
     }
 
     private initCommandHandlers() {
-        this.onCommand(
-            "test",
-            new ArgumentFormat()
-                .add("string argument", ArgumentType.String)
-                .addOptional("user mention", ArgumentType.User),
-            (args) => {
+        this.onCommand({
+            name: "test",
+            description: "a test command",
+            format: new ArgumentFormat()
+                .add("some_string_argument", ArgumentType.String)
+                .addOptional("a_user", ArgumentType.User),
+            callback: (args) => {
                 console.log(args);
-            }
-        );
+            },
+        });
+
+        this.onCommand({
+            name: "help",
+            description: "displays this message",
+            format: new ArgumentFormat(),
+            callback: (args, command) => {
+                command.message.channel.send(makeHelpEmbed(this.commandHandlers))
+            },
+        });
+
+        //this.onCommand("help", new ArgumentFormat().addOptional("command", ArgumentType.String), (args, command) => {});
     }
 
     run() {
