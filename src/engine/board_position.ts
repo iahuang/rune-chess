@@ -1,4 +1,4 @@
-import GameConstants from "./constants";
+import Globals from "./constants";
 
 export default class BoardPosition {
     x: number;
@@ -23,7 +23,7 @@ export default class BoardPosition {
     }
 
     get inBounds() {
-        return this.x >= 0 && this.y >= 0 && this.x < GameConstants.boardSize && this.y <= GameConstants.boardSize;
+        return this.x >= 0 && this.y >= 0 && this.x < Globals.boardSize && this.y <= Globals.boardSize;
     }
 
     static at(x: number, y: number) {

@@ -2,7 +2,7 @@ import { Image, loadImage } from "canvas";
 import AssetCache from "./asset_cache";
 import fetch from "node-fetch";
 
-export default class AssetManager {
+export class AssetManager {
     private _assets: { [name: string]: ImageAsset };
     cache: AssetCache;
     assetsLoaded: number;
@@ -78,7 +78,7 @@ export default class AssetManager {
     }
 }
 
-class ImageAsset {
+export class ImageAsset {
     name: string;
     path: string;
     image: Image | null;

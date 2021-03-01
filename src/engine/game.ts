@@ -2,7 +2,7 @@ import ASCIIRenderer from "./debug/ascii_render";
 import Board from "./board";
 import { Team, TeamColor } from "./team";
 import Champion from "./unit/champion/champion";
-import { ChampionRegistry, championRegistryDefault } from "./unit/champion/champion_registry";
+import { ChampionRegistry } from "./unit/champion/champion_registry";
 import { randomItem } from "./util/rand";
 
 export default class RuneChess {
@@ -12,8 +12,6 @@ export default class RuneChess {
     teamRed: Team;
     teamBlue: Team;
     teamNeutral: Team;
-
-    championRegistry: ChampionRegistry;
 
     turn: TeamColor;
 
@@ -25,7 +23,6 @@ export default class RuneChess {
         this.teamBlue = new Team(TeamColor.Blue);
         this.teamNeutral = new Team(TeamColor.Neutral);
 
-        this.championRegistry = championRegistryDefault();
         this.turn = TeamColor.Neutral;
     }
 

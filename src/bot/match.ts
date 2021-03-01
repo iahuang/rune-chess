@@ -3,8 +3,8 @@ import RuneChess from "../engine/game";
 import { randomChar } from "../engine/util/rand";
 
 interface Params {
-    playerRed: Discord.User;
-    playerBlue: Discord.User;
+    playerRed: Discord.GuildMember;
+    playerBlue: Discord.GuildMember;
     channel: Discord.TextChannel;
 }
 
@@ -17,8 +17,8 @@ function generateID() {
 }
 
 export default class Match {
-    playerRed: Discord.User;
-    playerBlue: Discord.User;
+    playerRed: Discord.GuildMember;
+    playerBlue: Discord.GuildMember;
     channel: Discord.TextChannel;
     game: RuneChess;
     id: string;
@@ -35,7 +35,7 @@ export default class Match {
         this.game.begin();
     }
 
-    hasUser(user: Discord.User) {
+    hasUser(user: Discord.GuildMember) {
         return (this.playerBlue.id === user.id) || (this.playerRed.id === user.id);
     }
 }

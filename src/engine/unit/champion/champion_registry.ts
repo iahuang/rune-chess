@@ -29,7 +29,3 @@ export class ChampionRegistry {
         return Object.keys(this._registry);
     }
 }
-
-export function championRegistryDefault() {
-    return (new ChampionRegistry()).register("Diana", Diana);
-}

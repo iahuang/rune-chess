@@ -1,7 +1,8 @@
 import Discord from "discord.js";
 import { format } from "path";
 import { TeamColor } from "../engine/team";
-import { makeErrorEmbed, makeHelpEmbed } from "./embed";
+import { GameRenderer } from "../graphics/game_renderer";
+import { makeErrorEmbed, makeGameViewEmbed, makeHelpEmbed, makeMatchStartEmbed } from "./embed";
 import Match from "./match";
 import { ArgumentFormat, ArgumentType, CommandParser, ParsedCommand } from "./parser";
 
@@ -31,6 +32,8 @@ export class RunechessBot extends Discord.Client {
     config: BotConfig;
     private commandHandlers: CommandHandlerTable;
 
+    gameRenderer: GameRenderer;
+
     ongoingMatches: Match[];
 
     constructor(params: BotConfig) {
@@ -40,6 +43,13 @@ export class RunechessBot extends Discord.Client {
         this.ongoingMatches = [];
 
         this.parser = new CommandParser(params.prefix);
+        this.gameRenderer = new GameRenderer();
+        // start the discord handlers immediately after the game
+        // renderer / assets are finished loading
+        this.gameRenderer.init().then(() => this.init());
+    }
+
+    async init() {
         this.initDiscordEventHandlers();
         this.initCommandHandlers();
     }
@@ -90,7 +100,7 @@ export class RunechessBot extends Discord.Client {
         return false;
     }
 
-    getUserMatchInfo(user: Discord.User) {
+    getUserMatchInfo(user: Discord.GuildMember) {
         /* Gets the match info for the given user. returns null if the user is not in game */
         for (let match of this.ongoingMatches) {
             if (match.hasUser(user)) {
@@ -103,11 +113,11 @@ export class RunechessBot extends Discord.Client {
         return null;
     }
 
-    isUserInMatch(user: Discord.User) {
+    isUserInMatch(user: Discord.GuildMember) {
         return this.getUserMatchInfo(user) !== null;
     }
 
-    startMatch(playerRed: Discord.User, playerBlue: Discord.User, inChannel: Discord.TextChannel) {
+    startMatch(playerRed: Discord.GuildMember, playerBlue: Discord.GuildMember, inChannel: Discord.TextChannel) {
         let match = new Match({
             playerRed: playerRed,
             playerBlue: playerBlue,
@@ -115,6 +125,7 @@ export class RunechessBot extends Discord.Client {
         });
         this.ongoingMatches.push(match);
         match.begin();
+        return match;
     }
 
     private initCommandHandlers() {
@@ -146,8 +157,8 @@ export class RunechessBot extends Discord.Client {
                     return;
                 }
 
-                let playerRed: Discord.User = args[0];
-                let playerBlue: Discord.User = args[1];
+                let playerRed: Discord.GuildMember = args[0];
+                let playerBlue: Discord.GuildMember = args[1];
 
                 // validate users
 
@@ -161,7 +172,9 @@ export class RunechessBot extends Discord.Client {
                     return;
                 }
 
-                this.startMatch(playerRed, playerBlue, channel);
+                let match = this.startMatch(playerRed, playerBlue, channel);
+                channel.send(makeMatchStartEmbed(match));
+                channel.send(makeGameViewEmbed(this.gameRenderer, match));
             },
         });
 

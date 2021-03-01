@@ -1,7 +1,7 @@
 /* Used for debug-rendering the board */
 
 import Board from "../board";
-import GameConstants from "../constants";
+import Globals from "../constants";
 import child_process from "child_process";
 import BoardPosition from "../board_position";
 
@@ -50,7 +50,7 @@ export default class ASCIIRenderer {
     }
 
     private drawRowTopBottom() {
-        for (let x = 0; x < GameConstants.boardSize; x++) {
+        for (let x = 0; x < Globals.boardSize; x++) {
             this.print("+");
             for (let i = 0; i < this.config.cellWidth; i++) {
                 this.print("-");
@@ -62,12 +62,12 @@ export default class ASCIIRenderer {
 
     renderBoard(board: Board) {
         this.outputBuffer = "";
-        for (let row = 0; row < GameConstants.boardSize; row++) {
+        for (let row = 0; row < Globals.boardSize; row++) {
             this.drawRowTopBottom();
 
             for (let y = 0; y < this.config.cellHeight; y++) {
                 this.print("|");
-                for (let col = 0; col < GameConstants.boardSize; col++) {
+                for (let col = 0; col < Globals.boardSize; col++) {
                     let pos = BoardPosition.at(col, row);
                     let unit = board.getUnitAt(pos);
                     if (y == 0) {

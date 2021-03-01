@@ -1,5 +1,5 @@
 import BoardPosition from "./board_position";
-import GameConstants from "./constants";
+import Globals from "./constants";
 import RuneChess from "./game";
 import Unit from "./unit/unit";
 
@@ -11,7 +11,7 @@ export default class Board {
         this._board = [];
 
         // initialize board
-        for (let i = 0; i < GameConstants.boardSize * GameConstants.boardSize; i++) {
+        for (let i = 0; i < Globals.boardSize * Globals.boardSize; i++) {
             this._board.push(null);
         }
     }
@@ -25,7 +25,7 @@ export default class Board {
     }
 
     private _boardDataIndex(pos: BoardPosition) {
-        return pos.y * GameConstants.boardSize + pos.x;
+        return pos.y * Globals.boardSize + pos.x;
     }
 
     placeUnit(unit: Unit, pos: BoardPosition) {
