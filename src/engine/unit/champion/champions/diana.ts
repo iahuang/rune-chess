@@ -69,7 +69,7 @@ class ChampionDiana extends Champion {
         });
         this.name = "Diana";
         this.abilityQ = new DianaQ(this);
-        this.ultimate = new DianaUlt(this);
+        this.abilityR = new DianaUlt(this);
     }
 }
 

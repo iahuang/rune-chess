@@ -8,7 +8,7 @@ export default abstract class Champion extends Unit {
     abilityQ: BaseAbility = NoAbility(this);
     abilityW: BaseAbility = NoAbility(this);
     abilityE: BaseAbility = NoAbility(this);
-    ultimate: BaseAbility = NoAbility(this);
+    abilityR: BaseAbility = NoAbility(this);
 
     constructor(attributes: UnitAttributes) {
         super(attributes);
@@ -20,7 +20,7 @@ export default abstract class Champion extends Unit {
             [AbilityIdentifier.Q]: this.abilityQ,
             [AbilityIdentifier.W]: this.abilityW,
             [AbilityIdentifier.E]: this.abilityE,
-            [AbilityIdentifier.R]: this.ultimate,
+            [AbilityIdentifier.R]: this.abilityR,
             [AbilityIdentifier.None]: (()=>{throw new Error("cannot lookup ability with identifier None")})()
         }[identifier];
     }

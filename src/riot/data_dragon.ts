@@ -8,6 +8,7 @@ used by third-party developers."
 */
 
 import fetch from "node-fetch";
+import { AbilityIdentifier, BaseAbility } from "../engine/unit/champion/ability/base_ability";
 
 async function loadJSON(url: string) {
     let resp = await fetch(url);
@@ -39,5 +40,12 @@ export default class DataDragon {
 
     championSquareLink(championName: string) {
         return this.getVersionedCDN()+"img/champion/"+championName+".png";
+    }
+
+    abilityIconURL(ability: BaseAbility) {
+        let id = AbilityIdentifier[ability.identifier];
+        let championName = ability.caster.name;
+
+        return this.getVersionedCDN()+"img/spell/"+championName+id+".png";
     }
 }
