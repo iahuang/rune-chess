@@ -1,6 +1,7 @@
 import { CommandHandlerTable } from "./runechess_discord";
 
 import Discord from "discord.js";
+import Match from "./match";
 
 const EMBED_COLOR = "#ffd261";
 
@@ -32,4 +33,8 @@ export function makeHelpEmbed(commandTable: CommandHandlerTable) {
 export function makeErrorEmbed(errorMessage: string) {
     let embed = makeEmbedBase("Command Error");
     return embed.setDescription(`> ${errorMessage}\nUse the help command for more information`);
+}
+
+export function matchStartEmbed(match: Match) {
+    
 }

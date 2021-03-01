@@ -32,7 +32,7 @@ export default class Match {
     }
 
     begin() {
-        
+        this.game.begin();
     }
 
     hasUser(user: Discord.User) {

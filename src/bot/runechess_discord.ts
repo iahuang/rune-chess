@@ -114,6 +114,7 @@ export class RunechessBot extends Discord.Client {
             channel: inChannel,
         });
         this.ongoingMatches.push(match);
+        match.begin();
     }
 
     private initCommandHandlers() {
