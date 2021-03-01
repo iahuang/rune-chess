@@ -3,6 +3,7 @@ import Board from "./board";
 import { Team, TeamColor } from "./team";
 import Champion from "./unit/champion/champion";
 import { ChampionRegistry, championRegistryDefault } from "./unit/champion/champion_registry";
+import { randomItem } from "./util/rand";
 
 export default class RuneChess {
     board: Board;
@@ -14,6 +15,8 @@ export default class RuneChess {
 
     championRegistry: ChampionRegistry;
 
+    turn: TeamColor;
+
     constructor() {
         this.board = new Board();
         this.debugRenderer = new ASCIIRenderer({cellWidth: 12, cellHeight: 6});
@@ -23,10 +26,15 @@ export default class RuneChess {
         this.teamNeutral = new Team(TeamColor.Neutral);
 
         this.championRegistry = championRegistryDefault();
+        this.turn = TeamColor.Neutral;
     }
 
     assignTeam(champion: Champion, teamColor: TeamColor) {
         champion.teamColor = teamColor;
+    }
+
+    begin() {
+        this.turn = randomItem([TeamColor.Red, TeamColor.Blue]);
     }
 
     getTeamWithColor(color: TeamColor) {

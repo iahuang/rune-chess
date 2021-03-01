@@ -27,10 +27,22 @@ export default class Unit {
         this.unitType = UnitType.Other;
     }
 
-    applyStatusEffect(Effect: any, to: Unit) {
-        let effect = Effect(this, to);
-        to.statusEffects.push(effect);
+    applyStatusEffect(E: typeof StatusEffect, duration: number) {
+        let effect = new E(this, this, duration);
+        this.statusEffects.push(effect);
         effect.refreshEffect();
+        effect.onApply();
+    }
+
+    hasStatusEffect(E: typeof StatusEffect) {
+        // Checks to see whether a status effect is present on this unit, 
+        // returning its instance if so.
+        for (let effect of this.statusEffects) {
+            if (effect.constructor === E) {
+                return effect;
+            }
+        }
+        return null;
     }
 
     getTeam() {
@@ -70,6 +82,11 @@ export default class Unit {
         }
     }
 
+    heal(amount: number, source?: Unit) {
+        this.hp += amount;
+        this.hp = Math.min(this.hp, this.calculateMaxHP());
+    }
+
     percentageOfMaxHP(percent: number) {
         return percent*this.calculateMaxHP();
     }
@@ -88,5 +105,9 @@ export default class Unit {
 
     get isChampion() {
         return this.unitType === UnitType.Champion;
+    }
+
+    alliedTo(unit: Unit) {
+        return unit.teamColor === this.teamColor;
     }
 }

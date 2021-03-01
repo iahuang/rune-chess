@@ -37,7 +37,7 @@ export function applyAOEDamage(effect: AOEDamage) {
     for (let x = at.x - radius; x <= at.x + radius; x++) {
         for (let y = at.y - radius; y <= at.y + radius; y++) {
             let pos = BoardPosition.at(x, y);
-            if (!pos.isValid) {
+            if (!pos.inBounds) {
                 continue;
             }
 

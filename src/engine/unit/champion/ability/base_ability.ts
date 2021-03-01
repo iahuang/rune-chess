@@ -14,6 +14,7 @@ export abstract class BaseAbility {
     abstract identifier: AbilityIdentifier;
     abstract name: string;
     abstract targetType: TargetType;
+    maxRange: number | null = null;
     caster: Unit;
 
     constructor(caster: Unit) {
@@ -24,7 +25,7 @@ export abstract class BaseAbility {
         return this.identifier === AbilityIdentifier.R;
     }
 
-    isValidWithTarget(target: AbilityTarget) {
+    _isValidWithTarget(target: AbilityTarget) {
         if (this.targetType === TargetType.None) {
             return target.hasNoTarget;
         }
@@ -40,11 +41,7 @@ export abstract class BaseAbility {
         return false;
     }
 
-    abstract _onCast(target: AbilityTarget): void;
-
-    onHitUnit(unit: Unit) {
-        
-    }
+    abstract onCast(target: AbilityTarget): void;
 
     canAffect(unit: Unit, mask: AbilityEffectMask) {
         if (mask.allyChampions && unit.isChampion && unit.teamColor === this.caster.teamColor) {
@@ -73,7 +70,7 @@ class _NoAbility extends BaseAbility {
     identifier = AbilityIdentifier.None;
     targetType = TargetType.None
 
-    _onCast(target: AbilityTarget) {
+    onCast(target: AbilityTarget) {
 
     }
 }
@@ -117,6 +114,14 @@ export class AbilityEffectMask {
 
     allowSelfTarget() {
         this.self = true;
+        return this;
+    }
+
+    allowAll() {
+        this.enemyChampions = true;
+        this.enemyMinions = true;
+        this.allyChampions = true;
+        this.allyMinions = true;
         return this;
     }
 }

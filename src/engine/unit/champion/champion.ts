@@ -28,10 +28,10 @@ export default abstract class Champion extends Unit {
     castAbility(which: AbilityIdentifier, target: AbilityTarget) {
         let ability = this.getAbilityByIdentifier(which);
 
-        if (!ability.isValidWithTarget(target)) {
+        if (!ability._isValidWithTarget(target)) {
             throw new Error("cannot cast ability onto target of type "+target.targetType);
         }
 
-        ability._onCast(target);
+        ability.onCast(target);
     }
 }

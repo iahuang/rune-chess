@@ -6,25 +6,21 @@ import { AbilityEffectMask, BaseAbility, TargetType } from "./base_ability";
 
 export abstract class LocationTargetedAbility extends BaseAbility {
     targetType = TargetType.Location;
-    abstract collidesWith: AbilityEffectMask;
 
     isLocationValid(target: BoardPosition) {
-        return true;
+        if (this.maxRange !== null) {
+            return BoardPosition.withinSquare(this.caster.pos, target, this.maxRange);
+        }
+        return true;    
     }
 
-    isValidWithTarget(target: AbilityTarget) {
-        if (super.isValidWithTarget(target)) {
+    _isValidWithTarget(target: AbilityTarget) {
+        if (super._isValidWithTarget(target)) {
             return this.isLocationValid(target.location!);
         }
         return false;
     }
 
-    _onCast(target: AbilityTarget) {
-        let unit = this.caster.board.getUnitAt(target.location!);
-        if (unit) {
-            if (this.canAffect(unit, this.collidesWith)) {
-                this.onHitUnit(unit);
-            }
-        }
+    onCast(target: AbilityTarget) {
     }
 }

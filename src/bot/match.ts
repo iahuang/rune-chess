@@ -1,6 +1,6 @@
 import Discord from "discord.js";
 import RuneChess from "../engine/game";
-import { randomItem } from "../engine/util/rand";
+import { randomChar } from "../engine/util/rand";
 
 interface Params {
     playerRed: Discord.User;
@@ -11,7 +11,7 @@ interface Params {
 function generateID() {
     let id = "";
     for (let i=0; i<8; i++) {
-        id+=randomItem("ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890")
+        id+=randomChar("ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890")
     }
     return id;
 }

@@ -27,7 +27,7 @@ class DianaQ extends LocationTargetedAbility {
 
     onHitUnit(hit: Unit) {
         hit.takeDamage(90, this.caster, DamageType.Magic);
-        hit.applyStatusEffect(MoonlightDebuff, hit);
+        hit.applyStatusEffect(MoonlightDebuff, 1);
     }
 }
 
@@ -35,7 +35,7 @@ class DianaUlt extends SelfTargetedAbility {
     name = "Moonfall";
     identifier = AbilityIdentifier.R;
 
-    onUse() {
+    onCast() {
         applyAOEDamage({
             sourceAbility: this,
             origin: this.caster.pos,

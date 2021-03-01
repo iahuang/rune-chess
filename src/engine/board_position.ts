@@ -9,16 +9,20 @@ export default class BoardPosition {
         this.y = y;
     }
 
-    directlyAdjacent() {
+    directlyAdjacentSquares() {
         return [
             new BoardPosition(this.x - 1, this.y),
             new BoardPosition(this.x + 1, this.y),
             new BoardPosition(this.x, this.y - 1),
             new BoardPosition(this.x, this.y + 1),
-        ].filter((pos) => pos.isValid);
+        ].filter((pos) => pos.inBounds);
     }
 
-    get isValid() {
+    directlyAdjacentTo(pos: BoardPosition) {
+        return (Math.abs(pos.x-this.y)===1) !== (Math.abs(pos.y-this.y)===1);
+    }
+
+    get inBounds() {
         return this.x >= 0 && this.y >= 0 && this.x < GameConstants.boardSize && this.y <= GameConstants.boardSize;
     }
 
@@ -33,6 +37,10 @@ export default class BoardPosition {
 
     isEqual(to: BoardPosition) {
         return this.x === to.x && this.y === to.y;
+    }
+
+    offsetBy(pos: BoardPosition) {
+        return new BoardPosition(pos.x+this.x, pos.y+this.y);
     }
 
     static withinSquare(center: BoardPosition, pos: BoardPosition, radius: number) {
