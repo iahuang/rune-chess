@@ -2,6 +2,7 @@ import Board from "../board";
 import BoardPosition from "../board_position";
 import { calculateDamageTaken, DamageType } from "../damage";
 import { StatusEffect } from "../status_effect";
+import EffectGrievousWounds from "../status_effects/grevious_wounds";
 import { Team, TeamColor } from "../team";
 import UnitAttributes from "./unit_attributes";
 import UnitType from "./unit_type";
@@ -83,7 +84,14 @@ export default class Unit {
     }
 
     heal(amount: number, source?: Unit) {
-        this.hp += amount;
+        let healingReduction = 1;
+        let grievous = this.hasStatusEffect(EffectGrievousWounds);
+        if (grievous) {
+            healingReduction = (grievous as EffectGrievousWounds).healingReduction;
+        }
+
+        this.hp += amount*healingReduction;
+
         this.hp = Math.min(this.hp, this.calculateMaxHP());
     }
 
