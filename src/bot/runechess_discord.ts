@@ -1,5 +1,4 @@
 import Discord from "discord.js";
-import { format } from "path";
 import { TeamColor } from "../engine/team";
 import { GameRenderer } from "../graphics/game_renderer";
 import { makeErrorEmbed, makeGameViewEmbed, makeHelpEmbed, makeMatchStartEmbed } from "./embed";
@@ -12,10 +11,26 @@ export class BotConfig {
 }
 
 type CommandCallback = (parsedArgs: any[], command: ParsedCommand) => void;
+
+interface GameCommandCallInfo {
+    parsedArgs: any[];
+    command: ParsedCommand;
+    match: Match;
+    team: TeamColor;
+}
+
+type GameCommandCallback = (info: GameCommandCallInfo) => void;
 export type CommandHandlerTable = { [cmd: string]: CommandHandler };
+export type GameCommandHandlerTable = { [cmd: string]: GameCommandHandler };
 
 export interface CommandHandler {
     callback: CommandCallback;
+    format: ArgumentFormat;
+    description: string;
+}
+
+export interface GameCommandHandler {
+    callback: GameCommandCallback;
     format: ArgumentFormat;
     description: string;
 }
@@ -27,10 +42,18 @@ interface CommandHandlerArgs {
     callback: CommandCallback;
 }
 
+interface GameCommandHandlerArgs {
+    name: string;
+    description: string;
+    format: ArgumentFormat;
+    callback: GameCommandCallback;
+}
+
 export class RunechessBot extends Discord.Client {
     parser: CommandParser;
     config: BotConfig;
     private commandHandlers: CommandHandlerTable;
+    private gameCommandHandlers: GameCommandHandlerTable;
 
     gameRenderer: GameRenderer;
 
@@ -40,6 +63,7 @@ export class RunechessBot extends Discord.Client {
         super();
         this.config = params;
         this.commandHandlers = {};
+        this.gameCommandHandlers = {};
         this.ongoingMatches = [];
 
         this.parser = new CommandParser(params.prefix);
@@ -62,6 +86,14 @@ export class RunechessBot extends Discord.Client {
         };
     }
 
+    registerGameCommand(args: GameCommandHandlerArgs) {
+        this.gameCommandHandlers[args.name] = {
+            callback: args.callback,
+            format: args.format,
+            description: args.description,
+        };
+    }
+
     private initDiscordEventHandlers() {
         this.on("message", (message) => {
             let content = message.content;
@@ -75,13 +107,48 @@ export class RunechessBot extends Discord.Client {
                         args = command.castArgs(handler.format);
                     } catch (err) {
                         message.channel.send(makeErrorEmbed(err.message));
+                        return;
                     }
 
                     if (args) {
                         handler.callback(args, command);
                     }
-                } else {
-                    // command does not exist
+                    return;
+                }
+
+                let gcHandler = this.gameCommandHandlers[command.command];
+                if (gcHandler !== undefined) {
+                    let args;
+                    try {
+                        args = command.castArgs(gcHandler.format);
+                    } catch (err) {
+                        message.channel.send(makeErrorEmbed(err.message));
+                        return;
+                    }
+
+                    if (!(message.member)) {
+                        message.channel.send(makeErrorEmbed("Invalid user"));
+                        return;
+                    }
+
+                    let userMatch = this.getUserMatchInfo(message.member);
+
+                    if (!userMatch) {
+                        message.channel.send(makeErrorEmbed("This command can only be sent while in-game"));
+                        return;
+                    }
+
+                    if (userMatch.match.game.turn !== userMatch.teamColor) {
+                        message.channel.send(makeErrorEmbed("It is not your turn!"));
+                        return;
+                    }
+
+                    gcHandler.callback({
+                        parsedArgs: args,
+                        command: command,
+                        match: userMatch.match,
+                        team: userMatch.teamColor,
+                    });
                 }
             }
         });
@@ -175,6 +242,15 @@ export class RunechessBot extends Discord.Client {
                 let match = this.startMatch(playerRed, playerBlue, channel);
                 channel.send(makeMatchStartEmbed(match));
                 channel.send(makeGameViewEmbed(this.gameRenderer, match));
+            },
+        });
+
+        this.registerGameCommand({
+            name: "move",
+            description: "Moves a piece to the specified square",
+            format: new ArgumentFormat().add("piece", ArgumentType.String).add("to", ArgumentType.BoardPos),
+            callback: (info) => {
+                
             },
         });
 
