@@ -1,7 +1,8 @@
 import Discord from "discord.js";
 import { TeamColor } from "../engine/team";
 import { GameRenderer } from "../graphics/game_renderer";
-import { makeErrorEmbed, makeGameViewEmbed, makeHelpEmbed, makeMatchStartEmbed } from "./embed";
+import { startMatchCommand } from "./commands/start_match";
+import { makeErrorEmbed, makeHelpEmbed } from "./embed";
 import Match from "./match";
 import { ArgumentFormat, ArgumentType, CommandParser, ParsedCommand } from "./parser";
 
@@ -212,36 +213,7 @@ export class RunechessBot extends Discord.Client {
             description: "Starts a Runechess match in the current channel",
             format: new ArgumentFormat().add("player1", ArgumentType.User).add("player2", ArgumentType.User),
             callback: (args, command) => {
-                let channel = command.message.channel;
-
-                if (!(channel instanceof Discord.TextChannel)) {
-                    channel.send(makeErrorEmbed("Cannot create match in this channel"));
-                    return;
-                }
-
-                if (this.hasOngoingMatchInChannel(channel)) {
-                    channel.send(makeErrorEmbed("There is already an ongoing match in this channel"));
-                    return;
-                }
-
-                let playerRed: Discord.GuildMember = args[0];
-                let playerBlue: Discord.GuildMember = args[1];
-
-                // validate users
-
-                if (playerRed.id === playerBlue.id) {
-                    channel.send(makeErrorEmbed("The two users must be different"));
-                    return;
-                }
-
-                if (this.isUserInMatch(playerRed) || this.isUserInMatch(playerBlue)) {
-                    channel.send(makeErrorEmbed("One or more of the given players is already in a match"));
-                    return;
-                }
-
-                let match = this.startMatch(playerRed, playerBlue, channel);
-                channel.send(makeMatchStartEmbed(match));
-                channel.send(makeGameViewEmbed(this.gameRenderer, match));
+                startMatchCommand(this, args, command);
             },
         });
 
