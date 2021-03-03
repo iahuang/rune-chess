@@ -80,6 +80,7 @@ export function makeMatchListingEmbed(bot: RunechessBot, forGuildId: string) {
 }
 
 export function makeDebugInfoEmbed(message: string) {
+    message = message || "<no output>";
     let embed = makeEmbedBase("Debug Command");
     if (message.length > 2000) {
         message = message.substring(0, 2000);

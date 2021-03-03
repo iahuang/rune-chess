@@ -3,7 +3,7 @@ import Board from "../engine/board";
 import BoardPosition from "../engine/board_position";
 import Globals from "../engine/constants";
 import Champion from "../engine/unit/champion/champion";
-import { makeErrorEmbed } from "./embed";
+import { makeErrorEmbed, makeGameViewEmbed } from "./embed";
 import { ArgumentFormat, ArgumentType } from "./parser";
 import { GameCommandCallInfo, RunechessBot } from "./runechess_discord";
 
@@ -58,7 +58,7 @@ export function parseAsCoordinate(arg: string) {
         throw new Error("Provided argument is not a coordinate");
     }
     let x = "abcdefghijklmop".indexOf(arg[0]);
-    let y = Number.parseInt(arg[1])-1;
+    let y = Number.parseInt(arg[1]) - 1;
 
     let pos = new BoardPosition(x, y);
 
@@ -99,7 +99,6 @@ export function moveCommand(bot: RunechessBot, info: GameCommandCallInfo) {
     info.match.game.board.moveUnit(target, to);
 }
 
-
 export function registerGameCommands(bot: RunechessBot) {
     bot.registerGameCommand({
         name: "move",
@@ -107,6 +106,7 @@ export function registerGameCommands(bot: RunechessBot) {
         format: new ArgumentFormat().add("piece", ArgumentType.String).add("to", ArgumentType.String),
         callback: (info) => {
             moveCommand(bot, info);
+            info.command.message.channel.send(makeGameViewEmbed(bot.gameRenderer, info.match));
         },
     });
 }

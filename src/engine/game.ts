@@ -4,9 +4,11 @@ import { Team, TeamColor } from "./team";
 import Unit from "./unit/champion/champion";
 import { ChampionRegistry } from "./unit/champion/champion_registry";
 import { randomItem } from "./util/rand";
-import {createMinion, Minion} from "./unit/minion";
+import { createMinion, Minion } from "./unit/minion";
 import BoardPosition from "./board_position";
 import Champion from "./unit/champion/champion";
+import { ChampionDiana } from "./unit/champion/champions/diana";
+import { ChampionSenna } from "./unit/champion/champions/senna";
 
 export default class RuneChess {
     board: Board;
@@ -20,8 +22,8 @@ export default class RuneChess {
 
     constructor() {
         this.board = new Board();
-        this.debugRenderer = new ASCIIRenderer({cellWidth: 12, cellHeight: 6});
-        
+        this.debugRenderer = new ASCIIRenderer({ cellWidth: 12, cellHeight: 6 });
+
         this.teamRed = new Team(TeamColor.Red);
         this.teamBlue = new Team(TeamColor.Blue);
         this.teamNeutral = new Team(TeamColor.Neutral);
@@ -39,9 +41,11 @@ export default class RuneChess {
     }
 
     setDebugLayout() {
-        for (let i=0; i<8; i++) {
-            this.placeUnit(createMinion() as Unit, new BoardPosition(i, 0), TeamColor.Red);
-            this.placeUnit(createMinion() as Unit, new BoardPosition(i, 7), TeamColor.Blue);
+        this.placeUnit(new ChampionDiana(), new BoardPosition(0, 0), TeamColor.Red);
+        this.placeUnit(new ChampionSenna(), new BoardPosition(0, 7), TeamColor.Blue);
+        for (let i = 0; i < 8; i++) {
+            this.placeUnit(createMinion() as Unit, new BoardPosition(i, 1), TeamColor.Red);
+            this.placeUnit(createMinion() as Unit, new BoardPosition(i, 6), TeamColor.Blue);
         }
     }
 
@@ -53,7 +57,7 @@ export default class RuneChess {
         return {
             [TeamColor.Red]: this.teamRed,
             [TeamColor.Blue]: this.teamBlue,
-            [TeamColor.Neutral]: this.teamNeutral
+            [TeamColor.Neutral]: this.teamNeutral,
         }[color];
     }
 
