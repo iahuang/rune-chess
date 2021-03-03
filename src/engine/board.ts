@@ -1,18 +1,22 @@
 import BoardPosition from "./board_position";
 import Globals from "./constants";
+import { Effect } from "./effect";
 import RuneChess from "./game";
+import { TeamColor } from "./team";
 import Unit from "./unit/unit";
 
 export default class Board {
-    private _board: (Unit | null)[]; // flattened 2d array, row-first
+    private _units: (Unit | null)[]; // flattened 2d array, row-first
     private _game?: RuneChess;
+    effects: Effect[];
 
     constructor() {
-        this._board = [];
+        this._units = [];
+        this.effects = [];
 
         // initialize board
         for (let i = 0; i < Globals.boardSize * Globals.boardSize; i++) {
-            this._board.push(null);
+            this._units.push(null);
         }
     }
 
@@ -34,7 +38,7 @@ export default class Board {
         if (this.getUnitAt(pos)) {
             throw new Error("There is already a piece here");
         }
-        this._board[this._boardDataIndex(pos)] = unit;
+        this._units[this._boardDataIndex(pos)] = unit;
     }
 
     popUnit(pos: BoardPosition) {
@@ -47,7 +51,7 @@ export default class Board {
         }
 
         let unit = this.getUnitAt(pos);
-        this._board[this._boardDataIndex(pos)] = null;
+        this._units[this._boardDataIndex(pos)] = null;
         return unit;
     }
 
@@ -62,12 +66,25 @@ export default class Board {
     }
 
     getUnitAt(pos: BoardPosition) {
-        return this._board[this._boardDataIndex(pos)];
+        return this._units[this._boardDataIndex(pos)];
     }
 
     allUnits() {
-        return this._board.filter(u=>u!==null) as Unit[];
+        return this._units.filter((u) => u !== null) as Unit[];
     }
 
-    
+    createEffect(E: new () => Effect, at: BoardPosition, team = TeamColor.Neutral) {
+        let effect = new E();
+        effect.pos = at;
+        effect.team = team;
+
+        this.effects.push(effect);
+
+        effect.onPlace();
+    }
+
+    removeEffect(effect: Effect) {
+        effect.onRemove();
+        this.effects = this.effects.filter(e=>e!==effect);
+    }
 }
