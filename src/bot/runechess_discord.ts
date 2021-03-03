@@ -156,7 +156,7 @@ export class RunechessBot extends Discord.Client {
                         return;
                     }
 
-                    if (userMatch.match.game.turn !== userMatch.teamColor) {
+                    if (userMatch.match.game.turn !== userMatch.teamColor && !this.config.debug) {
                         message.channel.send(makeErrorEmbed("It is not your turn!"));
                         return;
                     }
