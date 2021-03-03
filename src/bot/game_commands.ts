@@ -99,6 +99,7 @@ export function moveCommand(bot: RunechessBot, info: GameCommandCallInfo) {
     info.match.game.board.moveUnit(target, to);
 }
 
+
 export function registerGameCommands(bot: RunechessBot) {
     bot.registerGameCommand({
         name: "move",
