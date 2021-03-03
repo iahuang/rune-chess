@@ -82,6 +82,11 @@ export function moveCommand(bot: RunechessBot, info: GameCommandCallInfo) {
             return;
         }
 
+        if (info.team !== target.teamColor) {
+            channel.send(makeErrorEmbed("You can only move allied units"));
+            return;
+        }
+
         if (!BoardPosition.withinSquare(target.pos, to, 1) || to.equals(target.pos)) {
             channel.send(makeErrorEmbed("You can only move one square at a time"));
             return;
