@@ -1,7 +1,6 @@
 import Champion from "./champion";
-import Diana from "./champions/diana";
 
-type ChampionConstructor = ()=>Champion;
+type ChampionConstructor = new ()=>Champion;
 
 export class ChampionRegistry {
     _registry: {[name: string]: ChampionConstructor};

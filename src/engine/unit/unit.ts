@@ -28,7 +28,7 @@ export default class Unit {
         this.unitType = UnitType.Other;
     }
 
-    applyStatusEffect(E: typeof StatusEffect, duration: number) {
+    applyStatusEffect(E: new (source: Unit, user: Unit, duration: number) => StatusEffect, duration: number) {
         let effect = new E(this, this, duration);
         this.statusEffects.push(effect);
         effect.refreshEffect();
@@ -36,7 +36,7 @@ export default class Unit {
     }
 
     hasStatusEffect(E: typeof StatusEffect) {
-        // Checks to see whether a status effect is present on this unit, 
+        // Checks to see whether a status effect is present on this unit,
         // returning its instance if so.
         for (let effect of this.statusEffects) {
             if (effect.constructor === E) {
@@ -90,13 +90,13 @@ export default class Unit {
             healingReduction = (grievous as EffectGrievousWounds).healingReduction;
         }
 
-        this.hp += amount*healingReduction;
+        this.hp += amount * healingReduction;
 
         this.hp = Math.min(this.hp, this.calculateMaxHP());
     }
 
     percentageOfMaxHP(percent: number) {
-        return percent*this.calculateMaxHP();
+        return percent * this.calculateMaxHP();
     }
 
     dealDamage(amount: number, to: Unit, type: DamageType) {

@@ -41,7 +41,7 @@ class SennaQ extends UnitTargetedAbility {
     }
 }
 
-class ChampionSenna extends Champion {
+export class ChampionSenna extends Champion {
     constructor() {
         super({
             maxHP: 816,

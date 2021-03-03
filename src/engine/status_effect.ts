@@ -7,10 +7,10 @@ export enum EffectType {
 }
 
 
-export class StatusEffect {
-    name: string = "generic_effect";
-    description: string = "null";
-    type: EffectType = EffectType.Hidden;
+export abstract class StatusEffect {
+    abstract name: string;
+    abstract description: string;
+    abstract type: EffectType;
     effectDuration: number;
     
     source: Unit;   // the one who gave the status effect

@@ -15,7 +15,7 @@ class MalzaharQ extends LocationTargetedAbility {
     }
 }
 
-class ChampionMalzahar extends Champion {
+export class ChampionMalzahar extends Champion {
     constructor() {
         super({
             maxHP: 880,

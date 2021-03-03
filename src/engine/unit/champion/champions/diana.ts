@@ -56,7 +56,7 @@ class MoonlightDebuff extends StatusEffect {
     effectDuration = 1;
 }
 
-class ChampionDiana extends Champion {
+export class ChampionDiana extends Champion {
     constructor() {
         super({
             maxHP: 945,
@@ -71,8 +71,4 @@ class ChampionDiana extends Champion {
         this.abilityQ = new DianaQ(this);
         this.abilityR = new DianaUlt(this);
     }
-}
-
-export default function Diana() {
-    return new ChampionDiana();
 }
