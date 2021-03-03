@@ -42,8 +42,9 @@ export class GameRenderer {
             } else {
                 unitIconAsset = this.assetManager.getAsset("minion.blue")
             }
+            
         } else {
-            throw new Error("");
+            throw new Error("Cannot draw unit of unknown type");
         }
         this.display.clipped(
             () => {
@@ -61,6 +62,7 @@ export class GameRenderer {
         ];
         this.display.draw(
             () => {
+                //console.log(TeamColor[unit.teamColor], JSON.stringify(unit.pos))
                 this.display.circlePath(pos.plus(Vector2.pair(cellSize / 2)), cellSize / 2 - 5);
             },
             { stroke: teamColor, lineWidth: 3 }
@@ -91,6 +93,8 @@ export class GameRenderer {
         for (let unit of game.board.allUnits()) {
             this.drawUnitIcon(unit);
         }
+
+        //console.log(game.board.allUnits());
     }
 
     getCanvasBuffer() {

@@ -1,7 +1,7 @@
 import Unit from "./unit";
 import UnitType from "./unit_type";
 
-class Minion extends Unit {
+export class Minion extends Unit {
     constructor() {
         super({
             maxHP: 100,
@@ -17,6 +17,6 @@ class Minion extends Unit {
     }
 }
 
-export default function createMinion() {
+export function createMinion() {
     return new Minion();
 }

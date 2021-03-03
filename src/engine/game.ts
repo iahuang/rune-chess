@@ -1,9 +1,12 @@
 import ASCIIRenderer from "./debug/ascii_render";
 import Board from "./board";
 import { Team, TeamColor } from "./team";
-import Champion from "./unit/champion/champion";
+import Unit from "./unit/champion/champion";
 import { ChampionRegistry } from "./unit/champion/champion_registry";
 import { randomItem } from "./util/rand";
+import {createMinion, Minion} from "./unit/minion";
+import BoardPosition from "./board_position";
+import Champion from "./unit/champion/champion";
 
 export default class RuneChess {
     board: Board;
@@ -26,8 +29,20 @@ export default class RuneChess {
         this.turn = TeamColor.Neutral;
     }
 
-    assignTeam(champion: Champion, teamColor: TeamColor) {
-        champion.teamColor = teamColor;
+    assignTeam(unit: Unit, teamColor: TeamColor) {
+        unit.teamColor = teamColor;
+    }
+
+    placeUnit(unit: Unit, pos: BoardPosition, teamColor: TeamColor) {
+        this.board.placeUnit(unit, pos);
+        this.assignTeam(unit, teamColor);
+    }
+
+    setDebugLayout() {
+        for (let i=0; i<8; i++) {
+            this.placeUnit(createMinion() as Unit, new BoardPosition(i, 0), TeamColor.Red);
+            this.placeUnit(createMinion() as Unit, new BoardPosition(i, 7), TeamColor.Blue);
+        }
     }
 
     begin() {

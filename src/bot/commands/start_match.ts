@@ -32,6 +32,7 @@ export function startMatchCommand(bot: RunechessBot, args: any[], command: Parse
     }
 
     let match = bot.startMatch(playerRed, playerBlue, channel);
+    match.game.setDebugLayout();
     channel.send(makeMatchStartEmbed(match));
     channel.send(makeGameViewEmbed(bot.gameRenderer, match));
 }

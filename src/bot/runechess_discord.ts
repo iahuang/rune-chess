@@ -2,25 +2,27 @@ import Discord from "discord.js";
 import { TeamColor } from "../engine/team";
 import { GameRenderer } from "../graphics/game_renderer";
 import { startMatchCommand } from "./commands/start_match";
-import { makeErrorEmbed, makeHelpEmbed } from "./embed";
+import { makeDebugInfoEmbed, makeErrorEmbed, makeHelpEmbed, makeMatchListingEmbed } from "./embed";
+import { registerGameCommands } from "./game_commands";
 import Match from "./match";
 import { ArgumentFormat, ArgumentType, CommandParser, ParsedCommand } from "./parser";
 
 export class BotConfig {
     prefix = ".";
     token = "your_token_goes_here";
+    debug = true;
 }
 
-type CommandCallback = (parsedArgs: any[], command: ParsedCommand) => void;
+export type CommandCallback = (parsedArgs: any[], command: ParsedCommand) => void;
 
-interface GameCommandCallInfo {
+export interface GameCommandCallInfo {
     parsedArgs: any[];
     command: ParsedCommand;
     match: Match;
     team: TeamColor;
 }
 
-type GameCommandCallback = (info: GameCommandCallInfo) => void;
+export type GameCommandCallback = (info: GameCommandCallInfo) => void;
 export type CommandHandlerTable = { [cmd: string]: CommandHandler };
 export type GameCommandHandlerTable = { [cmd: string]: GameCommandHandler };
 
@@ -36,14 +38,14 @@ export interface GameCommandHandler {
     description: string;
 }
 
-interface CommandHandlerArgs {
+export interface CommandHandlerArgs {
     name: string;
     description: string;
     format: ArgumentFormat;
     callback: CommandCallback;
 }
 
-interface GameCommandHandlerArgs {
+export interface GameCommandHandlerArgs {
     name: string;
     description: string;
     format: ArgumentFormat;
@@ -98,6 +100,21 @@ export class RunechessBot extends Discord.Client {
     private initDiscordEventHandlers() {
         this.on("message", (message) => {
             let content = message.content;
+
+            if (this.config.debug) {
+                if (content.startsWith(this.config.prefix + "debug")) {
+                    let code = content.substring((this.config.prefix + "debug").length);
+                    let output: string;
+                    try {
+                        output = eval(code);
+                    } catch (err) {
+                        output = err.toString();
+                    }
+                    message.channel.send(makeDebugInfoEmbed(output));
+                    return;
+                }
+            }
+
             if (this.parser.isCommand(content)) {
                 let command = this.parser.parse(message);
 
@@ -127,7 +144,7 @@ export class RunechessBot extends Discord.Client {
                         return;
                     }
 
-                    if (!(message.member)) {
+                    if (!message.member) {
                         message.channel.send(makeErrorEmbed("Invalid user"));
                         return;
                     }
@@ -217,15 +234,6 @@ export class RunechessBot extends Discord.Client {
             },
         });
 
-        this.registerGameCommand({
-            name: "move",
-            description: "Moves a piece to the specified square",
-            format: new ArgumentFormat().add("piece", ArgumentType.String).add("to", ArgumentType.BoardPos),
-            callback: (info) => {
-                
-            },
-        });
-
         this.registerCommand({
             name: "help",
             description: "displays this message",
@@ -235,10 +243,32 @@ export class RunechessBot extends Discord.Client {
             },
         });
 
+        this.registerCommand({
+            name: "matches",
+            description: "Lists the current matches in this server",
+            format: new ArgumentFormat(),
+            callback: (args, command) => {
+                command.message.channel.send(makeMatchListingEmbed(this, command.message.guild!.id));
+            },
+        });
+
+        this.registerCommand({
+            name: "debug_stop",
+            description: "Stops all matches",
+            format: new ArgumentFormat(),
+            callback: () => {
+                this.ongoingMatches = [];
+            },
+        });
+
+        registerGameCommands(this);
+
         //this.onCommand("help", new ArgumentFormat().addOptional("command", ArgumentType.String), (args, command) => {});
     }
 
     run() {
+        if (this.config.debug) console.log("[Runechess-Discord] Starting in DEBUG mode...");
+
         this.login(this.config.token);
     }
 }

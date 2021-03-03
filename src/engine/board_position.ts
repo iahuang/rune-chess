@@ -35,7 +35,7 @@ export default class BoardPosition {
         return letters[this.x] + (this.y + 1);
     }
 
-    isEqual(to: BoardPosition) {
+    equals(to: BoardPosition) {
         return this.x === to.x && this.y === to.y;
     }
 

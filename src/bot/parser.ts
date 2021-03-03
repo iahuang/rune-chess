@@ -12,7 +12,6 @@ export class ParseError {
 
 export enum ArgumentType {
     User,
-    BoardPos,
     Number,
     String,
 }
@@ -25,8 +24,10 @@ export interface Argument {
 
 export class ArgumentFormat {
     _args: Argument[];
+    _none: boolean;
     constructor() {
         this._args = [];
+        this._none = false;
     }
     add(name: string, type: ArgumentType) {
         this._args.push({
@@ -34,6 +35,7 @@ export class ArgumentFormat {
             name: name,
             optional: false,
         });
+
         return this;
     }
     addOptional(name: string, type: ArgumentType) {
@@ -43,6 +45,16 @@ export class ArgumentFormat {
             optional: true,
         });
         return this;
+    }
+
+    static none() {
+        /*
+            ArgumentFormat.none: specifies a "no format" format. the first element
+            to ParsedCommand.rawArgs will be the contents of the message
+        */
+        let fmt = new ArgumentFormat();
+        fmt._none = true;
+        return fmt;
     }
 }
 
@@ -60,12 +72,16 @@ export class ParsedCommand {
     castArgs(format: ArgumentFormat) {
         /* This is terrible code; please excuse */
 
+        if (format._none) {
+            return [this.rawArgs.join(" ")];
+        }
+
         if (this.rawArgs.length > format._args.length) {
             throw new Error("Too many arguments");
         }
         let rawArgIndex = 0;
         let typedArgs: any[] = [];
-        
+
         for (let expectedArg of format._args) {
             let rawArg = this.rawArgs[rawArgIndex];
             if (rawArg === undefined) {
@@ -79,17 +95,7 @@ export class ParsedCommand {
             let errReason = "unspecified";
 
             try {
-                if (expectedArg.type === ArgumentType.BoardPos) {
-                    // cast an argument like B1 to "BoardPosition (1, 0)"
-                    rawArg = rawArg.toUpperCase();
-                    let x = "ABCDEFGHIJKLMOP".indexOf(rawArg[0]);
-                    let y = Number.parseInt(rawArg[1]);
-                    if (x === -1 || isNaN(y)) {
-                        errReason = "Invalid position";
-                        throw new Error();
-                    }
-                    typedArgs.push(new BoardPosition(x, y));
-                } else if (expectedArg.type === ArgumentType.Number) {
+                if (expectedArg.type === ArgumentType.Number) {
                     let n = Number.parseFloat(rawArg);
 
                     if (isNaN(n)) {

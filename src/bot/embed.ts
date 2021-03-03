@@ -1,4 +1,4 @@
-import { CommandHandlerTable } from "./runechess_discord";
+import { CommandHandlerTable, RunechessBot } from "./runechess_discord";
 
 import Discord from "discord.js";
 import Match from "./match";
@@ -57,5 +57,34 @@ export function makeGameViewEmbed(renderer: GameRenderer, match: Match) {
     renderer.render(match.game);
     let attachment = new Discord.MessageAttachment(renderer.getCanvasBuffer(), "canvas.png");
     embed.attachFiles([attachment]).setImage("attachment://canvas.png");
+    return embed;
+}
+
+export function makeMatchListingEmbed(bot: RunechessBot, forGuildId: string) {
+    let embed = makeEmbedBase("Ongoing Matches in this Server");
+
+    let lines: string[] = [];
+
+    for (let match of bot.ongoingMatches) {
+        if (match.channel.guild.id === forGuildId) {
+            lines.push(`#${match.channel.name} - ${match.playerRed.displayName} vs ${match.playerBlue.displayName} (id: ${match.id})`);
+        }
+    }
+
+    if (lines.length === 0) {
+        embed.setDescription("```No ongoing matches```");
+    } else {
+        embed.setDescription("```"+lines.join("\n")+"```")
+    }
+    return embed;
+}
+
+export function makeDebugInfoEmbed(message: string) {
+    let embed = makeEmbedBase("Debug Command");
+    if (message.length > 2000) {
+        message = message.substring(0, 2000);
+        message+="... (truncated)";
+    }
+    embed.setDescription("```"+message+"```");
     return embed;
 }
