@@ -2,19 +2,27 @@ import { Canvas, CanvasGradient, CanvasRenderingContext2D, createCanvas } from "
 import { createWriteStream } from "fs";
 import Vector2 from "./vector2";
 
-interface DrawStyle {
+export interface DrawStyle {
     fill?: string;
     stroke?: string;
     lineWidth?: number;
 }
 
-export default class Display {
+export interface TextStyle {
+    font?: string | null; // defaults to sans-serif
+    size: number; // in pixels
+    fill: string;
+    align?: CanvasTextAlign; // default: left
+    baseline?: CanvasTextBaseline;
+}
+
+export class Display {
     private _canvas: Canvas;
     private _context: CanvasRenderingContext2D;
 
     private constructor(canvas: Canvas) {
         this._canvas = canvas;
-        this._context = this._canvas.getContext("2d", { pixelFormat: "RGBA32" });   
+        this._context = this._canvas.getContext("2d", { pixelFormat: "RGBA32" });
     }
 
     static create(width: number, height: number) {
@@ -59,6 +67,16 @@ export default class Display {
         if (style.stroke) {
             this.context.stroke();
         }
+        this.context.restore();
+    }
+
+    drawText(text: string, position: Vector2, style: TextStyle) {
+        this.context.save();
+        this.context.font = `${style.size}px ${style.font || "sans-serif"}`;
+        this.context.textAlign = style.align || "left";
+        this.context.fillStyle = style.fill;
+        this.context.textBaseline = style.baseline || "top";
+        this.context.fillText(text, position.x, position.y);
         this.context.restore();
     }
 

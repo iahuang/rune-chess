@@ -7,7 +7,7 @@ import UnitType from "../engine/unit/unit_type";
 import DataDragon from "../riot/data_dragon";
 import { AssetManager, ImageAsset } from "./asset_manager";
 import baseAssetManager from "./base_asset_manager";
-import Display from "./display";
+import { Display, TextStyle } from "./display";
 import Vector2 from "./vector2";
 import fs from "fs";
 
@@ -126,13 +126,29 @@ export class GameRenderer {
 
         // draw grid lines
 
+        let gridRuleStyle: TextStyle = {
+            size: this.metrics.cellSize * 0.6,
+            fill: "white",
+        };
+
         for (let x = 0; x < Globals.boardSize + 1; x++) {
             let dx = x * cellSize + padding;
+
             this.display.drawLine(
                 Vector2.from(dx, padding),
                 Vector2.from(dx, this.config.imageSize - padding),
                 "white"
             );
+
+            if (x === Globals.boardSize) {
+                break;
+            }
+
+            this.display.drawText("ABCDEFGHIJKLM"[x], new Vector2(dx + cellSize / 2, padding - cellSize), {
+                ...gridRuleStyle,
+                baseline: "top",
+                align: "center",
+            });
         }
 
         for (let y = 0; y < Globals.boardSize + 1; y++) {
@@ -142,6 +158,16 @@ export class GameRenderer {
                 Vector2.from(this.config.imageSize - padding, dy),
                 "white"
             );
+
+            if (y === Globals.boardSize) {
+                break;
+            }
+
+            this.display.drawText((y + 1).toString(), new Vector2(padding - cellSize, dy + cellSize / 2), {
+                ...gridRuleStyle,
+                baseline: "middle",
+                align: "left",
+            });
         }
 
         // draw units
