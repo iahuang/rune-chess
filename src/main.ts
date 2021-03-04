@@ -1,7 +1,7 @@
 import { BotConfig, RunechessBot } from "./bot/runechess_discord";
 import fs from "fs";
 
-const CONFIG_PATH = "./config.json";
+const CONFIG_PATH = "./bot_config.json";
 
 function main() {
     if (!fs.existsSync(CONFIG_PATH)) {

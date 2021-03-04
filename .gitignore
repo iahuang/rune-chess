@@ -108,4 +108,4 @@ dist
 build
 test.png
 _cache
-config.json
+bot_config.json

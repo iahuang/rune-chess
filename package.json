@@ -5,6 +5,7 @@
         "@types/ws": "^7.4.0",
         "canvas": "^2.6.1",
         "discord.js": "^12.5.1",
+        "get-system-fonts": "^2.0.2",
         "node-fetch": "^2.6.1"
     },
     "scripts": {

@@ -5,18 +5,23 @@ import { TeamColor } from "../engine/team";
 import Unit from "../engine/unit/unit";
 import UnitType from "../engine/unit/unit_type";
 import DataDragon from "../riot/data_dragon";
-import {AssetManager, ImageAsset} from "./asset_manager";
+import { AssetManager, ImageAsset } from "./asset_manager";
 import baseAssetManager from "./base_asset_manager";
 import Display from "./display";
 import Vector2 from "./vector2";
+import fs from "fs";
 
-const imageSize = 512;
-const center = imageSize / 2;
-const cellSize = imageSize * 0.082;
-const padding = center - cellSize * 4;
+const CONFIG_PATH = "gfx_config.json";
 
-function boardPosToScreenPos(pos: BoardPosition) {
-    return Vector2.from(pos.x * cellSize + padding, pos.y * cellSize + padding);
+interface GraphicsConfig {
+    imageSize: number;
+    font: string | null;
+}
+
+interface BoardMetrics {
+    center: number;
+    cellSize: number;
+    padding: number;
 }
 
 export class GameRenderer {
@@ -24,39 +29,68 @@ export class GameRenderer {
     assetManager: AssetManager;
     ready: boolean;
     dataDragon: DataDragon;
+    config: GraphicsConfig;
+    metrics: BoardMetrics;
 
     constructor() {
-        this.display = Display.create(imageSize, imageSize);
         this.assetManager = baseAssetManager();
         this.ready = false;
         this.dataDragon = new DataDragon();
+
+        this.config = JSON.parse(fs.readFileSync(CONFIG_PATH, "utf8"));
+        console.log(`[GameRenderer] Config loaded from ${CONFIG_PATH}`);
+
+        this.display = Display.create(this.config.imageSize, this.config.imageSize);
+        let imageSize = this.config.imageSize;
+        this.metrics = {
+            center: imageSize / 2,
+            cellSize: imageSize * 0.082,
+            padding: 0,
+        };
+
+        this.metrics.padding = this.metrics.center - this.metrics.cellSize * 4;
+    }
+
+    boardPosToScreenPos(pos: BoardPosition) {
+        return Vector2.from(
+            pos.x * this.metrics.cellSize + this.metrics.padding,
+            pos.y * this.metrics.cellSize + this.metrics.padding
+        );
     }
 
     drawUnitIcon(unit: Unit) {
-        let pos = boardPosToScreenPos(unit.pos);
+        let pos = this.boardPosToScreenPos(unit.pos);
         let unitIconAsset: ImageAsset;
 
         if (unit.unitType === UnitType.Champion) {
             unitIconAsset = this.iconAssetForChampion(unit.name);
         } else if (unit.unitType === UnitType.Minion) {
             if (unit.teamColor === TeamColor.Red) {
-                unitIconAsset = this.assetManager.getAsset("minion.red")
+                unitIconAsset = this.assetManager.getAsset("minion.red");
             } else {
-                unitIconAsset = this.assetManager.getAsset("minion.blue")
+                unitIconAsset = this.assetManager.getAsset("minion.blue");
             }
-            
         } else {
             throw new Error("Cannot draw unit of unknown type");
         }
         this.display.clipped(
             () => {
                 this.display.context.beginPath();
-                this.display.circlePath(pos.plus(Vector2.pair(cellSize / 2)), cellSize / 2 - 5);
+                this.display.circlePath(
+                    pos.plus(Vector2.pair(this.metrics.cellSize / 2)),
+                    this.metrics.cellSize / 2 - 5
+                );
             },
             () => {
                 this.display.context.fillStyle = "red";
                 //this.display.context.fillRect(pos.x, pos.y, cellSize, cellSize);
-                this.display.context.drawImage(unitIconAsset.image, pos.x, pos.y, cellSize, cellSize);
+                this.display.context.drawImage(
+                    unitIconAsset.image,
+                    pos.x,
+                    pos.y,
+                    this.metrics.cellSize,
+                    this.metrics.cellSize
+                );
             }
         );
         let teamColor = { [TeamColor.Blue]: "blue", [TeamColor.Red]: "red", [TeamColor.Neutral]: "white" }[
@@ -65,7 +99,10 @@ export class GameRenderer {
         this.display.draw(
             () => {
                 //console.log(TeamColor[unit.teamColor], JSON.stringify(unit.pos))
-                this.display.circlePath(pos.plus(Vector2.pair(cellSize / 2)), cellSize / 2 - 5);
+                this.display.circlePath(
+                    pos.plus(Vector2.pair(this.metrics.cellSize / 2)),
+                    this.metrics.cellSize / 2 - 5
+                );
             },
             { stroke: teamColor, lineWidth: 1 }
         );
@@ -74,6 +111,15 @@ export class GameRenderer {
     render(game: RuneChess) {
         this.ensureLoaded();
         this.display.clear();
+
+        const center = this.config.imageSize / 2;
+        const cellSize = this.config.imageSize * 0.082;
+        const padding = center - cellSize * 4;
+
+        function boardPosToScreenPos(pos: BoardPosition) {
+            return Vector2.from(pos.x * cellSize + padding, pos.y * cellSize + padding);
+        }
+
         let board = this.assetManager.getAsset("game.board");
         let image = board.image!;
         this.display.context.drawImage(image, 0, 0, this.display.width, this.display.height);
@@ -82,12 +128,20 @@ export class GameRenderer {
 
         for (let x = 0; x < Globals.boardSize + 1; x++) {
             let dx = x * cellSize + padding;
-            this.display.drawLine(Vector2.from(dx, padding), Vector2.from(dx, imageSize - padding), "white");
+            this.display.drawLine(
+                Vector2.from(dx, padding),
+                Vector2.from(dx, this.config.imageSize - padding),
+                "white"
+            );
         }
 
         for (let y = 0; y < Globals.boardSize + 1; y++) {
             let dy = y * cellSize + padding;
-            this.display.drawLine(Vector2.from(padding, dy), Vector2.from(imageSize - padding, dy), "white");
+            this.display.drawLine(
+                Vector2.from(padding, dy),
+                Vector2.from(this.config.imageSize - padding, dy),
+                "white"
+            );
         }
 
         // draw units
@@ -126,5 +180,6 @@ export class GameRenderer {
 
         await this.assetManager.loadAll();
         this.ready = true;
+        console.log("[GameRenderer] Initialized successfully");
     }
 }
