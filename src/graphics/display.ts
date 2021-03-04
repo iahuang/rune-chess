@@ -9,7 +9,7 @@ export interface DrawStyle {
 }
 
 export interface TextStyle {
-    font?: string | null; // defaults to sans-serif
+    font?: string; // defaults to sans-serif
     size: number; // in pixels
     fill: string;
     align?: CanvasTextAlign; // default: left
@@ -19,10 +19,20 @@ export interface TextStyle {
 export class Display {
     private _canvas: Canvas;
     private _context: CanvasRenderingContext2D;
+    private _defaultFont: string;
 
     private constructor(canvas: Canvas) {
         this._canvas = canvas;
         this._context = this._canvas.getContext("2d", { pixelFormat: "RGBA32" });
+        this._defaultFont = "sans-serif";
+    }
+
+    setDefaultFont(font: string) {
+        this._defaultFont = font;
+    }
+
+    getDefaultFont() {
+        return this._defaultFont;
     }
 
     static create(width: number, height: number) {
@@ -72,7 +82,7 @@ export class Display {
 
     drawText(text: string, position: Vector2, style: TextStyle) {
         this.context.save();
-        this.context.font = `${style.size}px ${style.font || "sans-serif"}`;
+        this.context.font = `${style.size}px ${style.font || this._defaultFont}`;
         this.context.textAlign = style.align || "left";
         this.context.fillStyle = style.fill;
         this.context.textBaseline = style.baseline || "top";

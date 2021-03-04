@@ -49,6 +49,8 @@ export class GameRenderer {
         };
 
         this.metrics.padding = this.metrics.center - this.metrics.cellSize * 4;
+        
+        if (this.config.font) this.display.setDefaultFont(this.config.font);
     }
 
     boardPosToScreenPos(pos: BoardPosition) {
