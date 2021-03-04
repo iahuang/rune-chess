@@ -1,13 +1,64 @@
 import Unit from "../../unit";
 import AbilityTarget from "./ability_target";
 
-export enum AbilityIdentifier { Q, W, E, R, None }
+export enum AbilityIdentifier {
+    Q,
+    W,
+    E,
+    R,
+    None,
+}
 
 export enum TargetType {
-    None,       // passive or other
-    Self,       // self-targeted
-    Unit,       // targets a unit
-    Location    // targets a specific point on the board
+    None, // passive or other
+    Self, // self-targeted
+    Unit, // targets a unit
+    Location, // targets a specific point on the board
+}
+
+export enum AbilityMetricType {
+    Damage = "DAMAGE",
+    SecondaryDamage = "SECONDARY_DAMAGE",
+    TertiaryDamage = "TERTIARY_DAMAGE",
+    Healing = "HEALING",
+    Shielding = "SHIELDING",
+    EffectDuration = "EFFECT_DURATION",
+}
+
+export class AbilityMetric {
+    apScaling?: number;
+    adScaling?: number;
+    casterMaxHPScaling?: number;
+    targetMaxHPScaling?: number;
+    baseAmount: number;
+
+    private constructor(amount: number) {
+        this.baseAmount = amount;
+    }
+
+    withBaseAmount(amount: number) {
+        return new AbilityMetric(amount);
+    }
+
+    setAPScaling(factor: number) {
+        this.apScaling = factor;
+        return this;
+    }
+
+    setADScaling(factor: number) {
+        this.adScaling = factor;
+        return this;
+    }
+
+    setCasterMaxHPScaling(factor: number) {
+        this.casterMaxHPScaling = factor;
+        return this;
+    }
+
+    setTargetMaxHPScaling(factor: number) {
+        this.targetMaxHPScaling = factor;
+        return this;
+    }
 }
 
 export abstract class BaseAbility {
@@ -17,8 +68,39 @@ export abstract class BaseAbility {
     maxRange: number | null = null;
     caster: Unit;
 
+    // see https://github.com/microsoft/TypeScript/issues/24220#issuecomment-423785475
+    private _metrics: { [type in AbilityMetricType]?: AbilityMetric };
+
     constructor(caster: Unit) {
         this.caster = caster;
+        this._metrics = {};
+    }
+
+    addMetric(type: AbilityMetricType, metric: AbilityMetric) {
+        this._metrics[type] = metric;
+    }
+
+    getMetric(type: AbilityMetricType) {
+        return this._metrics[type] || null;
+    }
+
+    computeMetric(type: AbilityMetricType, unitTarget?: Unit) {
+        let metric = this.getMetric(type);
+        if (!metric) throw new Error(`Ability ${this.name} does not have metric of type ${type}`);
+
+        if (metric.targetMaxHPScaling && !unitTarget) {
+            throw new Error("Metric with target max HP scaling requires unit target");
+        }
+
+        let amount = metric.baseAmount;
+        let caster = this.caster;
+        
+        if (metric.adScaling) amount += caster.calculateAD();
+        if (metric.apScaling) amount += caster.calculateAD();
+        if (metric.casterMaxHPScaling) amount += caster.calculateMaxHP();
+        if (metric.targetMaxHPScaling) amount += unitTarget!.calculateMaxHP();
+
+        return amount;
     }
 
     get isUltimate() {
@@ -64,15 +146,12 @@ export abstract class BaseAbility {
     }
 }
 
-
 class _NoAbility extends BaseAbility {
     name = "None";
     identifier = AbilityIdentifier.None;
-    targetType = TargetType.None
+    targetType = TargetType.None;
 
-    onCast(target: AbilityTarget) {
-
-    }
+    onCast(target: AbilityTarget) {}
 }
 
 export function NoAbility(caster: Unit) {
@@ -82,15 +161,13 @@ export function NoAbility(caster: Unit) {
 export class AbilityEffectMask {
     allyMinions = false;
     enemyMinions = false;
-    
+
     allyChampions = false;
     enemyChampions = false;
 
     self = false;
 
-    constructor() {
-
-    }
+    constructor() {}
 
     allowEnemyMinionTarget() {
         this.enemyMinions = true;
