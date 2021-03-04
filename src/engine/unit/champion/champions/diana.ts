@@ -10,10 +10,10 @@ import Champion from "../champion";
 
 class DianaQ extends LocationTargetedAbility {
     name = "Crescent Strike";
+    description =
+        "Diana creates a bolt of lunar energy that strikes at a position at an L shape relative to Diana, similar to a Knight moving in chess, dealing [DAMAGE] magic damage to enemies hit and afflicting them with *Moonlight* for 1 active turn";
     identifier = AbilityIdentifier.Q;
-    collidesWith = new AbilityEffectMask()
-        .allowEnemyChampionTarget()
-        .allowEnemyMinionTarget();
+    collidesWith = new AbilityEffectMask().allowEnemyChampionTarget().allowEnemyMinionTarget();
 
     isLocationValid(target: BoardPosition) {
         let dx = this.caster.pos.x - target.x;
@@ -33,6 +33,7 @@ class DianaQ extends LocationTargetedAbility {
 
 class DianaUlt extends SelfTargetedAbility {
     name = "Moonfall";
+    description = "Diana smites the area within 1 square around her with lunar energy, dealing [DAMAGE] magic damage"
     identifier = AbilityIdentifier.R;
 
     onCast() {
@@ -42,9 +43,7 @@ class DianaUlt extends SelfTargetedAbility {
             squareRadius: 1,
             amount: 200,
             type: DamageType.Magic,
-            mask: new AbilityEffectMask()
-                .allowEnemyChampionTarget()
-                .allowEnemyMinionTarget(),
+            mask: new AbilityEffectMask().allowEnemyChampionTarget().allowEnemyMinionTarget(),
         });
     }
 }

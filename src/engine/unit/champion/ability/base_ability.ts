@@ -65,6 +65,7 @@ export abstract class BaseAbility {
     abstract identifier: AbilityIdentifier;
     abstract name: string;
     abstract targetType: TargetType;
+    abstract description: string;
     maxRange: number | null = null;
     caster: Unit;
 
@@ -94,7 +95,7 @@ export abstract class BaseAbility {
 
         let amount = metric.baseAmount;
         let caster = this.caster;
-        
+
         if (metric.adScaling) amount += caster.calculateAD();
         if (metric.apScaling) amount += caster.calculateAD();
         if (metric.casterMaxHPScaling) amount += caster.calculateMaxHP();
@@ -148,6 +149,7 @@ export abstract class BaseAbility {
 
 class _NoAbility extends BaseAbility {
     name = "None";
+    description = "null";
     identifier = AbilityIdentifier.None;
     targetType = TargetType.None;
 

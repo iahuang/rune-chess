@@ -8,6 +8,8 @@ import Champion from "../champion";
 
 class SennaQ extends UnitTargetedAbility {
     name = "Piercing Darkness";
+    description =
+        "Senna casts a beam of light through a directly adjacent unit, dealing [DAMAGE] physical damage to the unit and the one behind it.";
     identifier = AbilityIdentifier.Q;
     validTargets = new AbilityEffectMask().allowAll();
     maxRange = 1;
@@ -24,8 +26,8 @@ class SennaQ extends UnitTargetedAbility {
         let dx = targetPos.x - this.caster.pos.x;
         let dy = targetPos.y - this.caster.pos.y;
 
-        for (let i=0; i<3; i++) {
-            let effectPos = new BoardPosition(dx*i, dy*i).offsetBy(this.caster.pos);
+        for (let i = 0; i < 3; i++) {
+            let effectPos = new BoardPosition(dx * i, dy * i).offsetBy(this.caster.pos);
             if (!effectPos.inBounds) {
                 continue;
             }
@@ -54,7 +56,7 @@ export class ChampionSenna extends Champion {
         });
 
         this.name = "Senna";
-        this.championTitle = "The Redeemer"
+        this.championTitle = "The Redeemer";
         this.abilityQ = new SennaQ(this);
     }
 }

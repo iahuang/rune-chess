@@ -5,6 +5,7 @@ import Champion from "../champion";
 
 class MalzaharQ extends LocationTargetedAbility {
     name = "Call of the Void";
+    description = "None";
     identifier = AbilityIdentifier.Q;
     nicknames = ["malz"];
     isLocationValid(pos: BoardPosition) {
