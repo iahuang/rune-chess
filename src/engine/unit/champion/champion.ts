@@ -10,6 +10,8 @@ export default abstract class Champion extends Unit {
     abilityE: BaseAbility = NoAbility(this);
     abilityR: BaseAbility = NoAbility(this);
 
+    championTitle: string = "null";
+
     nicknames: string[] = [];
 
     constructor(attributes: UnitAttributes) {

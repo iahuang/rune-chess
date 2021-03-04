@@ -9,7 +9,7 @@ import { SelfTargetedAbility } from "../ability/self_targeted_ability";
 import Champion from "../champion";
 
 class DianaQ extends LocationTargetedAbility {
-    name = "Scorn of the Moon";
+    name = "Crescent Strike";
     identifier = AbilityIdentifier.Q;
     collidesWith = new AbilityEffectMask()
         .allowEnemyChampionTarget()
@@ -68,6 +68,7 @@ export class ChampionDiana extends Champion {
             ranged: false,
         });
         this.name = "Diana";
+        this.championTitle = "Scorn of the Moon";
         this.abilityQ = new DianaQ(this);
         this.abilityR = new DianaUlt(this);
     }

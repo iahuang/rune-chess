@@ -54,6 +54,7 @@ export class ChampionSenna extends Champion {
         });
 
         this.name = "Senna";
+        this.championTitle = "The Redeemer"
         this.abilityQ = new SennaQ(this);
     }
 }
