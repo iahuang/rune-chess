@@ -48,4 +48,8 @@ export default class DataDragon {
 
         return this.getVersionedCDN()+"img/spell/"+championName+id+".png";
     }
+
+    itemIconURL(id: string) {
+        return this.getVersionedCDN()+"img/item/"+id+".png";
+    }
 }
