@@ -1,6 +1,7 @@
 import Board from "../board";
 import BoardPosition from "../board_position";
-import { calculateDamageTaken, DamageType } from "../damage";
+import { calculateDamageMultiplier, calculateDamageTaken, DamageType } from "../damage";
+import { Item, ItemStatBonuses } from "../item";
 import { StatusEffect } from "../status_effect";
 import EffectGrievousWounds from "../status_effects/grevious_wounds";
 import { Team, TeamColor } from "../team";
@@ -18,6 +19,8 @@ export default class Unit {
 
     statusEffects: StatusEffect[];
 
+    items: Item[];
+
     constructor(attributes: UnitAttributes) {
         this.baseAttributes = attributes;
         this.hp = this.baseAttributes.maxHP;
@@ -26,6 +29,11 @@ export default class Unit {
         this.teamColor = TeamColor.Neutral;
         this.statusEffects = [];
         this.unitType = UnitType.Other;
+        this.items = [];
+    }
+
+    giveItem(ItemConstructor: new () => Item) {
+        this.items.push(new ItemConstructor());
     }
 
     applyStatusEffect(E: new (source: Unit, user: Unit, duration: number) => StatusEffect, duration: number) {
@@ -65,22 +73,56 @@ export default class Unit {
         this.hp -= rawDamage;
     }
 
+    private _itemBonuses(accessor: (bonus: ItemStatBonuses) => number | undefined) {
+        let bonus = 0;
+
+        for (let item of this.items) {
+            bonus += accessor(item.bonuses) || 0;
+        }
+
+        return bonus;
+    }
+
     calculateArmor() {
-        return this.baseAttributes.armor;
+        return this.baseAttributes.armor + this._itemBonuses((b) => b.armor);
     }
 
     calculateMagicResist() {
-        return this.baseAttributes.magicResistance;
+        return this.baseAttributes.magicResistance + this._itemBonuses((b) => b.magicResist);
     }
 
     calculateMaxHP() {
-        return this.baseAttributes.maxHP;
+        return this.baseAttributes.maxHP + this._itemBonuses((b) => b.maxHP);
+    }
+
+    calculateLethality() {
+        return this._itemBonuses((b) => b.lethality);
+    }
+
+    calculateAD() {
+        return this.baseAttributes.attackDamage + this._itemBonuses((b) => b.attackDamage);
+    }
+
+    calculateAP() {
+        return this.baseAttributes.abilityPower + this._itemBonuses((b) => b.abilityPower);
+    }
+
+    calculateCritChance() {
+        return this._itemBonuses((b) => b.critChance);
+    }
+
+    calculateOmnivamp() {
+        return this._itemBonuses((b) => b.omnivamp);
     }
 
     takeDamage(amount: number, source: Unit, type: DamageType) {
+        let damageAmount = amount;
         if (type === DamageType.Physical) {
-            this._takeDamage(calculateDamageTaken(amount, this.calculateArmor()));
+            damageAmount *= calculateDamageMultiplier(this.calculateArmor() - source.calculateLethality());
+        } else if (type === DamageType.Magic) {
+            damageAmount *= calculateDamageMultiplier(this.calculateMagicResist());
         }
+        this._takeDamage(damageAmount);
     }
 
     heal(amount: number, source?: Unit) {

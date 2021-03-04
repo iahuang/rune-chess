@@ -11,7 +11,6 @@ export default abstract class Champion extends Unit {
     abilityR: BaseAbility = NoAbility(this);
 
     championTitle: string = "null";
-
     nicknames: string[] = [];
 
     constructor(attributes: UnitAttributes) {
@@ -25,7 +24,9 @@ export default abstract class Champion extends Unit {
             [AbilityIdentifier.W]: this.abilityW,
             [AbilityIdentifier.E]: this.abilityE,
             [AbilityIdentifier.R]: this.abilityR,
-            [AbilityIdentifier.None]: (()=>{throw new Error("cannot lookup ability with identifier None")})()
+            [AbilityIdentifier.None]: (() => {
+                throw new Error("cannot lookup ability with identifier None");
+            })(),
         }[identifier];
     }
 
@@ -33,7 +34,7 @@ export default abstract class Champion extends Unit {
         let ability = this.getAbilityByIdentifier(which);
 
         if (!ability._isValidWithTarget(target)) {
-            throw new Error("cannot cast ability onto target of type "+target.targetType);
+            throw new Error("cannot cast ability onto target of type " + target.targetType);
         }
 
         ability.onCast(target);

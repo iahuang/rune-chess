@@ -17,6 +17,11 @@ export enum ItemId {
     NegatronCloak,
     HextechAlternator,
     FiendishCodex,
+    ExecutionersCalling,
+    Noonquiver,
+    Kindlegem,
+    Hexdrinker,
+    Zeal,
 }
 
 export interface ItemStatBonuses {
