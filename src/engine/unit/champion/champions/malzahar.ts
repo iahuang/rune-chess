@@ -1,5 +1,5 @@
 import BoardPosition from "../../../board_position";
-import { AbilityIdentifier } from "../ability/base_ability";
+import { AbilityIdentifier, AbilityMetric, AbilityMetricType } from "../ability/base_ability";
 import { LocationTargetedAbility } from "../ability/location_target_ability";
 import Champion from "../champion";
 
@@ -13,6 +13,10 @@ class MalzaharQ extends LocationTargetedAbility {
     }
     onCast() {
 
+    }
+
+    setMetrics() {
+        this.addMetric(AbilityMetricType.Damage, AbilityMetric.withBaseAmount(90).setAPScaling(0.7));
     }
 }
 

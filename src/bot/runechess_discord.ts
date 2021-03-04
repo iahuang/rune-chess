@@ -1,8 +1,15 @@
 import Discord from "discord.js";
+import Globals from "../engine/constants";
 import { TeamColor } from "../engine/team";
 import { GameRenderer } from "../graphics/game_renderer";
 import { startMatchCommand } from "./commands/start_match";
-import { makeDebugInfoEmbed, makeErrorEmbed, makeHelpEmbed, makeMatchListingEmbed } from "./embed";
+import {
+    makeChampionInfoEmbed,
+    makeDebugInfoEmbed,
+    makeErrorEmbed,
+    makeHelpEmbed,
+    makeMatchListingEmbed,
+} from "./embed";
 import { registerGameCommands } from "./game_commands";
 import Match from "./match";
 import { ArgumentFormat, ArgumentType, CommandParser, ParsedCommand } from "./parser";
@@ -249,6 +256,24 @@ export class RunechessBot extends Discord.Client {
             format: new ArgumentFormat(),
             callback: (args, command) => {
                 command.message.channel.send(makeMatchListingEmbed(this, command.message.guild!.id));
+            },
+        });
+
+        this.registerCommand({
+            name: "info",
+            description: "Lists the info and abilities for a champion",
+            format: new ArgumentFormat().add("champion", ArgumentType.String),
+            callback: (args, command) => {
+                let champName = (args[0] as string).toLowerCase();
+
+                if (Globals.championRegistry.allChampionNames().includes(champName)) {
+                    let championConstructor = Globals.championRegistry.getConstructor(champName);
+                    let champion = new championConstructor();
+
+                    command.message.channel.send(makeChampionInfoEmbed(champion));
+                } else {
+                    command.message.channel.send(makeErrorEmbed(`No champion with the name "${champName}" exists`));
+                }
             },
         });
 

@@ -38,7 +38,7 @@ export default class DataDragon {
         return `http://ddragon.leagueoflegends.com/cdn/${this.gameVersion}/`;
     }
 
-    championSquareLink(championName: string) {
+    championSquareURL(championName: string) {
         return this.getVersionedCDN()+"img/champion/"+championName+".png";
     }
 

@@ -36,7 +36,7 @@ export class AbilityMetric {
         this.baseAmount = amount;
     }
 
-    withBaseAmount(amount: number) {
+    static withBaseAmount(amount: number) {
         return new AbilityMetric(amount);
     }
 
@@ -75,7 +75,10 @@ export abstract class BaseAbility {
     constructor(caster: Unit) {
         this.caster = caster;
         this._metrics = {};
+        this.setMetrics();
     }
+
+    abstract setMetrics(): void;
 
     addMetric(type: AbilityMetricType, metric: AbilityMetric) {
         this._metrics[type] = metric;
@@ -83,6 +86,10 @@ export abstract class BaseAbility {
 
     getMetric(type: AbilityMetricType) {
         return this._metrics[type] || null;
+    }
+
+    getMetricTypes() {
+        return Object.keys(this._metrics) as AbilityMetricType[];
     }
 
     computeMetric(type: AbilityMetricType, unitTarget?: Unit) {
@@ -147,18 +154,7 @@ export abstract class BaseAbility {
     }
 }
 
-class _NoAbility extends BaseAbility {
-    name = "None";
-    description = "null";
-    identifier = AbilityIdentifier.None;
-    targetType = TargetType.None;
 
-    onCast(target: AbilityTarget) {}
-}
-
-export function NoAbility(caster: Unit) {
-    return new _NoAbility(caster);
-}
 
 export class AbilityEffectMask {
     allyMinions = false;

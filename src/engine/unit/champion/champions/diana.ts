@@ -3,7 +3,7 @@ import BoardPosition from "../../../board_position";
 import { applyAOEDamage, DamageType } from "../../../damage";
 import { EffectType, StatusEffect } from "../../../status_effect";
 import Unit from "../../unit";
-import { AbilityEffectMask, AbilityIdentifier } from "../ability/base_ability";
+import { AbilityEffectMask, AbilityIdentifier, AbilityMetric, AbilityMetricType } from "../ability/base_ability";
 import { LocationTargetedAbility } from "../ability/location_target_ability";
 import { SelfTargetedAbility } from "../ability/self_targeted_ability";
 import Champion from "../champion";
@@ -14,6 +14,10 @@ class DianaQ extends LocationTargetedAbility {
         "Diana creates a bolt of lunar energy that strikes at a position at an L shape relative to Diana, similar to a Knight moving in chess, dealing [DAMAGE] magic damage to enemies hit and afflicting them with *Moonlight* for 1 active turn";
     identifier = AbilityIdentifier.Q;
     collidesWith = new AbilityEffectMask().allowEnemyChampionTarget().allowEnemyMinionTarget();
+
+    setMetrics() {
+        this.addMetric(AbilityMetricType.Damage, AbilityMetric.withBaseAmount(90).setAPScaling(0.7));
+    }
 
     isLocationValid(target: BoardPosition) {
         let dx = this.caster.pos.x - target.x;
@@ -33,8 +37,12 @@ class DianaQ extends LocationTargetedAbility {
 
 class DianaUlt extends SelfTargetedAbility {
     name = "Moonfall";
-    description = "Diana smites the area within 1 square around her with lunar energy, dealing [DAMAGE] magic damage"
+    description = "Diana smites the area within 1 square around her with lunar energy, dealing [DAMAGE] magic damage";
     identifier = AbilityIdentifier.R;
+
+    setMetrics() {
+        this.addMetric(AbilityMetricType.Damage, AbilityMetric.withBaseAmount(200).setAPScaling(0.6));
+    }
 
     onCast() {
         applyAOEDamage({

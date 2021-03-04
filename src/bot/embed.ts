@@ -5,6 +5,10 @@ import Match from "./match";
 import Globals from "../engine/constants";
 import { GameRenderer } from "../graphics/game_renderer";
 import { TeamColor } from "../engine/team";
+import Champion from "../engine/unit/champion/champion";
+import DataDragon from "../riot/data_dragon";
+import { AbilityIdentifier } from "../engine/unit/champion/ability/base_ability";
+import { replaceAll } from "../engine/util/string";
 
 const EMBED_COLOR = "#ffd261";
 
@@ -16,7 +20,8 @@ function makeEmbedBase(title: string) {
             "Runechess",
             "https://github.com/iahuang/rune-chess/raw/main/assets/bard_icon.png",
             "https://github.com/iahuang/rune-chess"
-        ).setFooter(`Game version ${Globals.gameVersion}`);
+        )
+        .setFooter(`Game version ${Globals.gameVersion}`);
 }
 
 export function makeHelpEmbed(commandTable: CommandHandlerTable) {
@@ -67,14 +72,16 @@ export function makeMatchListingEmbed(bot: RunechessBot, forGuildId: string) {
 
     for (let match of bot.ongoingMatches) {
         if (match.channel.guild.id === forGuildId) {
-            lines.push(`#${match.channel.name} - ${match.playerRed.displayName} vs ${match.playerBlue.displayName} (id: ${match.id})`);
+            lines.push(
+                `#${match.channel.name} - ${match.playerRed.displayName} vs ${match.playerBlue.displayName} (id: ${match.id})`
+            );
         }
     }
 
     if (lines.length === 0) {
         embed.setDescription("```No ongoing matches```");
     } else {
-        embed.setDescription("```"+lines.join("\n")+"```")
+        embed.setDescription("```" + lines.join("\n") + "```");
     }
     return embed;
 }
@@ -84,8 +91,40 @@ export function makeDebugInfoEmbed(message: string) {
     let embed = makeEmbedBase("Debug Command");
     if (message.length > 2000) {
         message = message.substring(0, 2000);
-        message+="... (truncated)";
+        message += "... (truncated)";
     }
-    embed.setDescription("```"+message+"```");
+    embed.setDescription("```" + message + "```");
+    return embed;
+}
+
+export function makeChampionInfoEmbed(champion: Champion) {
+    let embed = makeEmbedBase(`${champion.name}, ${champion.championTitle}`);
+
+    embed.setThumbnail(new DataDragon().championSquareURL(champion.name));
+
+    for (let id of [AbilityIdentifier.Q, AbilityIdentifier.W, AbilityIdentifier.E, AbilityIdentifier.R]) {
+        let ability = champion.getAbilityByIdentifier(id);
+        if (!ability) continue;
+
+        let title = `${AbilityIdentifier[id]} - ${ability.name}`;
+        let description = ability.description;
+
+        for (let metricType of ability.getMetricTypes()) {
+            let metricTextPlaceholder = `[${metricType}]`;
+
+            let metric = ability.getMetric(metricType)!;
+            let replacement = metric.baseAmount.toString();
+
+            if (metric.adScaling) replacement += ` (+${Math.round(metric.adScaling * 100)}% AD)`;
+            if (metric.apScaling) replacement += ` (+${Math.round(metric.apScaling * 100)}% AP)`;
+            if (metric.casterMaxHPScaling) replacement += ` (+${Math.round(metric.casterMaxHPScaling * 100)}% max HP)`;
+            if (metric.targetMaxHPScaling)
+                replacement += ` (+${Math.round(metric.targetMaxHPScaling * 100)}% target max HP)`;
+
+            description = replaceAll(description, metricTextPlaceholder, `**${replacement}**`);
+        }
+
+        embed.addField(title, description);
+    }
     return embed;
 }

@@ -201,7 +201,9 @@ export class GameRenderer {
         await this.dataDragon.useLatestGameVersion();
         // load Riot assets
         for (let name of Globals.championRegistry.allChampionNames()) {
-            let squareURL = this.dataDragon.championSquareLink(name);
+            let champion = new (Globals.championRegistry.getConstructor(name))();
+
+            let squareURL = this.dataDragon.championSquareURL(champion.name);
 
             this.assetManager.register(`champion.${name}.icon`, squareURL);
         }

@@ -2,14 +2,14 @@ import BoardPosition from "../../../board_position";
 import { DamageType } from "../../../damage";
 import Unit from "../../unit";
 import AbilityTarget from "../ability/ability_target";
-import { AbilityEffectMask, AbilityIdentifier } from "../ability/base_ability";
+import { AbilityEffectMask, AbilityIdentifier, AbilityMetric, AbilityMetricType } from "../ability/base_ability";
 import { UnitTargetedAbility } from "../ability/unit_targeted_ability";
 import Champion from "../champion";
 
 class SennaQ extends UnitTargetedAbility {
     name = "Piercing Darkness";
     description =
-        "Senna casts a beam of light through a directly adjacent unit, dealing [DAMAGE] physical damage to the unit and the one behind it.";
+        "Senna casts a beam of light through a directly adjacent unit and the one behind it, dealing [DAMAGE] physical damage to the unit if it is an enemy, and healing for [HEALING] health if it is an ally";
     identifier = AbilityIdentifier.Q;
     validTargets = new AbilityEffectMask().allowAll();
     maxRange = 1;
@@ -19,6 +19,11 @@ class SennaQ extends UnitTargetedAbility {
     unitFilter(unit: Unit) {
         // Senna's Q can only target units along the four cardinal directions
         return unit.pos.x === this.caster.pos.x || unit.pos.y === this.caster.pos.y;
+    }
+
+    setMetrics() {
+        this.addMetric(AbilityMetricType.Damage, AbilityMetric.withBaseAmount(100).setADScaling(0.35).setAPScaling(0.4));
+        this.addMetric(AbilityMetricType.Healing, AbilityMetric.withBaseAmount(100).setADScaling(0.3).setAPScaling(0.4));
     }
 
     onCast(target: AbilityTarget) {
