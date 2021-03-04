@@ -67,7 +67,7 @@ export class GameRenderer {
                 //console.log(TeamColor[unit.teamColor], JSON.stringify(unit.pos))
                 this.display.circlePath(pos.plus(Vector2.pair(cellSize / 2)), cellSize / 2 - 5);
             },
-            { stroke: teamColor, lineWidth: 3 }
+            { stroke: teamColor, lineWidth: 1 }
         );
     }
 
