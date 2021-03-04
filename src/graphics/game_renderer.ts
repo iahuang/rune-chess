@@ -49,7 +49,7 @@ export class GameRenderer {
         };
 
         this.metrics.padding = this.metrics.center - this.metrics.cellSize * 4;
-        
+
         if (this.config.font) this.display.setDefaultFont(this.config.font);
     }
 
@@ -114,14 +114,6 @@ export class GameRenderer {
         this.ensureLoaded();
         this.display.clear();
 
-        const center = this.config.imageSize / 2;
-        const cellSize = this.config.imageSize * 0.082;
-        const padding = center - cellSize * 4;
-
-        function boardPosToScreenPos(pos: BoardPosition) {
-            return Vector2.from(pos.x * cellSize + padding, pos.y * cellSize + padding);
-        }
-
         let board = this.assetManager.getAsset("game.board");
         let image = board.image!;
         this.display.context.drawImage(image, 0, 0, this.display.width, this.display.height);
@@ -134,11 +126,11 @@ export class GameRenderer {
         };
 
         for (let x = 0; x < Globals.boardSize + 1; x++) {
-            let dx = x * cellSize + padding;
+            let dx = x * this.metrics.cellSize + this.metrics.padding;
 
             this.display.drawLine(
-                Vector2.from(dx, padding),
-                Vector2.from(dx, this.config.imageSize - padding),
+                Vector2.from(dx, this.metrics.padding),
+                Vector2.from(dx, this.config.imageSize - this.metrics.padding),
                 "white"
             );
 
@@ -146,18 +138,22 @@ export class GameRenderer {
                 break;
             }
 
-            this.display.drawText("ABCDEFGHIJKLM"[x], new Vector2(dx + cellSize / 2, padding - cellSize), {
-                ...gridRuleStyle,
-                baseline: "top",
-                align: "center",
-            });
+            this.display.drawText(
+                "ABCDEFGHIJKLM"[x],
+                new Vector2(dx + this.metrics.cellSize / 2, this.metrics.padding - this.metrics.cellSize),
+                {
+                    ...gridRuleStyle,
+                    baseline: "top",
+                    align: "center",
+                }
+            );
         }
 
         for (let y = 0; y < Globals.boardSize + 1; y++) {
-            let dy = y * cellSize + padding;
+            let dy = y * this.metrics.cellSize + this.metrics.padding;
             this.display.drawLine(
-                Vector2.from(padding, dy),
-                Vector2.from(this.config.imageSize - padding, dy),
+                Vector2.from(this.metrics.padding, dy),
+                Vector2.from(this.config.imageSize - this.metrics.padding, dy),
                 "white"
             );
 
@@ -165,11 +161,15 @@ export class GameRenderer {
                 break;
             }
 
-            this.display.drawText((y + 1).toString(), new Vector2(padding - cellSize, dy + cellSize / 2), {
-                ...gridRuleStyle,
-                baseline: "middle",
-                align: "left",
-            });
+            this.display.drawText(
+                (y + 1).toString(),
+                new Vector2(this.metrics.padding - this.metrics.cellSize, dy + this.metrics.cellSize / 2),
+                {
+                    ...gridRuleStyle,
+                    baseline: "middle",
+                    align: "left",
+                }
+            );
         }
 
         // draw units
