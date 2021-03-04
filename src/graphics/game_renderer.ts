@@ -10,8 +10,9 @@ import baseAssetManager from "./base_asset_manager";
 import Display from "./display";
 import Vector2 from "./vector2";
 
-const center = 1280 / 2;
-const cellSize = 105;
+const imageSize = 512;
+const center = imageSize / 2;
+const cellSize = imageSize * 0.082;
 const padding = center - cellSize * 4;
 
 function boardPosToScreenPos(pos: BoardPosition) {
@@ -25,7 +26,7 @@ export class GameRenderer {
     dataDragon: DataDragon;
 
     constructor() {
-        this.display = Display.create(1280, 1280);
+        this.display = Display.create(imageSize, imageSize);
         this.assetManager = baseAssetManager();
         this.ready = false;
         this.dataDragon = new DataDragon();
@@ -34,7 +35,6 @@ export class GameRenderer {
     drawUnitIcon(unit: Unit) {
         let pos = boardPosToScreenPos(unit.pos);
         let unitIconAsset: ImageAsset;
-        this.display.drawRect(new Vector2(pos.x, pos.y), Vector2.pair(cellSize), "red");
 
         if (unit.unitType === UnitType.Champion) {
             unitIconAsset = this.iconAssetForChampion(unit.name);
@@ -82,12 +82,12 @@ export class GameRenderer {
 
         for (let x = 0; x < Globals.boardSize + 1; x++) {
             let dx = x * cellSize + padding;
-            this.display.drawLine(Vector2.from(dx, padding), Vector2.from(dx, 1280 - padding), "white");
+            this.display.drawLine(Vector2.from(dx, padding), Vector2.from(dx, imageSize - padding), "white");
         }
 
         for (let y = 0; y < Globals.boardSize + 1; y++) {
             let dy = y * cellSize + padding;
-            this.display.drawLine(Vector2.from(padding, dy), Vector2.from(1280 - padding, dy), "white");
+            this.display.drawLine(Vector2.from(padding, dy), Vector2.from(imageSize - padding, dy), "white");
         }
 
         // draw units
