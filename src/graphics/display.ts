@@ -59,6 +59,7 @@ export default class Display {
         if (style.stroke) {
             this.context.stroke();
         }
+        this.context.restore();
     }
 
     clipped(clipFunction: Function, drawFunction: Function) {

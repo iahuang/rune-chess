@@ -34,6 +34,8 @@ export class GameRenderer {
     drawUnitIcon(unit: Unit) {
         let pos = boardPosToScreenPos(unit.pos);
         let unitIconAsset: ImageAsset;
+        this.display.drawRect(new Vector2(pos.x, pos.y), Vector2.pair(cellSize), "red");
+
         if (unit.unitType === UnitType.Champion) {
             unitIconAsset = this.iconAssetForChampion(unit.name);
         } else if (unit.unitType === UnitType.Minion) {
@@ -91,6 +93,7 @@ export class GameRenderer {
         // draw units
 
         for (let unit of game.board.allUnits()) {
+            //console.log("Drawing unit",unit.name,TeamColor[unit.teamColor],unit.pos)
             this.drawUnitIcon(unit);
         }
 

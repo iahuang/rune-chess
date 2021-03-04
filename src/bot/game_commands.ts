@@ -91,6 +91,8 @@ export function moveCommand(bot: RunechessBot, info: GameCommandCallInfo) {
             channel.send(makeErrorEmbed("You can only move one square at a time"));
             return;
         }
+
+        //console.log("Moving unit at",target.pos,"to",to);
     } catch (err) {
         channel.send(makeErrorEmbed(err.message));
         return;
