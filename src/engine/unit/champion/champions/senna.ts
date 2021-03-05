@@ -13,8 +13,6 @@ class SennaQ extends UnitTargetedAbility {
     identifier = AbilityIdentifier.Q;
     validTargets = new AbilityEffectMask().allowAll();
     maxRange = 1;
-    damageAmount = 100;
-    healAmount = 100;
 
     unitFilter(unit: Unit) {
         // Senna's Q can only target units along the four cardinal directions
@@ -22,8 +20,14 @@ class SennaQ extends UnitTargetedAbility {
     }
 
     setMetrics() {
-        this.addMetric(AbilityMetricType.Damage, AbilityMetric.withBaseAmount(100).setADScaling(0.35).setAPScaling(0.4));
-        this.addMetric(AbilityMetricType.Healing, AbilityMetric.withBaseAmount(100).setADScaling(0.3).setAPScaling(0.4));
+        this.addMetric(
+            AbilityMetricType.Damage,
+            AbilityMetric.withBaseAmount(100).setADScaling(0.35).setAPScaling(0.4)
+        );
+        this.addMetric(
+            AbilityMetricType.Healing,
+            AbilityMetric.withBaseAmount(100).setADScaling(0.3).setAPScaling(0.4)
+        );
     }
 
     onCast(target: AbilityTarget) {
@@ -39,9 +43,9 @@ class SennaQ extends UnitTargetedAbility {
             let affectedUnit = this.caster.board.getUnitAt(effectPos);
             if (affectedUnit) {
                 if (affectedUnit.alliedTo(this.caster)) {
-                    affectedUnit.heal(this.healAmount);
+                    affectedUnit.heal(this.computeMetric(AbilityMetricType.Healing));
                 } else {
-                    affectedUnit.takeDamage(this.damageAmount, this.caster, DamageType.Physical);
+                    affectedUnit.takeDamage(this.computeMetric(AbilityMetricType.Damage), this.caster, DamageType.Physical);
                 }
             }
         }

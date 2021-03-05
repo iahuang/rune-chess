@@ -9,6 +9,9 @@ import Champion from "../engine/unit/champion/champion";
 import DataDragon from "../riot/data_dragon";
 import { AbilityIdentifier } from "../engine/unit/champion/ability/base_ability";
 import { replaceAll } from "../engine/util/string";
+import { LocationTargetedAbility } from "../engine/unit/champion/ability/location_target_ability";
+import { UnitTargetedAbility } from "../engine/unit/champion/ability/unit_targeted_ability";
+import { SelfTargetedAbility } from "../engine/unit/champion/ability/self_targeted_ability";
 
 const EMBED_COLOR = "#ffd261";
 
@@ -107,7 +110,20 @@ export function makeChampionInfoEmbed(champion: Champion) {
         if (!ability) continue;
 
         let title = `${AbilityIdentifier[id]} - ${ability.name}`;
-        let description = ability.description;
+        let description = "Target Type: ";
+
+        if (ability instanceof LocationTargetedAbility) {
+            description+="*Location*";
+        } else if (ability instanceof UnitTargetedAbility) {
+            description+="*Unit*";
+        } else if (ability instanceof SelfTargetedAbility) {
+            description+="*Self*";
+        } else {
+            description+="*Other*";
+        }
+        description+="\n";
+
+        description+=ability.description;
 
         for (let metricType of ability.getMetricTypes()) {
             let metricTextPlaceholder = `[${metricType}]`;
