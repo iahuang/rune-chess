@@ -155,6 +155,11 @@ export class RunechessBot extends Discord.Client {
 
                 let gcHandler = this.gameCommandHandlers[command.command];
                 if (gcHandler !== undefined) {
+                    if (message.channel.type === "dm") {
+                        message.channel.send(makeErrorEmbed("Game commands cannot be used in DMs"));
+                        return;
+                    }
+
                     let args;
                     try {
                         args = command.castArgs(gcHandler.format);
