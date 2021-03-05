@@ -37,6 +37,7 @@ export interface CommandHandler {
     callback: CommandCallback;
     format: ArgumentFormat;
     description: string;
+    requiresGuild: boolean;
 }
 
 export interface GameCommandHandler {
@@ -50,6 +51,7 @@ export interface CommandHandlerArgs {
     description: string;
     format: ArgumentFormat;
     callback: CommandCallback;
+    requiresGuild?: boolean;
 }
 
 export interface GameCommandHandlerArgs {
@@ -93,6 +95,7 @@ export class RunechessBot extends Discord.Client {
             callback: args.callback,
             format: args.format,
             description: args.description,
+            requiresGuild: args.requiresGuild || false,
         };
     }
 
@@ -107,6 +110,10 @@ export class RunechessBot extends Discord.Client {
     private initDiscordEventHandlers() {
         this.on("message", (message) => {
             let content = message.content;
+
+            if (message.channel.type === "news") {
+                return;
+            }
 
             if (this.config.debug) {
                 if (content.startsWith(this.config.prefix + "debug")) {
@@ -127,6 +134,11 @@ export class RunechessBot extends Discord.Client {
 
                 let handler = this.commandHandlers[command.command];
                 if (handler !== undefined) {
+                    if (message.channel.type === "dm" && handler.requiresGuild) {
+                        message.channel.send(makeErrorEmbed("Cannot use this command outside of a Discord server"));
+                        return;
+                    }
+
                     let args;
                     try {
                         args = command.castArgs(handler.format);
@@ -236,6 +248,7 @@ export class RunechessBot extends Discord.Client {
             name: "startmatch",
             description: "Starts a Runechess match in the current channel",
             format: new ArgumentFormat().add("player1", ArgumentType.User).add("player2", ArgumentType.User),
+            requiresGuild: true,
             callback: (args, command) => {
                 startMatchCommand(this, args, command);
             },
@@ -253,6 +266,7 @@ export class RunechessBot extends Discord.Client {
         this.registerCommand({
             name: "matches",
             description: "Lists the current matches in this server",
+            requiresGuild: true,
             format: new ArgumentFormat(),
             callback: (args, command) => {
                 command.message.channel.send(makeMatchListingEmbed(this, command.message.guild!.id));
