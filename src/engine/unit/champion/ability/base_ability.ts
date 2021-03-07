@@ -1,4 +1,5 @@
 import Unit from "../../unit";
+import Champion from "../champion";
 import AbilityTarget from "./ability_target";
 
 export enum AbilityIdentifier {
@@ -67,12 +68,14 @@ export abstract class BaseAbility {
     abstract targetType: TargetType;
     abstract description: string;
     maxRange: number | null = null;
-    caster: Unit;
+    caster: Champion;
+
+    voiceLines: string[] = [];
 
     // see https://github.com/microsoft/TypeScript/issues/24220#issuecomment-423785475
     private _metrics: { [type in AbilityMetricType]?: AbilityMetric };
 
-    constructor(caster: Unit) {
+    constructor(caster: Champion) {
         this.caster = caster;
         this._metrics = {};
         this.setMetrics();
@@ -129,6 +132,13 @@ export abstract class BaseAbility {
             return target.location !== null;
         }
         return false;
+    }
+
+    _onCast(target: AbilityTarget) {
+        if (Math.random() < 0.6 && this.voiceLines.length > 0) {
+            this.caster.sayRandom(this.voiceLines);
+        }
+        this.onCast(target);
     }
 
     abstract onCast(target: AbilityTarget): void;

@@ -1,3 +1,4 @@
+import { randomItem } from "../../util/rand";
 import Unit from "../unit";
 import UnitAttributes from "../unit_attributes";
 import UnitType from "../unit_type";
@@ -13,9 +14,24 @@ export default abstract class Champion extends Unit {
     championTitle: string = "null";
     nicknames: string[] = [];
 
+    private _currentVoiceLine: string | null = null;
+
     constructor(attributes: UnitAttributes) {
         super(attributes);
         this.unitType = UnitType.Champion;
+    }
+
+    say(message: string) {
+        this._currentVoiceLine = message;
+    }
+    sayRandom(lines: string[]) {
+        this.say(randomItem(lines));
+    }
+    clearVoiceLine() {
+        this._currentVoiceLine = null;
+    }
+    getCurrentVoiceLine() {
+        return this._currentVoiceLine;
     }
 
     getAbilityByIdentifier(identifier: AbilityIdentifier) {
@@ -39,6 +55,6 @@ export default abstract class Champion extends Unit {
             throw new Error("cannot cast ability onto target of type " + target.targetType);
         }
 
-        ability.onCast(target);
+        ability._onCast(target);
     }
 }

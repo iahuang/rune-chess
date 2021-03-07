@@ -11,6 +11,7 @@ import Vector2 from "./vector2";
 import fs from "fs";
 import { Effect, EffectId } from "../engine/effect";
 import { EffectGFXRegistry } from "./effect_sprites";
+import Champion from "../engine/unit/champion/champion";
 
 const CONFIG_PATH = "gfx_config.json";
 
@@ -122,6 +123,24 @@ export class GameRenderer {
             },
             { stroke: teamColor, lineWidth: 1 }
         );
+
+        // draw voice line
+
+        if (unit.isChampion) {
+            let champ = unit as Champion;
+            let voiceLine = champ.getCurrentVoiceLine();
+            let cellSize = this.metrics.cellSize;
+
+            if (voiceLine) {
+                let textPos = pos.plus(new Vector2(cellSize * 0.75, -cellSize * 0.2));
+                this.display.drawText(voiceLine, textPos, {
+                    fill: "white",
+                    size: cellSize / 2,
+                    align: "left",
+                    baseline: "bottom",
+                });
+            }
+        }
     }
 
     drawEffect(effect: Effect) {
