@@ -1,3 +1,5 @@
+import { EffectEkkoTimewinder } from "../../../effects/ekko";
+import AbilityTarget from "../ability/ability_target";
 import { AbilityIdentifier, AbilityMetric, AbilityMetricType } from "../ability/base_ability";
 import { LocationTargetedAbility } from "../ability/location_target_ability";
 import { SelfTargetedAbility } from "../ability/self_targeted_ability";
@@ -12,6 +14,10 @@ class EkkoQ extends LocationTargetedAbility {
     setMetrics() {
         this.addMetric(AbilityMetricType.Damage, AbilityMetric.withBaseAmount(60).setAPScaling(0.3));
         this.addMetric(AbilityMetricType.SecondaryDamage, AbilityMetric.withBaseAmount(40).setAPScaling(0.6));
+    }
+
+    onCast(target: AbilityTarget) {
+        this.caster.board.createEffect(EffectEkkoTimewinder, target.location!);
     }
 }
 

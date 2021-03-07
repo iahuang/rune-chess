@@ -1,7 +1,7 @@
 import { parse } from "path";
 import Board from "../engine/board";
 import BoardPosition from "../engine/board_position";
-import Globals from "../engine/constants";
+import Globals from "../engine/globals";
 import Champion from "../engine/unit/champion/champion";
 import { makeErrorEmbed, makeGameViewEmbed } from "./embed";
 import { ArgumentFormat, ArgumentType } from "./parser";

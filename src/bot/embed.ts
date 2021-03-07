@@ -2,7 +2,7 @@ import { CommandHandlerTable, RunechessBot } from "./runechess_discord";
 
 import Discord from "discord.js";
 import Match from "./match";
-import Globals from "../engine/constants";
+import Globals from "../engine/globals";
 import { GameRenderer } from "../graphics/game_renderer";
 import { TeamColor } from "../engine/team";
 import Champion from "../engine/unit/champion/champion";

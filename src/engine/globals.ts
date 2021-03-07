@@ -1,7 +1,19 @@
+import { AssetManager } from "../graphics/asset_manager";
 import { ChampionDiana } from "./unit/champion/champions/diana";
 import { ChampionEkko } from "./unit/champion/champions/ekko";
 import { ChampionSenna } from "./unit/champion/champions/senna";
 import { ChampionRegistry } from "./unit/champion/champion_registry";
+
+const _assetManager = new AssetManager()
+    .register("game.board", "assets/loc_board.png")
+    .register(
+        "minion.blue",
+        "https://static.wikia.nocookie.net/leagueoflegends/images/f/fa/Blue_Caster_MinionSquare.png/"
+    )
+    .register(
+        "minion.red",
+        "https://static.wikia.nocookie.net/leagueoflegends/images/1/10/Red_Caster_MinionSquare.png/"
+    );
 
 export default class Globals {
     static readonly boardSize = 8;
@@ -10,4 +22,8 @@ export default class Globals {
         .register("diana", ChampionDiana)
         .register("senna", ChampionSenna)
         .register("ekko", ChampionEkko);
+
+    static getAssetManager() {
+        return _assetManager;
+    }
 }

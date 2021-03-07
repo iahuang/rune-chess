@@ -1,4 +1,4 @@
-import Globals from "./constants";
+import Globals from "./globals";
 
 export default class BoardPosition {
     x: number;
@@ -41,6 +41,10 @@ export default class BoardPosition {
 
     offsetBy(pos: BoardPosition) {
         return new BoardPosition(pos.x+this.x, pos.y+this.y);
+    }
+
+    copy() {
+        return new BoardPosition(this.x, this.y);
     }
 
     static withinSquare(center: BoardPosition, pos: BoardPosition, radius: number) {

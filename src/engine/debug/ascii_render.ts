@@ -1,7 +1,7 @@
 /* Used for debug-rendering the board */
 
 import Board from "../board";
-import Globals from "../constants";
+import Globals from "../globals";
 import child_process from "child_process";
 import BoardPosition from "../board_position";
 

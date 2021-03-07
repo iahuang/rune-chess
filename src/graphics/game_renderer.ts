@@ -1,15 +1,16 @@
 import BoardPosition from "../engine/board_position";
-import Globals from "../engine/constants";
+import Globals from "../engine/globals";
 import RuneChess from "../engine/game";
 import { TeamColor } from "../engine/team";
 import Unit from "../engine/unit/unit";
 import UnitType from "../engine/unit/unit_type";
 import DataDragon from "../riot/data_dragon";
 import { AssetManager, ImageAsset } from "./asset_manager";
-import baseAssetManager from "./base_asset_manager";
 import { Display, TextStyle } from "./display";
 import Vector2 from "./vector2";
 import fs from "fs";
+import { Effect, EffectId } from "../engine/effect";
+import { EffectGFXRegistry } from "./effect_sprites";
 
 const CONFIG_PATH = "gfx_config.json";
 
@@ -24,6 +25,14 @@ interface BoardMetrics {
     padding: number;
 }
 
+function makeEffectRegistry(renderer: GameRenderer) {
+    return new EffectGFXRegistry(renderer.assetManager).add(
+        EffectId.EkkoTimewinder,
+        "effect.ekko.timewinder",
+        "assets/timewinder.png"
+    );
+}
+
 export class GameRenderer {
     display: Display;
     assetManager: AssetManager;
@@ -31,9 +40,11 @@ export class GameRenderer {
     dataDragon: DataDragon;
     config: GraphicsConfig;
     metrics: BoardMetrics;
+    effectRegistry: EffectGFXRegistry;
 
     constructor() {
-        this.assetManager = baseAssetManager();
+        this.assetManager = Globals.getAssetManager();
+
         this.ready = false;
         this.dataDragon = new DataDragon();
 
@@ -41,16 +52,19 @@ export class GameRenderer {
         console.log(`[GameRenderer] Config loaded from ${CONFIG_PATH}`);
 
         this.display = Display.create(this.config.imageSize, this.config.imageSize);
+
         let imageSize = this.config.imageSize;
         this.metrics = {
             center: imageSize / 2,
             cellSize: imageSize * 0.082,
             padding: 0,
         };
-
         this.metrics.padding = this.metrics.center - this.metrics.cellSize * 4;
 
         if (this.config.font) this.display.setDefaultFont(this.config.font);
+
+        this.effectRegistry = makeEffectRegistry(this);
+        this.effectRegistry.registerToAssetManager();
     }
 
     boardPosToScreenPos(pos: BoardPosition) {
@@ -108,6 +122,13 @@ export class GameRenderer {
             },
             { stroke: teamColor, lineWidth: 1 }
         );
+    }
+
+    drawEffect(effect: Effect) {
+        let asset = this.effectRegistry.getAssetByEffectID(effect.id);
+        let pos = this.boardPosToScreenPos(effect.pos);
+        let size = this.metrics.cellSize;
+        this.display.context.drawImage(asset.image, pos.x, pos.y, size, size);
     }
 
     render(game: RuneChess) {
@@ -177,6 +198,12 @@ export class GameRenderer {
         for (let unit of game.board.allUnits()) {
             //console.log("Drawing unit",unit.name,TeamColor[unit.teamColor],unit.pos)
             this.drawUnitIcon(unit);
+        }
+
+        // draw effects
+
+        for (let effect of game.board.effects) {
+            this.drawEffect(effect);
         }
 
         //console.log(game.board.allUnits());

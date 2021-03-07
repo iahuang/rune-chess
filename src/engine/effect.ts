@@ -11,6 +11,7 @@ import { TeamColor } from "./team";
 
 export enum EffectId {
     EkkoShadow,
+    EkkoTimewinder,
 }
 
 export abstract class Effect {

@@ -1,5 +1,5 @@
 import Discord from "discord.js";
-import Globals from "../engine/constants";
+import Globals from "../engine/globals";
 import { TeamColor } from "../engine/team";
 import { GameRenderer } from "../graphics/game_renderer";
 import { startMatchCommand } from "./commands/start_match";
