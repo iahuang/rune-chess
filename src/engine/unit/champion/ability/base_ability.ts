@@ -135,7 +135,8 @@ export abstract class BaseAbility {
     }
 
     _onCast(target: AbilityTarget) {
-        if (Math.random() < 0.6 && this.voiceLines.length > 0) {
+        let voiceLineProb = this.identifier === AbilityIdentifier.R ? 1.0 : 0.6;
+        if (Math.random() < voiceLineProb && this.voiceLines.length > 0) {
             this.caster.sayRandom(this.voiceLines);
         }
         this.onCast(target);
@@ -162,9 +163,23 @@ export abstract class BaseAbility {
 
         return false;
     }
+
+    _onTurnEnd(activeTurn: boolean) {
+        if (activeTurn) {
+            this.passivelyOnActiveTurnEnd();
+        } else {
+            this.passivelyOnInactiveTurnEnd();
+        }
+    }
+
+    passivelyOnActiveTurnEnd() {
+
+    }
+
+    passivelyOnInactiveTurnEnd() {
+
+    }
 }
-
-
 
 export class AbilityEffectMask {
     allyMinions = false;

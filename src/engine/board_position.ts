@@ -47,6 +47,10 @@ export default class BoardPosition {
         return new BoardPosition(this.x, this.y);
     }
 
+    static origin() {
+        return new BoardPosition(0, 0);
+    }
+
     static withinSquare(center: BoardPosition, pos: BoardPosition, radius: number) {
         /*
             Returns true if [pos] is within a square (2*[radius] + 1) squares in width and height around [center].

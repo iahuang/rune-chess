@@ -20,12 +20,26 @@ export abstract class StatusEffect {
     constructor(source: Unit, user: Unit, duration: number) {
         this.source = source;
         this.user = user;
-        this.durationLeft = 0; // temporarily initialized
+        this.durationLeft = duration; // temporarily initialized
         this.effectDuration = duration;
     }
 
     refreshEffect() {
         this.durationLeft = this.effectDuration;
+    }
+
+    _onTurnEnd(activeTurn: boolean) {
+        if (activeTurn) {
+            this.onActiveTurnEnd();
+        } else {
+            this.onInactiveTurnEnd();
+        }
+
+        this.durationLeft -= 1;
+    }
+
+    get shouldExpire() {
+        return this.durationLeft <= 0;
     }
 
     onApply() {

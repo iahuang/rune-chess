@@ -160,4 +160,25 @@ export default class Unit {
     alliedTo(unit: Unit) {
         return unit.teamColor === this.teamColor;
     }
+
+    onActiveTurnEnd() {}
+    onInactiveTurnEnd() {}
+
+    _onTurnEnd(activeTurn: boolean) {
+        for (let effect of this.statusEffects) {
+            effect._onTurnEnd(activeTurn);
+
+            if (effect.shouldExpire) {
+                effect.onExpire();
+            }
+        }
+
+        this.statusEffects = this.statusEffects.filter((effect) => !effect.shouldExpire);
+
+        if (activeTurn) {
+            this.onActiveTurnEnd();
+        } else {
+            this.onInactiveTurnEnd();
+        }
+    }
 }

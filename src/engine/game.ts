@@ -64,4 +64,20 @@ export default class RuneChess {
     getOpposingTeam(to: Team) {
         return this.getTeamWithColor(to.opposingTeamColor());
     }
+
+    getActiveTeam() {
+        return this.getTeamWithColor(this.turn);
+    }
+
+    endTurn() {
+        for (let unit of this.board.allUnits()) {
+            unit._onTurnEnd(unit.teamColor === this.turn);
+        }
+
+        for (let effect of this.board.effects) {
+            effect._onTurnEnd(effect.teamColor === this.turn);
+        }
+        
+        this.turn = this.getActiveTeam().opposingTeamColor();
+    }
 }

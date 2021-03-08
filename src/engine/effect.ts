@@ -37,8 +37,8 @@ export class EffectRectangularHitbox extends EffectHitbox {
         this.width = width;
         this.height = height;
 
-        if (width%2!==1) throw new Error("Width must be an odd number");
-        if (height%2!==1) throw new Error("Height must be an odd number");
+        if (width % 2 !== 1) throw new Error("Width must be an odd number");
+        if (height % 2 !== 1) throw new Error("Height must be an odd number");
     }
 
     get _radiusX() {
@@ -54,7 +54,6 @@ export class EffectRectangularHitbox extends EffectHitbox {
         let yCheck = Math.abs(center.y - withUnit.pos.y) < this._radiusY;
 
         return xCheck && yCheck;
-
     }
 
     static square(size: number) {
@@ -64,14 +63,14 @@ export class EffectRectangularHitbox extends EffectHitbox {
 
 export abstract class Effect {
     pos: BoardPosition;
-    team: TeamColor;
+    teamColor: TeamColor;
     private _board?: Board;
     abstract id: EffectId;
     effect: EffectHitbox = EffectHitbox.none();
 
     constructor() {
         this.pos = new BoardPosition(0, 0);
-        this.team = TeamColor.Neutral;
+        this.teamColor = TeamColor.Neutral;
     }
 
     get board() {
@@ -84,6 +83,18 @@ export abstract class Effect {
     remove() {
         this.board.removeEffect(this);
     }
+
+    _onTurnEnd(activeTurn: boolean) {
+        if (activeTurn) {
+            this.onActiveTurnEnd();
+        } else {
+            this.onInactiveTurnEnd();
+        }
+    }
+
+    onActiveTurnEnd() {}
+
+    onInactiveTurnEnd() {}
 
     onRemove() {}
 

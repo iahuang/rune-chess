@@ -76,7 +76,7 @@ export default class Board {
     createEffect(E: new () => Effect, at: BoardPosition, team = TeamColor.Neutral) {
         let effect = new E();
         effect.pos = at;
-        effect.team = team;
+        effect.teamColor = team;
 
         this.effects.push(effect);
 

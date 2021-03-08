@@ -46,6 +46,10 @@ export default abstract class Champion extends Unit {
         return ability;
     }
 
+    allAbilities() {
+        return [this.abilityQ, this.abilityW, this.abilityE, this.abilityR].filter((a) => a !== null) as BaseAbility[];
+    }
+
     castAbility(which: AbilityIdentifier, target: AbilityTarget) {
         let ability = this.getAbilityByIdentifier(which);
         if (!ability) {
@@ -56,5 +60,13 @@ export default abstract class Champion extends Unit {
         }
 
         ability._onCast(target);
+    }
+
+    _onTurnEnd(activeTurn: boolean) {
+        super._onTurnEnd(activeTurn);
+
+        for (let ability of this.allAbilities()) {
+            ability._onTurnEnd(activeTurn);
+        }
     }
 }
