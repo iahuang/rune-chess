@@ -7,7 +7,7 @@ import { GameRenderer } from "../graphics/game_renderer";
 import { TeamColor } from "../engine/team";
 import Champion from "../engine/unit/champion/champion";
 import DataDragon from "../riot/data_dragon";
-import { AbilityIdentifier } from "../engine/unit/champion/ability/base_ability";
+import { AbilityIdentifier, BaseAbility } from "../engine/unit/champion/ability/base_ability";
 import { replaceAll } from "../engine/util/string";
 import { LocationTargetedAbility } from "../engine/unit/champion/ability/location_target_ability";
 import { UnitTargetedAbility } from "../engine/unit/champion/ability/unit_targeted_ability";
@@ -100,10 +100,35 @@ export function makeDebugInfoEmbed(message: string) {
     return embed;
 }
 
+function replaceDescriptionPlaceholders(description: string, ability: BaseAbility) {
+    for (let metricType of ability.getMetricTypes()) {
+        let metricTextPlaceholder = `[${metricType}]`;
+
+        let metric = ability.getMetric(metricType)!;
+        let replacement = metric.baseAmount.toString();
+
+        if (metric.adScaling) replacement += ` (+${Math.round(metric.adScaling * 100)}% AD)`;
+        if (metric.apScaling) replacement += ` (+${Math.round(metric.apScaling * 100)}% AP)`;
+        if (metric.casterMaxHPScaling) replacement += ` (+${Math.round(metric.casterMaxHPScaling * 100)}% max HP)`;
+        if (metric.targetMaxHPScaling)
+            replacement += ` (+${Math.round(metric.targetMaxHPScaling * 100)}% target max HP)`;
+
+        description = replaceAll(description, metricTextPlaceholder, `**${replacement}**`);
+    }
+    return description;
+}
+
 export function makeChampionInfoEmbed(champion: Champion) {
     let embed = makeEmbedBase(`${champion.name}, ${champion.championTitle}`);
 
     embed.setThumbnail(new DataDragon().championSquareURL(champion.name));
+
+    let passive = champion.getAbilityByIdentifier(AbilityIdentifier.P);
+    if (passive) {
+        let title = `Passive - ${passive.name}`;
+        let description = replaceDescriptionPlaceholders(passive.description, passive);
+        embed.addField(title, description);
+    }
 
     for (let id of [AbilityIdentifier.Q, AbilityIdentifier.W, AbilityIdentifier.E, AbilityIdentifier.R]) {
         let ability = champion.getAbilityByIdentifier(id);
@@ -113,32 +138,16 @@ export function makeChampionInfoEmbed(champion: Champion) {
         let description = "Target Type: ";
 
         if (ability instanceof LocationTargetedAbility) {
-            description+="*Location*";
+            description += "*Location*";
         } else if (ability instanceof UnitTargetedAbility) {
-            description+="*Unit*";
+            description += "*Unit*";
         } else if (ability instanceof SelfTargetedAbility) {
-            description+="*Self*";
+            description += "*Self*";
         } else {
-            description+="*Other*";
+            description += "*Other*";
         }
-        description+="\n";
-
-        description+=ability.description;
-
-        for (let metricType of ability.getMetricTypes()) {
-            let metricTextPlaceholder = `[${metricType}]`;
-
-            let metric = ability.getMetric(metricType)!;
-            let replacement = metric.baseAmount.toString();
-
-            if (metric.adScaling) replacement += ` (+${Math.round(metric.adScaling * 100)}% AD)`;
-            if (metric.apScaling) replacement += ` (+${Math.round(metric.apScaling * 100)}% AP)`;
-            if (metric.casterMaxHPScaling) replacement += ` (+${Math.round(metric.casterMaxHPScaling * 100)}% max HP)`;
-            if (metric.targetMaxHPScaling)
-                replacement += ` (+${Math.round(metric.targetMaxHPScaling * 100)}% target max HP)`;
-
-            description = replaceAll(description, metricTextPlaceholder, `**${replacement}**`);
-        }
+        description += "\n";
+        description += replaceDescriptionPlaceholders(ability.description, ability);
 
         embed.addField(title, description);
     }

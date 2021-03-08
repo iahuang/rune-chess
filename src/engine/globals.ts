@@ -2,6 +2,7 @@ import { AssetManager } from "../graphics/asset_manager";
 import { ChampionDiana } from "./unit/champion/champions/diana";
 import { ChampionEkko } from "./unit/champion/champions/ekko";
 import { ChampionSenna } from "./unit/champion/champions/senna";
+import { ChampionYone } from "./unit/champion/champions/yone";
 import { ChampionRegistry } from "./unit/champion/champion_registry";
 
 const _assetManager = new AssetManager()
@@ -21,7 +22,8 @@ export default class Globals {
     static readonly championRegistry = new ChampionRegistry()
         .register("diana", ChampionDiana)
         .register("senna", ChampionSenna)
-        .register("ekko", ChampionEkko);
+        .register("ekko", ChampionEkko)
+        .register("yone", ChampionYone)
 
     static getAssetManager() {
         return _assetManager;

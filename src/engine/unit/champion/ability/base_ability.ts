@@ -10,6 +10,7 @@ export enum AbilityIdentifier {
     E,
     R,
     None,
+    P
 }
 
 export enum TargetType {
@@ -186,6 +187,14 @@ export abstract class BaseAbility {
     passivelyOnInactiveTurnEnd() {
 
     }
+}
+
+export abstract class PassiveAbility extends BaseAbility {
+    identifier = AbilityIdentifier.P;
+    onCast() {
+        throw new Error("Cannot cast passive ability");
+    }
+    targetType = TargetType.None;
 }
 
 export class AbilityEffectMask {

@@ -10,6 +10,7 @@ export default abstract class Champion extends Unit {
     abilityW: BaseAbility | null = null;
     abilityE: BaseAbility | null = null;
     abilityR: BaseAbility | null = null;
+    passive: BaseAbility | null = null;
 
     championTitle: string = "null";
     nicknames: string[] = [];
@@ -41,6 +42,7 @@ export default abstract class Champion extends Unit {
             [AbilityIdentifier.E]: this.abilityE,
             [AbilityIdentifier.R]: this.abilityR,
             [AbilityIdentifier.None]: null,
+            [AbilityIdentifier.P]: this.passive,
         }[identifier];
 
         return ability;
@@ -51,6 +53,8 @@ export default abstract class Champion extends Unit {
     }
 
     castAbility(which: AbilityIdentifier, target: AbilityTarget) {
+        if (which === AbilityIdentifier.P) throw new Error("Cannot cast passive ability");
+
         let ability = this.getAbilityByIdentifier(which);
         if (!ability) {
             throw new Error(`Ability ${AbilityIdentifier[which]} does not exist on champion ${this.name}`);
