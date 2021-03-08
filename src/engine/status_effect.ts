@@ -11,21 +11,37 @@ export abstract class StatusEffect {
     abstract name: string;
     abstract description: string;
     abstract type: EffectType;
-    effectDuration: number;
+    effectDuration: number | null;
     
     source: Unit;   // the one who gave the status effect
     user: Unit;     // the one with the status effect
-    durationLeft: number; // turns
+    timeLeft: number; // turns
 
-    constructor(source: Unit, user: Unit, duration: number) {
+    private _stacks: number;
+
+    constructor(source: Unit, user: Unit, duration: number | null) {
         this.source = source;
         this.user = user;
-        this.durationLeft = duration; // temporarily initialized
+        this.timeLeft = duration || 0;
         this.effectDuration = duration;
+        this._stacks = 0;
+    }
+
+    addStack() {
+        this._stacks+=1;
+    }
+
+    stacks() {
+        return this._stacks;
+    }
+
+    resetStacks() {
+        this._stacks = 0;
     }
 
     refreshEffect() {
-        this.durationLeft = this.effectDuration;
+        if (this.effectDuration === null) return;
+        this.timeLeft = this.effectDuration;
     }
 
     _onTurnEnd(activeTurn: boolean) {
@@ -34,12 +50,13 @@ export abstract class StatusEffect {
         } else {
             this.onInactiveTurnEnd();
         }
-
-        this.durationLeft -= 1;
+        if (this.effectDuration === null) return;
+        this.timeLeft -= 1;
     }
 
     get shouldExpire() {
-        return this.durationLeft <= 0;
+        if (this.effectDuration === null) return false;
+        return this.timeLeft <= 0;
     }
 
     onApply() {

@@ -3,7 +3,7 @@ import Unit from "../../unit";
 
 export default class AbilityTarget {
     unit: Unit | null = null;
-    location: BoardPosition | null = null;
+    _location: BoardPosition | null = null;
 
     static atUnit(unit: Unit) {
         let target = new AbilityTarget();
@@ -12,7 +12,7 @@ export default class AbilityTarget {
 
     static atLocation(pos: BoardPosition) {
         let target = new AbilityTarget();
-        target.location = pos;
+        target._location = pos;
     }
 
     static noTarget() {
@@ -20,16 +20,22 @@ export default class AbilityTarget {
     }
 
     get hasNoTarget() {
-        return !(this.unit || this.location);
+        return !(this.unit || this._location);
     }
 
     get targetType() {
         if (this.unit) {
             return "unit";
         }
-        if (this.location) {
+        if (this._location) {
             return "location";
         }
         return "none";
+    }
+
+    get location() {
+        if (this._location) return this._location;
+        if (this.unit) return this.unit.pos;
+        return null;
     }
 }

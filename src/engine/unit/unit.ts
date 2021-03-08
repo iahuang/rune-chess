@@ -3,10 +3,12 @@ import BoardPosition from "../board_position";
 import { calculateDamageMultiplier, calculateDamageTaken, DamageType } from "../damage";
 import { Item, ItemStatBonuses } from "../item";
 import { StatusEffect } from "../status_effect";
-import EffectGrievousWounds from "../status_effects/grevious_wounds";
+import EffectGrievousWounds from "../status_effects_common/grevious_wounds";
 import { Team, TeamColor } from "../team";
 import UnitAttributes from "./unit_attributes";
 import UnitType from "./unit_type";
+
+type EffectConstructor = new (source: Unit, user: Unit, duration: number | null) => StatusEffect;
 
 export default class Unit {
     baseAttributes: UnitAttributes;
@@ -36,14 +38,19 @@ export default class Unit {
         this.items.push(new ItemConstructor());
     }
 
-    applyStatusEffect(E: new (source: Unit, user: Unit, duration: number) => StatusEffect, duration: number) {
+    applySelfStatusEffect(E: EffectConstructor, duration: number | null) {
         let effect = new E(this, this, duration);
         this.statusEffects.push(effect);
-        effect.refreshEffect();
         effect.onApply();
     }
 
-    hasStatusEffect(E: typeof StatusEffect) {
+    applyStatusEffectTo(E: EffectConstructor, to: Unit, duration: number | null) {
+        let effect = new E(this, to, duration);
+        to.statusEffects.push(effect);
+        effect.onApply();
+    }
+
+    getStatusEffect(E: typeof StatusEffect) {
         // Checks to see whether a status effect is present on this unit,
         // returning its instance if so.
         for (let effect of this.statusEffects) {
@@ -127,7 +134,7 @@ export default class Unit {
 
     heal(amount: number, source?: Unit) {
         let healingReduction = 1;
-        let grievous = this.hasStatusEffect(EffectGrievousWounds);
+        let grievous = this.getStatusEffect(EffectGrievousWounds);
         if (grievous) {
             healingReduction = (grievous as EffectGrievousWounds).healingReduction;
         }
