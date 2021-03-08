@@ -73,7 +73,7 @@ export default class Board {
         return this._units.filter((u) => u !== null) as Unit[];
     }
 
-    createEffect(E: new () => Effect, at: BoardPosition, team = TeamColor.Neutral) {
+    createEffect<T extends Effect>(E: new () => T, at: BoardPosition, team = TeamColor.Neutral) {
         let effect = new E();
         effect.pos = at;
         effect.teamColor = team;
@@ -81,6 +81,7 @@ export default class Board {
         this.effects.push(effect);
 
         effect.onPlace();
+        return effect;
     }
 
     removeEffect(effect: Effect) {

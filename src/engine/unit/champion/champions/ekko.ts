@@ -17,7 +17,7 @@ class EkkoQ extends LocationTargetedAbility {
     }
 
     onCast(target: AbilityTarget) {
-        this.caster.board.createEffect(EffectEkkoTimewinder, target.location!);
+        this.createAlliedEffect(EffectEkkoTimewinder, target.location!);
     }
 }
 

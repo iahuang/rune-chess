@@ -1,3 +1,5 @@
+import BoardPosition from "../../../board_position";
+import { Effect } from "../../../effect";
 import Unit from "../../unit";
 import Champion from "../champion";
 import AbilityTarget from "./ability_target";
@@ -170,6 +172,11 @@ export abstract class BaseAbility {
         } else {
             this.passivelyOnInactiveTurnEnd();
         }
+    }
+
+    createAlliedEffect<T extends Effect>(EffectConstructor: new ()=>T, at: BoardPosition) {
+        // Creates a new effect on the board that is allied to the ability caster
+        return this.caster.board.createEffect(EffectConstructor, at, this.caster.teamColor);
     }
 
     passivelyOnActiveTurnEnd() {

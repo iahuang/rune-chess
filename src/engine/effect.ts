@@ -67,6 +67,7 @@ export abstract class Effect {
     private _board?: Board;
     abstract id: EffectId;
     effect: EffectHitbox = EffectHitbox.none();
+    parent: Unit | null = null;
 
     constructor() {
         this.pos = new BoardPosition(0, 0);
