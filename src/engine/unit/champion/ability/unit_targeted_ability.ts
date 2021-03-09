@@ -10,19 +10,15 @@ export abstract class UnitTargetedAbility extends BaseAbility {
         return true;
     }
 
-    _isValidWithTarget(target: AbilityTarget) {
-        if (!super._isValidWithTarget(target)) {
-            return false;
-        }
-
+    checkTargetValidity(target: AbilityTarget) {
         if (this.maxRange !== null) {
-            if (!BoardPosition.withinSquare(this.caster.pos, target.location!, this.maxRange)) {
+            if (!BoardPosition.withinSquare(this.caster.pos, target.getUnit().pos, this.maxRange)) {
                 return false;
             }
         }
-
-        return this.unitFilter(target.unit!);
+        if (!this.canMaskAffect(target.getUnit(), this.validTargets)) return false;
+        return this.unitFilter(target.getUnit());
     }
-    
+
     targetType = TargetType.Unit;
 }

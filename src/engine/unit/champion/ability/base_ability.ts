@@ -10,7 +10,7 @@ export enum AbilityIdentifier {
     E,
     R,
     None,
-    P
+    P,
 }
 
 export enum TargetType {
@@ -97,6 +97,10 @@ export abstract class BaseAbility {
         this._castingDisabled = false;
     }
 
+    get requiresTarget() {
+        return this.targetType !== TargetType.None && this.targetType !== TargetType.Self;
+    }
+
     abstract setMetrics(): void;
 
     addMetric(type: AbilityMetricType, metric: AbilityMetric) {
@@ -134,20 +138,24 @@ export abstract class BaseAbility {
         return this.identifier === AbilityIdentifier.R;
     }
 
-    _isValidWithTarget(target: AbilityTarget) {
+    checkTargetTypeCompatibility(target: AbilityTarget) {
         if (this.targetType === TargetType.None) {
             return target.hasNoTarget;
         }
         if (this.targetType === TargetType.Self) {
-            return target.unit === this.caster;
+            return target._unit === this.caster;
         }
         if (this.targetType === TargetType.Unit) {
-            return target.unit !== null;
+            return target._unit !== null;
         }
         if (this.targetType === TargetType.Location) {
-            return target.location !== null;
+            return target._location !== null;
         }
         return false;
+    }
+
+    checkTargetValidity(target: AbilityTarget) {
+        return true;
     }
 
     _onCast(target: AbilityTarget) {
@@ -168,26 +176,6 @@ export abstract class BaseAbility {
 
     abstract onCast(target: AbilityTarget): void;
 
-    canAffect(unit: Unit, mask: AbilityEffectMask) {
-        if (mask.allyChampions && unit.isChampion && unit.teamColor === this.caster.teamColor) {
-            return true;
-        }
-
-        if (mask.enemyChampions && unit.isChampion && unit.teamColor !== this.caster.teamColor) {
-            return true;
-        }
-
-        if (mask.allyMinions && !unit.isChampion && unit.teamColor === this.caster.teamColor) {
-            return true;
-        }
-
-        if (mask.enemyMinions && !unit.isChampion && unit.teamColor !== this.caster.teamColor) {
-            return true;
-        }
-
-        return false;
-    }
-
     _onTurnEnd(activeTurn: boolean) {
         if (activeTurn) {
             this.passivelyOnActiveTurnEnd();
@@ -196,17 +184,17 @@ export abstract class BaseAbility {
         }
     }
 
-    createAlliedEffect<T extends Effect>(EffectConstructor: new ()=>T, at: BoardPosition) {
+    createAlliedEffect<T extends Effect>(EffectConstructor: new () => T, at: BoardPosition) {
         // Creates a new effect on the board that is allied to the ability caster
         return this.caster.board.createEffect(EffectConstructor, at, this.caster.teamColor);
     }
 
-    passivelyOnActiveTurnEnd() {
+    passivelyOnActiveTurnEnd() {}
 
-    }
+    passivelyOnInactiveTurnEnd() {}
 
-    passivelyOnInactiveTurnEnd() {
-
+    canMaskAffect(unit: Unit, mask: AbilityEffectMask) {
+        return mask.canAffect(this.caster, unit)
     }
 }
 
@@ -260,5 +248,28 @@ export class AbilityEffectMask {
         this.allyChampions = true;
         this.allyMinions = true;
         return this;
+    }
+
+    canAffect(caster: Unit, unit: Unit) {
+        if (!this.self && caster === unit) {
+            return false;
+        }
+        if (this.allyChampions && unit.isChampion && unit.teamColor === caster.teamColor) {
+            return true;
+        }
+
+        if (this.enemyChampions && unit.isChampion && unit.teamColor !== caster.teamColor) {
+            return true;
+        }
+
+        if (this.allyMinions && !unit.isChampion && unit.teamColor === caster.teamColor) {
+            return true;
+        }
+
+        if (this.enemyMinions && !unit.isChampion && unit.teamColor !== caster.teamColor) {
+            return true;
+        }
+
+        return false;
     }
 }

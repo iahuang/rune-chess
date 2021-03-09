@@ -2,6 +2,7 @@ import { ParsedCommand } from "../parser";
 import Discord from "discord.js";
 import { makeErrorEmbed, makeGameViewEmbed, makeMatchStartEmbed } from "../embed";
 import { RunechessBot } from "../runechess_discord";
+import { TeamColor } from "../../engine/team";
 
 export function startMatchCommand(bot: RunechessBot, args: any[], command: ParsedCommand) {
     let channel = command.message.channel;
@@ -32,6 +33,7 @@ export function startMatchCommand(bot: RunechessBot, args: any[], command: Parse
     }
 
     let match = bot.startMatch(playerRed, playerBlue, channel);
+    match.game.turn = TeamColor.Red;
     match.game.setDebugLayout();
     channel.send(makeMatchStartEmbed(match));
     channel.send(makeGameViewEmbed(bot.gameRenderer, match));

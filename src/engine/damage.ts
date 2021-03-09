@@ -44,7 +44,7 @@ export function applyAOEDamage(effect: AOEDamage) {
             let unit = board.getUnitAt(pos);
 
             if (unit) {
-                if (effect.sourceAbility.canAffect(unit, effect.mask)) {
+                if (effect.sourceAbility.canMaskAffect(unit, effect.mask)) {
                     unit.dealDamage(effect.amount, unit, effect.type);
                 }
             }

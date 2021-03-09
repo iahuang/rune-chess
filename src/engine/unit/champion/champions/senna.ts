@@ -11,7 +11,11 @@ class SennaQ extends UnitTargetedAbility {
     description =
         "Senna casts a beam of light through a directly adjacent unit and the one behind it, dealing [DAMAGE] physical damage to the unit if it is an enemy, and healing for [HEALING] health if it is an ally";
     identifier = AbilityIdentifier.Q;
-    validTargets = new AbilityEffectMask().allowAll();
+    validTargets = new AbilityEffectMask()
+        .allowAllyChampionTarget()
+        .allowAllyMinionTarget()
+        .allowEnemyChampionTarget()
+        .allowEnemyMinionTarget();
     maxRange = 1;
 
     unitFilter(unit: Unit) {
@@ -31,7 +35,7 @@ class SennaQ extends UnitTargetedAbility {
     }
 
     onCast(target: AbilityTarget) {
-        let targetPos = target.location!;
+        let targetPos = target.getUnit().pos;
         let dx = targetPos.x - this.caster.pos.x;
         let dy = targetPos.y - this.caster.pos.y;
 

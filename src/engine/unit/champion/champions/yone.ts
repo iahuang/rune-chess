@@ -52,7 +52,7 @@ class YoneQ extends LocationTargetedAbility {
     }
 
     onCast(target: AbilityTarget) {
-        let unit = this.caster.board.getUnitAt(target.location!);
+        let unit = this.caster.board.getUnitAt(target.getLocation());
         let qEffect = this.caster.getStatusEffect(GatheringStorm)!;
         if (unit) this.dealDamage(this.computeMetric(AbilityMetricType.Damage), unit, DamageType.Physical);
 
@@ -61,7 +61,7 @@ class YoneQ extends LocationTargetedAbility {
             this.caster.sayRandom(["Piercing winds!", "Storm of blades!", "Steel gale!"]);
         } else {
             // get space behind the targeted pos
-            let p = target.location!;
+            let p = target.getLocation();
             let dx = p.x - this.caster.pos.x;
             let dy = p.y - this.caster.pos.y;
             let unitBehind = this.caster.board.getUnitAt(this.caster.pos.offsetBy(new BoardPosition(dx * 2, dy * 2)));
@@ -102,7 +102,7 @@ class YoneE extends LocationTargetedAbility {
     }
 
     onCast(target: AbilityTarget) {
-        let to = target.location;
+        let to = target.getLocation();
         this.caster.moveTo(to!);
         
         this.caster.applySelfStatusEffect(SoulUnbound, 4);

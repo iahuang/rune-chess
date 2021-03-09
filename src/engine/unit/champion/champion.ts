@@ -3,7 +3,7 @@ import Unit from "../unit";
 import UnitAttributes from "../unit_attributes";
 import UnitType from "../unit_type";
 import AbilityTarget from "./ability/ability_target";
-import { AbilityIdentifier, BaseAbility } from "./ability/base_ability";
+import { AbilityIdentifier, BaseAbility, TargetType } from "./ability/base_ability";
 
 export default abstract class Champion extends Unit {
     abilityQ: BaseAbility | null = null;
@@ -60,8 +60,15 @@ export default abstract class Champion extends Unit {
         if (!ability) {
             throw new Error(`Ability ${AbilityIdentifier[which]} does not exist on champion ${this.name}`);
         }
-        if (!ability._isValidWithTarget(target)) {
-            throw new Error("cannot cast ability onto target of type " + target.targetType);
+        if (!ability.checkTargetTypeCompatibility(target)) {
+            throw new Error(`Ability target is of incorrect type; expected ${ability.targetType}`);
+        }
+        if (!ability.checkTargetValidity(target)) {
+            if (ability.targetType === TargetType.Location) {
+                throw new Error("Cannot cast ability here");
+            } else {
+                throw new Error("Cannot cast ability on this unit");
+            }
         }
 
         ability._onCast(target);

@@ -127,21 +127,21 @@ export class GameRenderer {
 
         // draw voice line
 
-        if (unit.isChampion) {
-            let champ = unit as Champion;
-            let voiceLine = champ.getCurrentVoiceLine();
-            let cellSize = this.metrics.cellSize;
+        // if (unit.isChampion) {
+        //     let champ = unit as Champion;
+        //     let voiceLine = champ.getCurrentVoiceLine();
+        //     let cellSize = this.metrics.cellSize;
 
-            if (voiceLine) {
-                let textPos = pos.plus(new Vector2(cellSize * 0.75, -cellSize * 0.2));
-                this.display.drawText(voiceLine, textPos, {
-                    fill: "white",
-                    size: cellSize / 2,
-                    align: "left",
-                    baseline: "bottom",
-                });
-            }
-        }
+        //     if (voiceLine) {
+        //         let textPos = pos.plus(new Vector2(cellSize * 0.75, -cellSize * 0.2));
+        //         this.display.drawText(voiceLine, textPos, {
+        //             fill: "red",
+        //             size: cellSize * 0.3,
+        //             align: "left",
+        //             baseline: "top",
+        //         });
+        //     }
+        // }
     }
 
     drawHealthBar(unit: Unit) {
@@ -185,16 +185,7 @@ export class GameRenderer {
         this.display.context.drawImage(asset.image, pos.x, pos.y, size, size);
     }
 
-    render(game: RuneChess) {
-        this.ensureLoaded();
-        this.display.clear();
-
-        let board = this.assetManager.getAsset("game.board");
-        let image = board.image!;
-        this.display.context.drawImage(image, 0, 0, this.display.width, this.display.height);
-
-        // draw grid lines
-
+    drawGrid() {
         let gridRuleStyle: TextStyle = {
             size: this.metrics.cellSize * 0.6,
             fill: "white",
@@ -206,7 +197,8 @@ export class GameRenderer {
             this.display.drawLine(
                 Vector2.from(dx, this.metrics.padding),
                 Vector2.from(dx, this.config.imageSize - this.metrics.padding),
-                "white"
+                "white",
+                0.5
             );
 
             if (x === Globals.boardSize) {
@@ -229,7 +221,8 @@ export class GameRenderer {
             this.display.drawLine(
                 Vector2.from(this.metrics.padding, dy),
                 Vector2.from(this.config.imageSize - this.metrics.padding, dy),
-                "white"
+                "white",
+                0.5
             );
 
             if (y === Globals.boardSize) {
@@ -246,6 +239,19 @@ export class GameRenderer {
                 }
             );
         }
+    }
+
+    render(game: RuneChess) {
+        this.ensureLoaded();
+        this.display.clear();
+
+        let board = this.assetManager.getAsset("game.board");
+        let image = board.image!;
+        this.display.context.drawImage(image, 0, 0, this.display.width, this.display.height);
+
+        // draw grid lines
+
+        this.drawGrid();
 
         // draw units
 

@@ -2,6 +2,8 @@ import { parse } from "path";
 import Board from "../engine/board";
 import BoardPosition from "../engine/board_position";
 import Globals from "../engine/globals";
+import AbilityTarget from "../engine/unit/champion/ability/ability_target";
+import { AbilityIdentifier, TargetType } from "../engine/unit/champion/ability/base_ability";
 import Champion from "../engine/unit/champion/champion";
 import { makeErrorEmbed, makeGameViewEmbed } from "./embed";
 import { ArgumentFormat, ArgumentType } from "./parser";
@@ -14,7 +16,7 @@ export function interpretUnitTarget(arg: string, info: GameCommandCallInfo, alli
     */
 
     arg = arg.toLowerCase();
-    if (arg.match(/[a-z]\d/g)) {
+    if (isCoordinate(arg)) {
         // interpret argument as a coordinate like "A1"
         let pos = parseAsCoordinate(arg);
 
@@ -54,7 +56,7 @@ export function interpretUnitTarget(arg: string, info: GameCommandCallInfo, alli
 }
 
 export function parseAsCoordinate(arg: string) {
-    if (!arg.match(/[a-z]\d/g)) {
+    if (!isCoordinate(arg)) {
         throw new Error("Provided argument is not a coordinate");
     }
     let x = "abcdefghijklmop".indexOf(arg[0]);
@@ -66,6 +68,10 @@ export function parseAsCoordinate(arg: string) {
         throw new Error("Position is out of bounds");
     }
     return pos;
+}
+
+export function isCoordinate(arg: string) {
+    return Boolean(arg.match(/[a-z]\d/g));
 }
 
 export function moveCommand(bot: RunechessBot, info: GameCommandCallInfo) {
@@ -101,14 +107,71 @@ export function moveCommand(bot: RunechessBot, info: GameCommandCallInfo) {
     info.match.game.board.moveUnit(target, to);
 }
 
+export function castCommand(bot: RunechessBot, info: GameCommandCallInfo) {
+    let channel = info.command.message.channel;
+
+    try {
+        let caster = interpretUnitTarget(info.parsedArgs[0], info, true) as Champion;
+        if (!caster.isChampion) throw new Error("Only champions can cast abilities");
+        let queriedAbility: string = info.parsedArgs[1].toLowerCase();
+        let abilityIdentifier = ({
+            q: AbilityIdentifier.Q,
+            w: AbilityIdentifier.W,
+            e: AbilityIdentifier.E,
+            r: AbilityIdentifier.R,
+        } as { [k: string]: AbilityIdentifier })[queriedAbility];
+
+        if (abilityIdentifier === undefined) {
+            throw new Error(`Invalid ability identifier "${queriedAbility}"`);
+        }
+
+        let ability = caster.getAbilityByIdentifier(abilityIdentifier);
+        if (!ability)
+            throw new Error(
+                `${caster.name} does not have a ${
+                    AbilityIdentifier[abilityIdentifier]
+                } ability. For a list of abilities on this champion, use \`.info ${caster.name.toLowerCase()}\``
+            );
+        let target = AbilityTarget.noTarget();
+        let targetArg: string | null = info.parsedArgs[2];
+        if (targetArg) {
+            if (ability.targetType === TargetType.Location) {
+                target = AbilityTarget.atLocation(parseAsCoordinate(targetArg));
+            }
+            if (ability.targetType === TargetType.Unit) {
+                target = AbilityTarget.atUnit(interpretUnitTarget(targetArg, info));
+            }
+        }
+
+        caster.castAbility(abilityIdentifier, target);
+    } catch (err) {
+        channel.send(makeErrorEmbed(err.message));
+        return;
+    }
+}
+
 export function registerGameCommands(bot: RunechessBot) {
     bot.registerGameCommand({
         name: "move",
+        aliases: ["m", "mv", "mov"],
         description: "Moves a piece to the specified square",
         format: new ArgumentFormat().add("piece", ArgumentType.String).add("to", ArgumentType.String),
         callback: (info) => {
             moveCommand(bot, info);
             info.command.message.channel.send(makeGameViewEmbed(bot.gameRenderer, info.match));
+        },
+    });
+
+    bot.registerGameCommand({
+        name: "cast",
+        aliases: ["c"],
+        description: "Casts an ability",
+        format: new ArgumentFormat()
+            .add("champion", ArgumentType.String)
+            .add("ability", ArgumentType.String)
+            .addOptional("target", ArgumentType.String),
+        callback: (info) => {
+            castCommand(bot, info);
         },
     });
 }

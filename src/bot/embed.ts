@@ -1,4 +1,4 @@
-import { CommandHandlerTable, RunechessBot } from "./runechess_discord";
+import { CommandHandlerTable, GameCommandHandlerTable, RunechessBot } from "./runechess_discord";
 
 import Discord from "discord.js";
 import Match from "./match";
@@ -27,12 +27,12 @@ function makeEmbedBase(title: string) {
         .setFooter(`Game version ${Globals.gameVersion}`);
 }
 
-export function makeHelpEmbed(commandTable: CommandHandlerTable) {
+export function makeHelpEmbed(prefix: string, commandTable: CommandHandlerTable, gameCommandTable: GameCommandHandlerTable) {
     let embed = makeEmbedBase("Command Help");
 
     for (let commandName of Object.keys(commandTable)) {
         let handler = commandTable[commandName];
-        let commandSummary = commandName;
+        let commandSummary = prefix+commandName;
         if (handler.format._args.length === 0) {
             commandSummary += " (no arguments)";
         }
@@ -43,8 +43,21 @@ export function makeHelpEmbed(commandTable: CommandHandlerTable) {
             }
         }
 
-        embed.addField(commandSummary, handler.description, true);
+        embed.addField(commandSummary, handler.description);
     }
+
+    for (let [commandName, handler] of Object.entries(gameCommandTable)) {
+        let title = prefix+commandName;
+        for (let arg of handler.format._args) {
+            title += ` [${arg.name}]`;
+            if (arg.optional) title += "?";
+        }
+        let desc = handler.description;
+        if (handler.aliases.length) desc+="\naliases: " + handler.aliases.join(", ");
+        desc+="\n*This command can only be run while in game*";
+        embed.addField(title, desc);
+    }
+
     return embed;
 }
 

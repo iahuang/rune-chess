@@ -87,8 +87,8 @@ export class RuneChess {
     }
 
     setDebugLayout() {
-        this.placeUnit(new ChampionDiana(), new BoardPosition(0, 0), TeamColor.Red);
-        this.placeUnit(new ChampionSenna(), new BoardPosition(0, 7), TeamColor.Blue);
+        this.placeUnit(new ChampionSenna(), new BoardPosition(0, 0), TeamColor.Red);
+        this.placeUnit(new ChampionDiana(), new BoardPosition(0, 7), TeamColor.Blue);
         for (let i = 0; i < 8; i++) {
             this.placeUnit(createMinion() as Unit, new BoardPosition(i, 1), TeamColor.Red);
             this.placeUnit(createMinion() as Unit, new BoardPosition(i, 6), TeamColor.Blue);

@@ -40,12 +40,6 @@ export interface CommandHandler {
     requiresGuild: boolean;
 }
 
-export interface GameCommandHandler {
-    callback: GameCommandCallback;
-    format: ArgumentFormat;
-    description: string;
-}
-
 export interface CommandHandlerArgs {
     name: string;
     description: string;
@@ -54,8 +48,16 @@ export interface CommandHandlerArgs {
     requiresGuild?: boolean;
 }
 
+export interface GameCommandHandler {
+    callback: GameCommandCallback;
+    format: ArgumentFormat;
+    description: string;
+    aliases: string[];
+}
+
 export interface GameCommandHandlerArgs {
     name: string;
+    aliases?: string[];
     description: string;
     format: ArgumentFormat;
     callback: GameCommandCallback;
@@ -104,7 +106,26 @@ export class RunechessBot extends Discord.Client {
             callback: args.callback,
             format: args.format,
             description: args.description,
+            aliases: args.aliases || [],
         };
+    }
+
+    resolveCommand(command: string) {
+        for (let [name, handler] of Object.entries(this.commandHandlers)) {
+            if (name === command) {
+                return handler;
+            }
+        }
+        return null;
+    }
+
+    resolveGameCommand(command: string) {
+        for (let [name, handler] of Object.entries(this.gameCommandHandlers)) {
+            if (name === command || handler.aliases.includes(command)) {
+                return handler;
+            }
+        }
+        return null;
     }
 
     private initDiscordEventHandlers() {
@@ -130,31 +151,23 @@ export class RunechessBot extends Discord.Client {
             }
 
             if (this.parser.isCommand(content)) {
-                let command = this.parser.parse(message);
+                let parsed = this.parser.parse(message);
 
-                let handler = this.commandHandlers[command.command];
-                if (handler !== undefined) {
-                    if (message.channel.type === "dm" && handler.requiresGuild) {
-                        message.channel.send(makeErrorEmbed("Cannot use this command outside of a Discord server"));
-                        return;
-                    }
-
+                let cmdHandler = this.resolveCommand(parsed.command);
+                if (cmdHandler) {
                     let args;
                     try {
-                        args = command.castArgs(handler.format);
+                        args = parsed.castArgs(cmdHandler.format);
                     } catch (err) {
                         message.channel.send(makeErrorEmbed(err.message));
                         return;
                     }
-
-                    if (args) {
-                        handler.callback(args, command);
-                    }
+                    if (args) cmdHandler.callback(args, parsed);
                     return;
                 }
 
-                let gcHandler = this.gameCommandHandlers[command.command];
-                if (gcHandler !== undefined) {
+                let gcmdHandler = this.resolveGameCommand(parsed.command);
+                if (gcmdHandler) {
                     if (message.channel.type === "dm") {
                         message.channel.send(makeErrorEmbed("Game commands cannot be used in DMs"));
                         return;
@@ -162,7 +175,7 @@ export class RunechessBot extends Discord.Client {
 
                     let args;
                     try {
-                        args = command.castArgs(gcHandler.format);
+                        args = parsed.castArgs(gcmdHandler.format);
                     } catch (err) {
                         message.channel.send(makeErrorEmbed(err.message));
                         return;
@@ -185,9 +198,9 @@ export class RunechessBot extends Discord.Client {
                         return;
                     }
 
-                    gcHandler.callback({
+                    gcmdHandler.callback({
                         parsedArgs: args,
-                        command: command,
+                        command: parsed,
                         match: userMatch.match,
                         team: userMatch.teamColor,
                     });
@@ -264,7 +277,7 @@ export class RunechessBot extends Discord.Client {
             description: "displays this message",
             format: new ArgumentFormat(),
             callback: (args, command) => {
-                command.message.channel.send(makeHelpEmbed(this.commandHandlers));
+                command.message.channel.send(makeHelpEmbed(this.config.prefix, this.commandHandlers, this.gameCommandHandlers));
             },
         });
 

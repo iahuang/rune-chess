@@ -44,10 +44,11 @@ export class Display {
         this.context.clearRect(0, 0, this.width, this.height);
     }
 
-    drawLine(a: Vector2, b: Vector2, color: string, width = 1) {
+    drawLine(a: Vector2, b: Vector2, color: string, width = 1, opacity=1) {
         this.context.save();
         this.context.moveTo(a.x, a.y);
         this.context.lineTo(b.x, b.y);
+        this.context.globalAlpha = opacity;
         this.context.lineWidth = width;
         this.context.strokeStyle = color;
         this.context.stroke();

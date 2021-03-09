@@ -14,11 +14,8 @@ export abstract class LocationTargetedAbility extends BaseAbility {
         return true;    
     }
 
-    _isValidWithTarget(target: AbilityTarget) {
-        if (super._isValidWithTarget(target)) {
-            return this.isLocationValid(target.location!);
-        }
-        return false;
+    checkTargetValidity(target: AbilityTarget) {
+        return this.isLocationValid(target.getLocation());
     }
 
     onCast(target: AbilityTarget) {
