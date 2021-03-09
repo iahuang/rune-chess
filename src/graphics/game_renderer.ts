@@ -12,6 +12,7 @@ import fs from "fs";
 import { Effect, EffectId } from "../engine/effect";
 import { EffectGFXRegistry } from "./effect_sprites";
 import Champion from "../engine/unit/champion/champion";
+import { timeStamp } from "node:console";
 
 const CONFIG_PATH = "gfx_config.json";
 
@@ -143,6 +144,40 @@ export class GameRenderer {
         }
     }
 
+    drawHealthBar(unit: Unit) {
+        // COLORS
+        const clr_outline = "#3f444a";
+        const clr_bg = "#000000";
+        const clr_red = "#ff697a";
+        const clr_blue = "#8fb4ff";
+
+        let hpBarColor = unit.teamColor === TeamColor.Red ? clr_red : clr_blue;
+
+        let pos = this.boardPosToScreenPos(unit.pos);
+
+        // metrics
+        let centerX = pos.x + this.metrics.cellSize / 2;
+        let width = this.metrics.cellSize * 0.85;
+        let height = this.metrics.cellSize * 0.15;
+        let top = pos.y + this.metrics.cellSize - height;
+
+        this.display.draw(
+            () => {
+                this.display.rectPath(new Vector2(centerX - width / 2, top), new Vector2(width, height));
+            },
+            { fill: clr_bg, stroke: clr_outline, lineWidth: 1 }
+        );
+        this.display.draw(
+            () => {
+                this.display.rectPath(
+                    new Vector2(centerX - width / 2, top),
+                    new Vector2((width * unit.hp) / unit.calculateMaxHP(), height)
+                );
+            },
+            { fill: hpBarColor }
+        );
+    }
+
     drawEffect(effect: Effect) {
         let asset = this.effectRegistry.getAssetByEffectID(effect.id);
         let pos = this.boardPosToScreenPos(effect.pos);
@@ -217,6 +252,7 @@ export class GameRenderer {
         for (let unit of game.board.allUnits()) {
             //console.log("Drawing unit",unit.name,TeamColor[unit.teamColor],unit.pos)
             this.drawUnitIcon(unit);
+            this.drawHealthBar(unit);
         }
 
         // draw effects
@@ -240,7 +276,7 @@ export class GameRenderer {
 
     iconAssetForChampion(name: string) {
         this.ensureLoaded();
-        return this.assetManager.getAsset(`champion.${name}.icon`);
+        return this.assetManager.getAsset(`champion.${name.toLowerCase()}.icon`);
     }
 
     async init() {

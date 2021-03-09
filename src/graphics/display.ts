@@ -6,6 +6,7 @@ export interface DrawStyle {
     fill?: string;
     stroke?: string;
     lineWidth?: number;
+    opacity?: number;
 }
 
 export interface TextStyle {
@@ -60,6 +61,10 @@ export class Display {
         this.context.restore();
     }
 
+    rectPath(corner: Vector2, size: Vector2) {
+        this.context.rect(corner.x, corner.y, size.x, size.y);
+    }
+
     circlePath(center: Vector2, radius: number) {
         this.context.arc(center.x, center.y, radius, 0, Math.PI * 2);
     }
@@ -69,6 +74,7 @@ export class Display {
         this.context.fillStyle = style.fill || "black";
         this.context.strokeStyle = style.stroke || "black";
         this.context.lineWidth = style.lineWidth || 1;
+        this.context.globalAlpha = style.opacity || 1;
         this.context.beginPath();
         pathFunction();
         if (style.fill) {
