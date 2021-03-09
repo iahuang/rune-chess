@@ -76,6 +76,7 @@ export class ChampionDiana extends Champion {
         });
         this.name = "Diana";
         this.championTitle = "Scorn of the Moon";
+        this.displayedQuote = "The moon will rise. The night will last forever."
         this.abilityQ = new DianaQ(this);
         this.abilityR = new DianaUlt(this);
     }

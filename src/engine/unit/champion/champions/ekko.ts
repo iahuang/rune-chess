@@ -50,6 +50,7 @@ export class ChampionEkko extends Champion {
         });
         this.name = "Ekko";
         this.championTitle = "The Boy who Shattered Time";
+        this.displayedQuote = "I'd rather make mistakes than make nothing at all.";
         this.abilityQ = new EkkoQ(this);
         this.abilityR = new EkkoR(this);
     }

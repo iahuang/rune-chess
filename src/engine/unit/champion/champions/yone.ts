@@ -152,6 +152,7 @@ export class ChampionYone extends Champion {
         this.passive = new YonePassive(this);
         this.abilityQ = new YoneQ(this);
         this.abilityE = new YoneE(this);
+        this.displayedQuote = "Without a banquet of sorrow, an azakana starves."
 
         this.applySelfStatusEffect(GatheringStorm, null);
     }

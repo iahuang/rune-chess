@@ -13,6 +13,7 @@ export default abstract class Champion extends Unit {
     passive: BaseAbility | null = null;
 
     championTitle: string = "null";
+    displayedQuote: string = "...";
     nicknames: string[] = [];
 
     private _currentVoiceLine: string | null = null;

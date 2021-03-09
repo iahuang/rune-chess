@@ -120,6 +120,7 @@ function replaceDescriptionPlaceholders(description: string, ability: BaseAbilit
 
 export function makeChampionInfoEmbed(champion: Champion) {
     let embed = makeEmbedBase(`${champion.name}, ${champion.championTitle}`);
+    embed.setDescription(`*"${champion.displayedQuote}"*`);
 
     embed.setThumbnail(new DataDragon().championSquareURL(champion.name));
 

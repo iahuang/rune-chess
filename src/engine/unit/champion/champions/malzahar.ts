@@ -7,13 +7,10 @@ class MalzaharQ extends LocationTargetedAbility {
     name = "Call of the Void";
     description = "None";
     identifier = AbilityIdentifier.Q;
-    nicknames = ["malz"];
     isLocationValid(pos: BoardPosition) {
         return false;
     }
-    onCast() {
-
-    }
+    onCast() {}
 
     setMetrics() {
         this.addMetric(AbilityMetricType.Damage, AbilityMetric.withBaseAmount(90).setAPScaling(0.7));
@@ -33,6 +30,9 @@ export class ChampionMalzahar extends Champion {
         });
 
         this.name = "Malzahar";
+        this.championTitle = "Prophet of the Void";
+        this.displayedQuote = "Icathia beckons.";
+        this.nicknames = ["malz"];
         this.abilityQ = new MalzaharQ(this);
     }
 }

@@ -66,6 +66,7 @@ export class ChampionSenna extends Champion {
 
         this.name = "Senna";
         this.championTitle = "The Redeemer";
+        this.displayedQuote = "No one fights alone in the Mist.";
         this.abilityQ = new SennaQ(this);
     }
 }
