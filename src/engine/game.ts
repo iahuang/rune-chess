@@ -9,8 +9,51 @@ import BoardPosition from "./board_position";
 import Champion from "./unit/champion/champion";
 import { ChampionDiana } from "./unit/champion/champions/diana";
 import { ChampionSenna } from "./unit/champion/champions/senna";
+import { DamageType } from "./damage";
 
-export default class RuneChess {
+interface GEHandler<T> {
+    function: GameEventCallback<T>;
+    id: number;
+}
+
+type GameEventCallback<T> = (event: T) => void;
+
+export class GameEventHandler<T> {
+    handlers: GEHandler<T>[];
+    _nextId = 0;
+    constructor() {
+        this.handlers = [];
+    }
+    broadcast(msg: T) {
+        for (let c of this.handlers) {
+            c.function(msg);
+        }
+    }
+    addEventListener(callback: GameEventCallback<T>) {
+        this.handlers.push({
+            function: callback,
+            id: this._nextId,
+        });
+        this._nextId++;
+        return this._nextId - 1;
+    }
+    removeEventListener(id: number) {
+        let lengthBefore = this.handlers.length;
+        this.handlers = this.handlers.filter((c) => c.id !== id);
+        if (lengthBefore === this.handlers.length) throw new Error(`Could not find event listener with id ${id}`);
+    }
+}
+
+export interface DamageTakenEvent {
+    from: Unit;
+    to: Unit;
+    preMitigationDamage: number;
+    postMitigationDamage: number;
+    type: DamageType;
+    
+}
+
+export class RuneChess {
     board: Board;
     debugRenderer: ASCIIRenderer;
 
@@ -19,6 +62,10 @@ export default class RuneChess {
     teamNeutral: Team;
 
     turn: TeamColor;
+
+    events = {
+        damageTaken: new GameEventHandler<DamageTakenEvent>(),
+    };
 
     constructor() {
         this.board = new Board();
@@ -77,7 +124,7 @@ export default class RuneChess {
         for (let effect of this.board.effects) {
             effect._onTurnEnd(effect.teamColor === this.turn);
         }
-        
+
         this.turn = this.getActiveTeam().opposingTeamColor();
     }
 }

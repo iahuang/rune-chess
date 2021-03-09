@@ -122,7 +122,7 @@ export default class Unit {
         return this._itemBonuses((b) => b.omnivamp);
     }
 
-    takeDamage(amount: number, source: Unit, type: DamageType) {
+    _receiveDamage(amount: number, source: Unit, type: DamageType) {
         let damageAmount = amount;
         if (type === DamageType.Physical) {
             damageAmount *= calculateDamageMultiplier(this.calculateArmor() - source.calculateLethality());
@@ -149,7 +149,7 @@ export default class Unit {
     }
 
     dealDamage(amount: number, to: Unit, type: DamageType) {
-        to.takeDamage(amount, this, type);
+        to._receiveDamage(amount, this, type);
     }
 
     linkBoard(board: Board) {

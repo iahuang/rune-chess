@@ -1,7 +1,7 @@
 import BoardPosition from "./board_position";
 import Globals from "./globals";
 import { Effect } from "./effect";
-import RuneChess from "./game";
+import { RuneChess } from "./game";
 import { TeamColor } from "./team";
 import Unit from "./unit/unit";
 
@@ -86,7 +86,7 @@ export default class Board {
 
     removeEffect(effect: Effect) {
         effect.onRemove();
-        this.effects = this.effects.filter(e=>e!==effect);
+        this.effects = this.effects.filter((e) => e !== effect);
     }
 
     _moveEffect(effect: Effect, to: BoardPosition) {

@@ -1,6 +1,6 @@
 import BoardPosition from "../engine/board_position";
 import Globals from "../engine/globals";
-import RuneChess from "../engine/game";
+import { RuneChess } from "../engine/game";
 import { TeamColor } from "../engine/team";
 import Unit from "../engine/unit/unit";
 import UnitType from "../engine/unit/unit_type";

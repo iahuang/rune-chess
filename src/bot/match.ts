@@ -1,5 +1,5 @@
 import Discord from "discord.js";
-import RuneChess from "../engine/game";
+import { RuneChess } from "../engine/game";
 import { randomChar } from "../engine/util/rand";
 
 interface Params {

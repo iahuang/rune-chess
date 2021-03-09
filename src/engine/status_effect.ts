@@ -75,3 +75,11 @@ export abstract class StatusEffect {
 
     }
 }
+
+export abstract class Buff extends StatusEffect {
+    type = EffectType.Buff;
+}
+
+export abstract class Debuff extends StatusEffect {
+    type = EffectType.Debuff;
+}

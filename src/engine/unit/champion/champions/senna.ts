@@ -45,7 +45,7 @@ class SennaQ extends UnitTargetedAbility {
                 if (affectedUnit.alliedTo(this.caster)) {
                     affectedUnit.heal(this.computeMetric(AbilityMetricType.Healing));
                 } else {
-                    affectedUnit.takeDamage(this.computeMetric(AbilityMetricType.Damage), this.caster, DamageType.Physical);
+                    this.dealDamage(this.computeMetric(AbilityMetricType.Damage), affectedUnit, DamageType.Physical);
                 }
             }
         }

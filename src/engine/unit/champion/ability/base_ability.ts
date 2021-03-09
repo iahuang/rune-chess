@@ -72,6 +72,7 @@ export abstract class BaseAbility {
     abstract description: string;
     maxRange: number | null = null;
     caster: Champion;
+    private _castingDisabled: boolean = false;
 
     voiceLines: string[] = [];
 
@@ -82,6 +83,18 @@ export abstract class BaseAbility {
         this.caster = caster;
         this._metrics = {};
         this.setMetrics();
+    }
+
+    get canBeCast() {
+        return !this._castingDisabled;
+    }
+
+    disableCasting() {
+        this._castingDisabled = true;
+    }
+
+    enableCasting() {
+        this._castingDisabled = false;
     }
 
     abstract setMetrics(): void;
@@ -143,6 +156,14 @@ export abstract class BaseAbility {
             this.caster.sayRandom(this.voiceLines);
         }
         this.onCast(target);
+    }
+
+    get dealDamage() {
+        return this.caster.dealDamage;
+    }
+
+    get board() {
+        return this.caster.board;
     }
 
     abstract onCast(target: AbilityTarget): void;

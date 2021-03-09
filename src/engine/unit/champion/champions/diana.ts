@@ -30,7 +30,7 @@ class DianaQ extends LocationTargetedAbility {
     }
 
     onHitUnit(hit: Unit) {
-        hit.takeDamage(90, this.caster, DamageType.Magic);
+        this.dealDamage(90, hit, DamageType.Magic);
         this.caster.applyStatusEffectTo(MoonlightDebuff, hit, 1);
     }
 }

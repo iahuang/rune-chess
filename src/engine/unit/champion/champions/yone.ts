@@ -1,10 +1,12 @@
 import BoardPosition from "../../../board_position";
 import { DamageType } from "../../../damage";
-import { EffectType, StatusEffect } from "../../../status_effect";
+import { Buff, EffectType } from "../../../status_effect";
 import EffectAirborne from "../../../status_effects_common/airborne";
+import Unit from "../../unit";
 import AbilityTarget from "../ability/ability_target";
 import { AbilityIdentifier, AbilityMetric, AbilityMetricType, PassiveAbility } from "../ability/base_ability";
 import { LocationTargetedAbility } from "../ability/location_target_ability";
+import { SelfTargetedAbility } from "../ability/self_targeted_ability";
 import Champion from "../champion";
 
 class YonePassive extends PassiveAbility {
@@ -17,10 +19,22 @@ class YonePassive extends PassiveAbility {
     }
 }
 
-class GatheringStorm extends StatusEffect {
+class GatheringStorm extends Buff {
     name = "Gathering Storm";
     description = "At two stacks, Yone's next Q is empowered";
-    type = EffectType.Buff;
+}
+
+class SoulUnbound extends Buff {
+    name = "Soul Unbound";
+    description = "Yone is in Spirit Form";
+
+    onExpire() {
+        if (!(this.user instanceof ChampionYone)) {
+            throw new Error("Cannot return champion to body - champion is not Yone");
+        }
+        let yone = this.user as ChampionYone;
+        (yone.abilityE! as YoneE).soulUnboundShouldEnd();
+    }
 }
 
 class YoneQ extends LocationTargetedAbility {
@@ -40,7 +54,7 @@ class YoneQ extends LocationTargetedAbility {
     onCast(target: AbilityTarget) {
         let unit = this.caster.board.getUnitAt(target.location!);
         let qEffect = this.caster.getStatusEffect(GatheringStorm)!;
-        if (unit) unit.takeDamage(this.computeMetric(AbilityMetricType.Damage), this.caster, DamageType.Physical);
+        if (unit) this.dealDamage(this.computeMetric(AbilityMetricType.Damage), unit, DamageType.Physical);
 
         if (qEffect.stacks() < 2) {
             if (unit) qEffect.addStack(); // stacks are only gained if Yone hits something
@@ -53,7 +67,7 @@ class YoneQ extends LocationTargetedAbility {
             let unitBehind = this.caster.board.getUnitAt(this.caster.pos.offsetBy(new BoardPosition(dx * 2, dy * 2)));
 
             if (unitBehind) {
-                unitBehind.takeDamage(this.computeMetric(AbilityMetricType.Damage), this.caster, DamageType.Physical);
+                this.dealDamage(this.computeMetric(AbilityMetricType.Damage), unitBehind, DamageType.Physical);
             }
 
             for (let toAirborne of [unit, unitBehind]) {
@@ -62,6 +76,57 @@ class YoneQ extends LocationTargetedAbility {
 
             qEffect.resetStacks();
             this.caster.sayRandom(["O'sai!", "Kou'an!", "Kase'ton!"]);
+        }
+    }
+}
+
+interface YoneEAffectedTarget {
+    unit: Unit;
+    damagePostMitigation: number;
+}
+
+class YoneE extends LocationTargetedAbility {
+    name = "Soul Unbound";
+    description =
+        "Yone dashes to one of eight adjacent empty squares, leaving behind a clone. After two active turns, Yone returns to his body, repeating 25% of damage dealt while in Spirit Form.";
+    identifier = AbilityIdentifier.E;
+
+    damageListener: number = -1;
+
+    affectedTargets: YoneEAffectedTarget[] = [];
+
+    setMetrics() {}
+
+    isLocationValid(loc: BoardPosition) {
+        return BoardPosition.withinSquare(this.caster.pos, loc, 1);
+    }
+
+    onCast(target: AbilityTarget) {
+        let to = target.location;
+        this.caster.applySelfStatusEffect(SoulUnbound, 4);
+        this.disableCasting();
+        this.affectedTargets = [];
+        this.damageListener = this.board.gameInstance.events.damageTaken.addEventListener((ev) => {
+            if (ev.from === this.caster) {
+                for (let alreadyAffected of this.affectedTargets) {
+                    if (alreadyAffected.unit === ev.to) {
+                        alreadyAffected.damagePostMitigation += ev.postMitigationDamage;
+                        return;
+                    }
+                }
+                this.affectedTargets.push({
+                    unit: ev.to,
+                    damagePostMitigation: ev.postMitigationDamage,
+                });
+            }
+        });
+    }
+
+    soulUnboundShouldEnd() {
+        this.enableCasting();
+        this.board.gameInstance.events.damageTaken.removeEventListener(this.damageListener);
+        for (let affectedTarget of this.affectedTargets) {
+            this.dealDamage(affectedTarget.damagePostMitigation * 0.25, affectedTarget.unit, DamageType.True);
         }
     }
 }
