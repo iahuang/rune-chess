@@ -98,11 +98,13 @@ class YoneE extends LocationTargetedAbility {
     setMetrics() {}
 
     isLocationValid(loc: BoardPosition) {
-        return BoardPosition.withinSquare(this.caster.pos, loc, 1);
+        return BoardPosition.withinSquare(this.caster.pos, loc, 1) && this.board.getUnitAt(loc) === null;
     }
 
     onCast(target: AbilityTarget) {
         let to = target.location;
+        this.caster.moveTo(to!);
+        
         this.caster.applySelfStatusEffect(SoulUnbound, 4);
         this.disableCasting();
         this.affectedTargets = [];
@@ -120,6 +122,8 @@ class YoneE extends LocationTargetedAbility {
                 });
             }
         });
+
+        this.caster.sayRandom(["Nowhere to hide!", "Spirit unmoored!", "Cross the veil!"]);
     }
 
     soulUnboundShouldEnd() {

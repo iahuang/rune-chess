@@ -188,4 +188,8 @@ export default class Unit {
             this.onInactiveTurnEnd();
         }
     }
+
+    moveTo(loc: BoardPosition) {
+        this.board.moveUnit(this, loc);
+    }
 }
