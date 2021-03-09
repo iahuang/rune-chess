@@ -108,17 +108,17 @@ class YoneE extends LocationTargetedAbility {
         this.caster.applySelfStatusEffect(SoulUnbound, 4);
         this.disableCasting();
         this.affectedTargets = [];
-        this.damageListener = this.board.gameInstance.events.damageTaken.addEventListener((ev) => {
-            if (ev.from === this.caster) {
+        this.damageListener = this.board.gameInstance.events.damageTaken.addEventListener((event) => {
+            if (event.from === this.caster) {
                 for (let alreadyAffected of this.affectedTargets) {
-                    if (alreadyAffected.unit === ev.to) {
-                        alreadyAffected.damagePostMitigation += ev.postMitigationDamage;
+                    if (alreadyAffected.unit === event.to) {
+                        alreadyAffected.damagePostMitigation += event.postMitigationDamage;
                         return;
                     }
                 }
                 this.affectedTargets.push({
-                    unit: ev.to,
-                    damagePostMitigation: ev.postMitigationDamage,
+                    unit: event.to,
+                    damagePostMitigation: event.postMitigationDamage,
                 });
             }
         });
@@ -151,6 +151,7 @@ export class ChampionYone extends Champion {
         this.championTitle = "The Unforgotten";
         this.passive = new YonePassive(this);
         this.abilityQ = new YoneQ(this);
+        this.abilityE = new YoneE(this);
 
         this.applySelfStatusEffect(GatheringStorm, null);
     }
