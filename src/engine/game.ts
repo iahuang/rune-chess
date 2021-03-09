@@ -50,7 +50,6 @@ export interface DamageTakenEvent {
     preMitigationDamage: number;
     postMitigationDamage: number;
     type: DamageType;
-    
 }
 
 export class RuneChess {

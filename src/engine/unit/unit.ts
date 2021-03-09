@@ -129,6 +129,13 @@ export default class Unit {
         } else if (type === DamageType.Magic) {
             damageAmount *= calculateDamageMultiplier(this.calculateMagicResist());
         }
+        this.getGameInstance().events.damageTaken.broadcast({
+            from: source as any,
+            to: this as any,
+            preMitigationDamage: amount,
+            postMitigationDamage: damageAmount,
+            type: type,
+        });
         this._takeDamage(damageAmount);
     }
 
