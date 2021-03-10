@@ -28,6 +28,10 @@ export default class Board {
         return this._game;
     }
 
+    setGameInstance(game: RuneChess) {
+        this._game = game;
+    }
+
     private _boardDataIndex(pos: BoardPosition) {
         return pos.y * Globals.boardSize + pos.x;
     }

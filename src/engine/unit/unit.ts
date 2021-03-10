@@ -136,6 +136,9 @@ export default class Unit {
             postMitigationDamage: damageAmount,
             type: type,
         });
+        if (source.teamColor === this.teamColor) {
+            throw new Error(`Unit ${source.name} has was able to damage ally unit ${this.name}`);
+        }
         this._takeDamage(damageAmount);
     }
 

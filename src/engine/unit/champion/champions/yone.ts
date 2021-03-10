@@ -4,7 +4,13 @@ import { Buff, EffectType } from "../../../status_effect";
 import EffectAirborne from "../../../status_effects_common/airborne";
 import Unit from "../../unit";
 import AbilityTarget from "../ability/ability_target";
-import { AbilityIdentifier, AbilityMetric, AbilityMetricType, PassiveAbility } from "../ability/base_ability";
+import {
+    AbilityEffectMask,
+    AbilityIdentifier,
+    AbilityMetric,
+    AbilityMetricType,
+    PassiveAbility,
+} from "../ability/base_ability";
 import { LocationTargetedAbility } from "../ability/location_target_ability";
 import { SelfTargetedAbility } from "../ability/self_targeted_ability";
 import Champion from "../champion";
@@ -54,7 +60,7 @@ class YoneQ extends LocationTargetedAbility {
     onCast(target: AbilityTarget) {
         let unit = this.caster.board.getUnitAt(target.getLocation());
         let qEffect = this.caster.getStatusEffect(GatheringStorm)!;
-        if (unit) this.dealDamage(this.computeMetric(AbilityMetricType.Damage), unit, DamageType.Physical);
+        if (unit) this.dealDamageToEnemyUnits(this.computeMetric(AbilityMetricType.Damage), unit, DamageType.Physical);
 
         if (qEffect.stacks() < 2) {
             if (unit) qEffect.addStack(); // stacks are only gained if Yone hits something
@@ -67,7 +73,7 @@ class YoneQ extends LocationTargetedAbility {
             let unitBehind = this.caster.board.getUnitAt(this.caster.pos.offsetBy(new BoardPosition(dx * 2, dy * 2)));
 
             if (unitBehind) {
-                this.dealDamage(this.computeMetric(AbilityMetricType.Damage), unitBehind, DamageType.Physical);
+                this.dealDamageToEnemyUnits(this.computeMetric(AbilityMetricType.Damage), unitBehind, DamageType.Physical);
             }
 
             for (let toAirborne of [unit, unitBehind]) {
@@ -104,7 +110,7 @@ class YoneE extends LocationTargetedAbility {
     onCast(target: AbilityTarget) {
         let to = target.getLocation();
         this.caster.moveTo(to!);
-        
+
         this.caster.applySelfStatusEffect(SoulUnbound, 4);
         this.disableCasting();
         this.affectedTargets = [];
@@ -152,7 +158,7 @@ export class ChampionYone extends Champion {
         this.passive = new YonePassive(this);
         this.abilityQ = new YoneQ(this);
         this.abilityE = new YoneE(this);
-        this.displayedQuote = "Without a banquet of sorrow, an azakana starves."
+        this.displayedQuote = "Without a banquet of sorrow, an azakana starves.";
 
         this.applySelfStatusEffect(GatheringStorm, null);
     }

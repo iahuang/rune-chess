@@ -1,4 +1,5 @@
 import BoardPosition from "../../../board_position";
+import { DamageType } from "../../../damage";
 import { Effect } from "../../../effect";
 import Unit from "../../unit";
 import Champion from "../champion";
@@ -166,8 +167,14 @@ export abstract class BaseAbility {
         this.onCast(target);
     }
 
-    get dealDamage() {
-        return this.caster.dealDamage;
+    dealDamage(amount: number, to: Unit, type: DamageType) {
+        this.caster.dealDamage(amount, to, type);
+    }
+
+    dealDamageToEnemyUnits(amount: number, to: Unit, type: DamageType) {
+        if (to.teamColor !== this.caster.teamColor) {
+            this.caster.dealDamage(amount, to, type);
+        }
     }
 
     get board() {

@@ -19,7 +19,7 @@ export default class BoardPosition {
     }
 
     directlyAdjacentTo(pos: BoardPosition) {
-        return (Math.abs(pos.x-this.y)===1) !== (Math.abs(pos.y-this.y)===1);
+        return Math.abs(pos.x - this.x) + Math.abs(pos.y - this.y) === 1;
     }
 
     get inBounds() {
@@ -40,7 +40,7 @@ export default class BoardPosition {
     }
 
     offsetBy(pos: BoardPosition) {
-        return new BoardPosition(pos.x+this.x, pos.y+this.y);
+        return new BoardPosition(pos.x + this.x, pos.y + this.y);
     }
 
     copy() {

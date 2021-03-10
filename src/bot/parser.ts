@@ -1,5 +1,4 @@
 import Discord from "discord.js";
-import { type } from "os";
 import BoardPosition from "../engine/board_position";
 
 export class ParseError {
