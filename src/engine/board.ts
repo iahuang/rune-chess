@@ -95,27 +95,33 @@ export default class Board {
     }
 
     displace(unit: Unit) {
+        // first try to move unit one square towards its starting side
         let dy = unit.teamColor === TeamColor.Red ? -1 : 1;
         let behind = unit.pos.offsetBy(new BoardPosition(0, dy));
         if (behind.inBounds && this.getUnitAt(behind) === null) {
             this.moveUnit(unit, behind);
+            return;
         }
-
-        let r = 1;
-        let sides = [
-            [0, 1],
-            [0, -1],
-            [1, 0],
-            [-1, 0],
-        ];
-
-        for (let side of sides) {
-            let c = [side[0] * r, side[1] * r];
-
-            for (let i=0;i<=r;i++) {
-                let a = [c[0]]
+        // if that doesn't work, find the closest empty position
+        let allPositions = [];
+        for (let x = 0; x < Globals.boardSize; x++) {
+            for (let y = 0; y < Globals.boardSize; y++) {
+                allPositions.push(new BoardPosition(x, y));
             }
         }
+        // filter board positions to just empty squares
+        allPositions = allPositions.filter((p) => unit.board.getUnitAt(p) === null);
+        // sort by closest position to the start
+        allPositions.sort((a, b)=>{
+            let distA = BoardPosition.manhattanDistance(a, unit.pos);
+            let distB = BoardPosition.manhattanDistance(b, unit.pos);
+            return distA - distB;
+        });
+        // move there
+        let closest = allPositions[0];
+        if (!closest) throw new Error("Cannot displace unit; no available empty squares");
+        unit.moveTo(closest);
+
     }
 
     _moveEffect(effect: Effect, to: BoardPosition) {
