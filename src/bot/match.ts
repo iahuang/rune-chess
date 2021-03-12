@@ -1,6 +1,6 @@
 import Discord from "discord.js";
 import { RuneChess } from "../engine/game";
-import { randomChar } from "../engine/util/rand";
+import { randomChar } from "../util/rand";
 
 interface Params {
     playerRed: Discord.GuildMember;

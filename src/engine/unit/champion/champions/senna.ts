@@ -57,6 +57,11 @@ class SennaQ extends UnitTargetedAbility {
 }
 
 export class ChampionSenna extends Champion {
+    name = "senna";
+    displayName = "Senna";
+    championTitle = "The Redeemer";
+    displayedQuote = "No one fights alone in the Mist.";
+    
     constructor() {
         super({
             maxHP: 816,
@@ -68,9 +73,6 @@ export class ChampionSenna extends Champion {
             ranged: true,
         });
 
-        this.name = "Senna";
-        this.championTitle = "The Redeemer";
-        this.displayedQuote = "No one fights alone in the Mist.";
         this.abilityQ = new SennaQ(this);
     }
 }

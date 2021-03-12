@@ -44,11 +44,11 @@ export class GameRenderer {
     metrics: BoardMetrics;
     effectRegistry: EffectGFXRegistry;
 
-    constructor() {
+    constructor(dataDragon: DataDragon) {
         this.assetManager = Globals.getAssetManager();
 
         this.ready = false;
-        this.dataDragon = new DataDragon();
+        this.dataDragon = dataDragon;
 
         this.config = JSON.parse(fs.readFileSync(CONFIG_PATH, "utf8"));
         console.log(`[GameRenderer] Config loaded from ${CONFIG_PATH}`);
@@ -286,11 +286,10 @@ export class GameRenderer {
     }
 
     async init() {
-        await this.dataDragon.useLatestGameVersion();
         // load Riot assets
         for (let name of Globals.championRegistry.allChampionNames()) {
-            let champion = new (Globals.championRegistry.getConstructor(name))();
-            let squareURL = this.dataDragon.championSquareURL(champion.name);
+            let championInstance = new (Globals.championRegistry.getConstructor(name))();
+            let squareURL = this.dataDragon.championSquareURL(championInstance.getRiotName());
             this.assetManager.register(`champion.${name}.icon`, squareURL);
         }
 

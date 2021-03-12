@@ -5,7 +5,6 @@ import Globals from "../engine/globals";
 import AbilityTarget from "../engine/unit/champion/ability/ability_target";
 import { AbilityIdentifier, TargetType } from "../engine/unit/champion/ability/base_ability";
 import Champion from "../engine/unit/champion/champion";
-import { makeErrorEmbed, makeGameViewEmbed } from "./embed";
 import { ArgumentFormat, ArgumentType } from "./parser";
 import { GameCommandCallInfo, RunechessBot } from "./runechess_discord";
 
@@ -84,23 +83,23 @@ export function moveCommand(bot: RunechessBot, info: GameCommandCallInfo) {
         to = parseAsCoordinate(info.parsedArgs[1]);
 
         if (info.match.game.board.getUnitAt(to) !== null) {
-            channel.send(makeErrorEmbed("There is already a unit where you are trying to move"));
+            channel.send(bot.embeds.makeErrorEmbed("There is already a unit where you are trying to move"));
             return;
         }
 
         if (info.team !== target.teamColor) {
-            channel.send(makeErrorEmbed("You can only move allied units"));
+            channel.send(bot.embeds.makeErrorEmbed("You can only move allied units"));
             return;
         }
 
         if (!BoardPosition.withinSquare(target.pos, to, 1) || to.equals(target.pos)) {
-            channel.send(makeErrorEmbed("You can only move one square at a time"));
+            channel.send(bot.embeds.makeErrorEmbed("You can only move one square at a time"));
             return;
         }
 
         //console.log("Moving unit at",target.pos,"to",to);
     } catch (err) {
-        channel.send(makeErrorEmbed(err.message));
+        channel.send(bot.embeds.makeErrorEmbed(err.message));
         return;
     }
 
@@ -145,7 +144,7 @@ export function castCommand(bot: RunechessBot, info: GameCommandCallInfo) {
 
         caster.castAbility(abilityIdentifier, target);
     } catch (err) {
-        channel.send(makeErrorEmbed(err.message));
+        channel.send(bot.embeds.makeErrorEmbed(err.message));
         return;
     }
 }
@@ -158,7 +157,7 @@ export function registerGameCommands(bot: RunechessBot) {
         format: new ArgumentFormat().add("piece", ArgumentType.String).add("to", ArgumentType.String),
         callback: (info) => {
             moveCommand(bot, info);
-            info.command.message.channel.send(makeGameViewEmbed(bot.gameRenderer, info.match));
+            info.command.message.channel.send(bot.embeds.makeGameViewEmbed(bot.gameRenderer, info.match));
         },
     });
 

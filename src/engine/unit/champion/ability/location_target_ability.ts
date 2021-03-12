@@ -8,13 +8,14 @@ export abstract class LocationTargetedAbility extends BaseAbility {
     targetType = TargetType.Location;
 
     isLocationValid(target: BoardPosition) {
-        if (this.maxRange !== null) {
-            return BoardPosition.withinSquare(this.caster.pos, target, this.maxRange);
-        }
+       
         return true;    
     }
 
     checkTargetValidity(target: AbilityTarget) {
+        if (this.maxRange !== null) {
+            return BoardPosition.manhattanDistance(this.caster.pos, target.getLocation()) <= this.maxRange;
+        }
         return this.isLocationValid(target.getLocation());
     }
 

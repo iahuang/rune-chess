@@ -2,14 +2,9 @@ import Discord from "discord.js";
 import Globals from "../engine/globals";
 import { TeamColor } from "../engine/team";
 import { GameRenderer } from "../graphics/game_renderer";
+import DataDragon from "../riot/data_dragon";
 import { startMatchCommand } from "./commands/start_match";
-import {
-    makeChampionInfoEmbed,
-    makeDebugInfoEmbed,
-    makeErrorEmbed,
-    makeHelpEmbed,
-    makeMatchListingEmbed,
-} from "./embed";
+import { EmbedGenerator } from "./embed";
 import { registerGameCommands } from "./game_commands";
 import Match from "./match";
 import { ArgumentFormat, ArgumentType, CommandParser, ParsedCommand } from "./parser";
@@ -66,6 +61,7 @@ export interface GameCommandHandlerArgs {
 export class RunechessBot extends Discord.Client {
     parser: CommandParser;
     config: BotConfig;
+    embeds: EmbedGenerator;
     private commandHandlers: CommandHandlerTable;
     private gameCommandHandlers: GameCommandHandlerTable;
 
@@ -73,15 +69,16 @@ export class RunechessBot extends Discord.Client {
 
     ongoingMatches: Match[];
 
-    constructor(params: BotConfig) {
+    constructor(dataDragon: DataDragon, config: BotConfig) {
         super();
-        this.config = params;
+        this.config = config;
         this.commandHandlers = {};
         this.gameCommandHandlers = {};
         this.ongoingMatches = [];
 
-        this.parser = new CommandParser(params.prefix);
-        this.gameRenderer = new GameRenderer();
+        this.parser = new CommandParser(config.prefix);
+        this.gameRenderer = new GameRenderer(dataDragon);
+        this.embeds = new EmbedGenerator({ embedColor: "#ffd261", dataDragon: dataDragon });
         // start the discord handlers immediately after the game
         // renderer / assets are finished loading
         this.gameRenderer.init().then(() => this.init());
@@ -145,7 +142,7 @@ export class RunechessBot extends Discord.Client {
                     } catch (err) {
                         output = err.toString();
                     }
-                    message.channel.send(makeDebugInfoEmbed(output));
+                    message.channel.send(this.embeds.makeDebugInfoEmbed(output));
                     return;
                 }
             }
@@ -159,7 +156,7 @@ export class RunechessBot extends Discord.Client {
                     try {
                         args = parsed.castArgs(cmdHandler.format);
                     } catch (err) {
-                        message.channel.send(makeErrorEmbed(err.message));
+                        message.channel.send(this.embeds.makeErrorEmbed(err.message));
                         return;
                     }
                     if (args) cmdHandler.callback(args, parsed);
@@ -169,7 +166,7 @@ export class RunechessBot extends Discord.Client {
                 let gcmdHandler = this.resolveGameCommand(parsed.command);
                 if (gcmdHandler) {
                     if (message.channel.type === "dm") {
-                        message.channel.send(makeErrorEmbed("Game commands cannot be used in DMs"));
+                        message.channel.send(this.embeds.makeErrorEmbed("Game commands cannot be used in DMs"));
                         return;
                     }
 
@@ -177,24 +174,24 @@ export class RunechessBot extends Discord.Client {
                     try {
                         args = parsed.castArgs(gcmdHandler.format);
                     } catch (err) {
-                        message.channel.send(makeErrorEmbed(err.message));
+                        message.channel.send(this.embeds.makeErrorEmbed(err.message));
                         return;
                     }
 
                     if (!message.member) {
-                        message.channel.send(makeErrorEmbed("Invalid user"));
+                        message.channel.send(this.embeds.makeErrorEmbed("Invalid user"));
                         return;
                     }
 
                     let userMatch = this.getUserMatchInfo(message.member);
 
                     if (!userMatch) {
-                        message.channel.send(makeErrorEmbed("This command can only be sent while in-game"));
+                        message.channel.send(this.embeds.makeErrorEmbed("This command can only be sent while in-game"));
                         return;
                     }
 
                     if (userMatch.match.game.turn !== userMatch.teamColor && !this.config.debug) {
-                        message.channel.send(makeErrorEmbed("It is not your turn!"));
+                        message.channel.send(this.embeds.makeErrorEmbed("It is not your turn!"));
                         return;
                     }
 
@@ -277,7 +274,9 @@ export class RunechessBot extends Discord.Client {
             description: "displays this message",
             format: new ArgumentFormat(),
             callback: (args, command) => {
-                command.message.channel.send(makeHelpEmbed(this.config.prefix, this.commandHandlers, this.gameCommandHandlers));
+                command.message.channel.send(
+                    this.embeds.makeHelpEmbed(this.config.prefix, this.commandHandlers, this.gameCommandHandlers)
+                );
             },
         });
 
@@ -287,7 +286,7 @@ export class RunechessBot extends Discord.Client {
             requiresGuild: true,
             format: new ArgumentFormat(),
             callback: (args, command) => {
-                command.message.channel.send(makeMatchListingEmbed(this, command.message.guild!.id));
+                command.message.channel.send(this.embeds.makeMatchListingEmbed(this, command.message.guild!.id));
             },
         });
 
@@ -302,9 +301,11 @@ export class RunechessBot extends Discord.Client {
                     let championConstructor = Globals.championRegistry.getConstructor(champName);
                     let champion = new championConstructor();
 
-                    command.message.channel.send(makeChampionInfoEmbed(champion));
+                    command.message.channel.send(this.embeds.makeChampionInfoEmbed(champion));
                 } else {
-                    command.message.channel.send(makeErrorEmbed(`No champion with the name "${champName}" exists`));
+                    command.message.channel.send(
+                        this.embeds.makeErrorEmbed(`No champion with the name "${champName}" exists`)
+                    );
                 }
             },
         });

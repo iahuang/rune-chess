@@ -70,6 +70,7 @@ export default class Board {
     }
 
     getUnitAt(pos: BoardPosition) {
+        if (!pos.inBounds) return null;
         return this._units[this._boardDataIndex(pos)];
     }
 
@@ -91,6 +92,30 @@ export default class Board {
     removeEffect(effect: Effect) {
         effect.onRemove();
         this.effects = this.effects.filter((e) => e !== effect);
+    }
+
+    displace(unit: Unit) {
+        let dy = unit.teamColor === TeamColor.Red ? -1 : 1;
+        let behind = unit.pos.offsetBy(new BoardPosition(0, dy));
+        if (behind.inBounds && this.getUnitAt(behind) === null) {
+            this.moveUnit(unit, behind);
+        }
+
+        let r = 1;
+        let sides = [
+            [0, 1],
+            [0, -1],
+            [1, 0],
+            [-1, 0],
+        ];
+
+        for (let side of sides) {
+            let c = [side[0] * r, side[1] * r];
+
+            for (let i=0;i<=r;i++) {
+                let a = [c[0]]
+            }
+        }
     }
 
     _moveEffect(effect: Effect, to: BoardPosition) {

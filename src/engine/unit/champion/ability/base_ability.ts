@@ -171,7 +171,7 @@ export abstract class BaseAbility {
         this.caster.dealDamage(amount, to, type);
     }
 
-    dealDamageToEnemyUnits(amount: number, to: Unit, type: DamageType) {
+    dealDamageToEnemyUnit(amount: number, to: Unit, type: DamageType) {
         if (to.teamColor !== this.caster.teamColor) {
             this.caster.dealDamage(amount, to, type);
         }
@@ -223,6 +223,12 @@ export class AbilityEffectMask {
     self = false;
 
     constructor() {}
+
+    static allEnemyUnits() {
+        let mask = new AbilityEffectMask();
+        mask.allowEnemyChampionTarget().allowEnemyMinionTarget();
+        return mask;
+    }
 
     allowEnemyMinionTarget() {
         this.enemyMinions = true;

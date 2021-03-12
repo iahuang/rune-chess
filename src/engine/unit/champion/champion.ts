@@ -1,4 +1,4 @@
-import { randomItem } from "../../util/rand";
+import { randomItem } from "../../../util/rand";
 import Unit from "../unit";
 import UnitAttributes from "../unit_attributes";
 import UnitType from "../unit_type";
@@ -12,8 +12,10 @@ export default abstract class Champion extends Unit {
     abilityR: BaseAbility | null = null;
     passive: BaseAbility | null = null;
 
-    championTitle: string = "null";
-    displayedQuote: string = "...";
+    abstract displayName: string;
+    riotName: string | null = null;
+    abstract championTitle: string;
+    abstract displayedQuote: string;
     nicknames: string[] = [];
 
     private _currentVoiceLine: string | null = null;
@@ -21,6 +23,11 @@ export default abstract class Champion extends Unit {
     constructor(attributes: UnitAttributes) {
         super(attributes);
         this.unitType = UnitType.Champion;
+    }
+
+    getRiotName() {
+        // use the display name if the riot name isn't specified.
+        return this.riotName || this.displayName;
     }
 
     say(message: string) {

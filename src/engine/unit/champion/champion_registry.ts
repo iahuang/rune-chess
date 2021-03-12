@@ -9,8 +9,8 @@ export class ChampionRegistry {
         this._registry = {};
     }
 
-    register(championName: string, constructor: ChampionConstructor) {
-        this._registry[championName] = constructor;
+    register(constructor: ChampionConstructor) {
+        this._registry[(new constructor()).name] = constructor;
         return this;
     }
 

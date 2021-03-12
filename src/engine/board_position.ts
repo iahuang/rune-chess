@@ -67,4 +67,8 @@ export default class BoardPosition {
 
         return Math.abs(center.x - pos.x) <= radius && Math.abs(center.y - pos.y) <= radius;
     }
+
+    static manhattanDistance(a: BoardPosition, b: BoardPosition) {
+        return Math.abs(a.x - b.x) + Math.abs(a.y - b.y);
+    }
 }

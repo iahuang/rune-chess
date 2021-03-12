@@ -3,7 +3,7 @@ import Board from "./board";
 import { Team, TeamColor } from "./team";
 import Unit from "./unit/champion/champion";
 import { ChampionRegistry } from "./unit/champion/champion_registry";
-import { randomItem } from "./util/rand";
+import { randomItem } from "../util/rand";
 import { createMinion, Minion } from "./unit/minion";
 import BoardPosition from "./board_position";
 import Champion from "./unit/champion/champion";

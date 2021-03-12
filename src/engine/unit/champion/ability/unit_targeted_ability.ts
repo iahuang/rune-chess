@@ -12,7 +12,7 @@ export abstract class UnitTargetedAbility extends BaseAbility {
 
     checkTargetValidity(target: AbilityTarget) {
         if (this.maxRange !== null) {
-            if (!BoardPosition.withinSquare(this.caster.pos, target.getUnit().pos, this.maxRange)) {
+            if (BoardPosition.manhattanDistance(this.caster.pos, target.getUnit().pos) > this.maxRange) {
                 return false;
             }
         }

@@ -32,12 +32,14 @@ class EkkoR extends SelfTargetedAbility {
         this.addMetric(AbilityMetricType.Healing, AbilityMetric.withBaseAmount(100).setAPScaling(0.6));
     }
 
-    onCast() {
-
-    }
+    onCast() {}
 }
 
 export class ChampionEkko extends Champion {
+    name = "ekko";
+    displayName = "Ekko";
+    championTitle = "The Boy who Shattered Time";
+    displayedQuote = "I'd rather make mistakes than make nothing at all.";
     constructor() {
         super({
             maxHP: 920,
@@ -48,9 +50,7 @@ export class ChampionEkko extends Champion {
             attackRange: 1,
             ranged: false,
         });
-        this.name = "Ekko";
-        this.championTitle = "The Boy who Shattered Time";
-        this.displayedQuote = "I'd rather make mistakes than make nothing at all.";
+
         this.abilityQ = new EkkoQ(this);
         this.abilityR = new EkkoR(this);
     }

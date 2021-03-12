@@ -64,6 +64,10 @@ class MoonlightDebuff extends StatusEffect {
 }
 
 export class ChampionDiana extends Champion {
+    name = "diana";
+    championTitle = "Scorn of thee Moon";
+    displayName = "Diana";
+    displayedQuote = "The moon will rise. The night will last forever.";
     constructor() {
         super({
             maxHP: 945,
@@ -75,8 +79,6 @@ export class ChampionDiana extends Champion {
             ranged: false,
         });
         this.name = "Diana";
-        this.championTitle = "Scorn of the Moon";
-        this.displayedQuote = "The moon will rise. The night will last forever."
         this.abilityQ = new DianaQ(this);
         this.abilityR = new DianaUlt(this);
     }

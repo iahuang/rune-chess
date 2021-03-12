@@ -60,7 +60,7 @@ class YoneQ extends LocationTargetedAbility {
     onCast(target: AbilityTarget) {
         let unit = this.caster.board.getUnitAt(target.getLocation());
         let qEffect = this.caster.getStatusEffect(GatheringStorm)!;
-        if (unit) this.dealDamageToEnemyUnits(this.computeMetric(AbilityMetricType.Damage), unit, DamageType.Physical);
+        if (unit) this.dealDamageToEnemyUnit(this.computeMetric(AbilityMetricType.Damage), unit, DamageType.Physical);
 
         if (qEffect.stacks() < 2) {
             if (unit) qEffect.addStack(); // stacks are only gained if Yone hits something
@@ -73,7 +73,11 @@ class YoneQ extends LocationTargetedAbility {
             let unitBehind = this.caster.board.getUnitAt(this.caster.pos.offsetBy(new BoardPosition(dx * 2, dy * 2)));
 
             if (unitBehind) {
-                this.dealDamageToEnemyUnits(this.computeMetric(AbilityMetricType.Damage), unitBehind, DamageType.Physical);
+                this.dealDamageToEnemyUnit(
+                    this.computeMetric(AbilityMetricType.Damage),
+                    unitBehind,
+                    DamageType.Physical
+                );
             }
 
             for (let toAirborne of [unit, unitBehind]) {
@@ -142,6 +146,10 @@ class YoneE extends LocationTargetedAbility {
 }
 
 export class ChampionYone extends Champion {
+    name = "yone";
+    displayName = "Yone";
+    championTitle = "The Unforgotten";
+    displayedQuote = "Without a banquet of sorrow, an azakana starves.";
     constructor() {
         super({
             maxHP: 885,
@@ -153,12 +161,9 @@ export class ChampionYone extends Champion {
             ranged: false,
         });
 
-        this.name = "Yone";
-        this.championTitle = "The Unforgotten";
         this.passive = new YonePassive(this);
         this.abilityQ = new YoneQ(this);
         this.abilityE = new YoneE(this);
-        this.displayedQuote = "Without a banquet of sorrow, an azakana starves.";
 
         this.applySelfStatusEffect(GatheringStorm, null);
     }

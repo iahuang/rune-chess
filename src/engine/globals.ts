@@ -1,6 +1,7 @@
 import { AssetManager } from "../graphics/asset_manager";
 import { ChampionDiana } from "./unit/champion/champions/diana";
 import { ChampionEkko } from "./unit/champion/champions/ekko";
+import { ChampionMalzahar } from "./unit/champion/champions/malzahar";
 import { ChampionSenna } from "./unit/champion/champions/senna";
 import { ChampionYone } from "./unit/champion/champions/yone";
 import { ChampionRegistry } from "./unit/champion/champion_registry";
@@ -20,10 +21,11 @@ export default class Globals {
     static readonly boardSize = 8;
     static readonly gameVersion = "0.1 indev";
     static readonly championRegistry = new ChampionRegistry()
-        .register("diana", ChampionDiana)
-        .register("senna", ChampionSenna)
-        .register("ekko", ChampionEkko)
-        .register("yone", ChampionYone)
+        .register(ChampionDiana)
+        .register(ChampionSenna)
+        .register(ChampionEkko)
+        .register(ChampionYone)
+        .register(ChampionMalzahar);
 
     static getAssetManager() {
         return _assetManager;
