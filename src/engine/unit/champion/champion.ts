@@ -77,7 +77,13 @@ export default abstract class Champion extends Unit {
                 throw new Error("Cannot cast ability on this unit");
             }
         }
-
+        if (!this.canCastAbilities) {
+            throw new Error("This unit is crowd-controlled and cannot cast abilities");
+        }
+        if (ability.requiresMobility && !this.canMove) {
+            throw new Error("This ability cannot be cast while immobilized");
+        }
+        this.interruptChannelling();
         ability._onCast(target);
     }
 

@@ -74,6 +74,7 @@ export abstract class BaseAbility {
     maxRange: number | null = null;
     caster: Champion;
     private _castingDisabled: boolean = false;
+    requiresMobility = false // if set to true, this ability cannot be cast while rooted
 
     voiceLines: string[] = [];
 

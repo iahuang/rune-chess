@@ -74,6 +74,10 @@ export default class Board {
         return this._units[this._boardDataIndex(pos)];
     }
 
+    hasUnitAt(pos: BoardPosition) {
+        return this.getUnitAt(pos) !== null;
+    }
+
     allUnits() {
         return this._units.filter((u) => u !== null) as Unit[];
     }

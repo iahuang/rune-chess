@@ -1,6 +1,7 @@
 import { AssetManager } from "../graphics/asset_manager";
 import { ChampionDiana } from "./unit/champion/champions/diana";
 import { ChampionEkko } from "./unit/champion/champions/ekko";
+import { ChampionLeblanc } from "./unit/champion/champions/leblanc";
 import { ChampionMalzahar } from "./unit/champion/champions/malzahar";
 import { ChampionSenna } from "./unit/champion/champions/senna";
 import { ChampionYone } from "./unit/champion/champions/yone";
@@ -25,7 +26,8 @@ export default class Globals {
         .register(ChampionSenna)
         .register(ChampionEkko)
         .register(ChampionYone)
-        .register(ChampionMalzahar);
+        .register(ChampionMalzahar)
+        .register(ChampionLeblanc);
 
     static getAssetManager() {
         return _assetManager;

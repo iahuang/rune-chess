@@ -33,14 +33,6 @@ class GatheringStorm extends Buff {
 class SoulUnbound extends Buff {
     name = "Soul Unbound";
     description = "Yone is in Spirit Form";
-
-    onExpire() {
-        if (!(this.user instanceof ChampionYone)) {
-            throw new Error("Cannot return champion to body - champion is not Yone");
-        }
-        let yone = this.user as ChampionYone;
-        (yone.abilityE! as YoneE).soulUnboundShouldEnd();
-    }
 }
 
 class YoneQ extends LocationTargetedAbility {
@@ -100,7 +92,7 @@ class YoneE extends LocationTargetedAbility {
     description =
         "Yone dashes to one of eight adjacent empty squares, leaving behind a clone. After two active turns, Yone returns to his body, repeating 25% of damage dealt while in Spirit Form.";
     identifier = AbilityIdentifier.E;
-
+    requiresMobility = true;
     damageListener: number = -1;
 
     affectedTargets: YoneEAffectedTarget[] = [];
@@ -115,7 +107,7 @@ class YoneE extends LocationTargetedAbility {
         let to = target.getLocation();
         this.caster.moveTo(to!);
 
-        this.caster.applySelfStatusEffect(SoulUnbound, 4);
+        let effect = this.caster.applySelfStatusEffect(SoulUnbound, 4);
         this.disableCasting();
         this.affectedTargets = [];
         this.damageListener = this.board.gameInstance.events.damageTaken.addEventListener((event) => {
@@ -132,17 +124,18 @@ class YoneE extends LocationTargetedAbility {
                 });
             }
         });
+        effect.onExpire = () => {
+            this.enableCasting();
+            this.board.gameInstance.events.damageTaken.removeEventListener(this.damageListener);
+            for (let affectedTarget of this.affectedTargets) {
+                this.dealDamage(affectedTarget.damagePostMitigation * 0.25, affectedTarget.unit, DamageType.True);
+            }
+        };
 
         this.caster.sayRandom(["Nowhere to hide!", "Spirit unmoored!", "Cross the veil!"]);
     }
 
-    soulUnboundShouldEnd() {
-        this.enableCasting();
-        this.board.gameInstance.events.damageTaken.removeEventListener(this.damageListener);
-        for (let affectedTarget of this.affectedTargets) {
-            this.dealDamage(affectedTarget.damagePostMitigation * 0.25, affectedTarget.unit, DamageType.True);
-        }
-    }
+    soulUnboundShouldEnd() {}
 }
 
 export class ChampionYone extends Champion {

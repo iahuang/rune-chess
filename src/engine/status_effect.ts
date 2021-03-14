@@ -14,14 +14,14 @@ export abstract class StatusEffect {
     effectDuration: number | null;
     
     source: Unit;   // the one who gave the status effect
-    user: Unit;     // the one with the status effect
+    holder: Unit;     // the one with the status effect
     timeLeft: number; // turns
 
     private _stacks: number;
 
     constructor(source: Unit, user: Unit, duration: number | null) {
         this.source = source;
-        this.user = user;
+        this.holder = user;
         this.timeLeft = duration || 0;
         this.effectDuration = duration;
         this._stacks = 0;
@@ -50,6 +50,7 @@ export abstract class StatusEffect {
         } else {
             this.onInactiveTurnEnd();
         }
+        this.onAnyTurnEnd();
         if (this.effectDuration === null) return;
         this.timeLeft -= 1;
     }
@@ -60,6 +61,10 @@ export abstract class StatusEffect {
     }
 
     onApply() {
+
+    }
+
+    onAnyTurnEnd() {
 
     }
 

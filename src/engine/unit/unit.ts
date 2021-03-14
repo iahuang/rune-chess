@@ -5,10 +5,12 @@ import { Item, ItemStatBonuses } from "../item";
 import { StatusEffect } from "../status_effect";
 import EffectGrievousWounds from "../status_effects_common/grevious_wounds";
 import { Team, TeamColor } from "../team";
+import { UnitChannel } from "./channeling";
 import UnitAttributes from "./unit_attributes";
 import UnitType from "./unit_type";
 
 type EffectConstructor = new (source: Unit, user: Unit, duration: number | null) => StatusEffect;
+type EffectConstructorGeneric<T extends StatusEffect> = new (source: Unit, user: Unit, duration: number | null) => T;
 
 export default class Unit {
     baseAttributes: UnitAttributes;
@@ -18,10 +20,17 @@ export default class Unit {
     pos: BoardPosition;
     name: string;
     teamColor: TeamColor;
+    dead: boolean;
 
     statusEffects: StatusEffect[];
 
     items: Item[];
+
+    // cc-related
+    _immobilizingStacks: number;
+    _silencingStacks: number;
+
+    currentChannel: UnitChannel | null = null;
 
     constructor(attributes: UnitAttributes) {
         this.baseAttributes = attributes;
@@ -32,30 +41,63 @@ export default class Unit {
         this.statusEffects = [];
         this.unitType = UnitType.Other;
         this.items = [];
+        this.dead = false;
+        this._immobilizingStacks = 0;
+        this._silencingStacks = 0;
+    }
+
+    addImmobilizingEffect() {
+        this._immobilizingStacks++;
+        this.interruptChannelling();
+    }
+    releaseImmobilizingEffect() {
+        this._immobilizingStacks--;
+    }
+    addSilencingEffect() {
+        this._silencingStacks++;
+        this.interruptChannelling();
+    }
+    releaseSilencingEffect() {
+        this._silencingStacks++;
+    }
+    get canMove() {
+        return this._immobilizingStacks === 0;
+    }
+    get canCastAbilities() {
+        return this._silencingStacks === 0;
+    }
+
+    beginChannelling(channel: UnitChannel, duration: number) {
+        this.currentChannel = channel;
+        channel._setParentUnit(this);
+        channel.setDuration(duration);
+        channel.onBegin();
     }
 
     giveItem(ItemConstructor: new () => Item) {
         this.items.push(new ItemConstructor());
     }
 
-    applySelfStatusEffect(E: EffectConstructor, duration: number | null) {
+    applySelfStatusEffect<T extends StatusEffect>(E: EffectConstructorGeneric<T>, duration: number | null) {
         let effect = new E(this, this, duration);
         this.statusEffects.push(effect);
         effect.onApply();
+        return effect;
     }
 
-    applyStatusEffectTo(E: EffectConstructor, to: Unit, duration: number | null) {
+    applyStatusEffectTo<T extends StatusEffect>(E: EffectConstructorGeneric<T>, to: Unit, duration: number | null) {
         let effect = new E(this, to, duration);
         to.statusEffects.push(effect);
         effect.onApply();
+        return effect;
     }
 
-    getStatusEffect(E: typeof StatusEffect) {
+    getStatusEffect<T extends StatusEffect>(E: EffectConstructorGeneric<T>) {
         // Checks to see whether a status effect is present on this unit,
         // returning its instance if so.
         for (let effect of this.statusEffects) {
             if (effect.constructor === E) {
-                return effect;
+                return effect as T;
             }
         }
         return null;
@@ -74,10 +116,6 @@ export default class Unit {
 
     getGameInstance() {
         return this.board.gameInstance;
-    }
-
-    private _takeDamage(rawDamage: number) {
-        this.hp -= rawDamage;
     }
 
     private _itemBonuses(accessor: (bonus: ItemStatBonuses) => number | undefined) {
@@ -139,7 +177,12 @@ export default class Unit {
         if (source.teamColor === this.teamColor) {
             throw new Error(`Unit ${source.name} has was able to damage ally unit ${this.name}`);
         }
-        this._takeDamage(damageAmount);
+        this.hp -= damageAmount;
+        if (this.hp <= 0) {
+            this.hp = 0;
+            this.dead = true;
+            this._onDie(source);
+        }
     }
 
     heal(amount: number, source?: Unit) {
@@ -197,9 +240,50 @@ export default class Unit {
         } else {
             this.onInactiveTurnEnd();
         }
+        if (this.currentChannel) {
+            this.currentChannel.onTurnEnd(activeTurn);
+            this.currentChannel.timeRemaining-=1;
+            if (this.currentChannel.timeRemaining === 0) {
+                this.completeChannelling();
+            }
+        }
+    }
+
+    _stopChannel() {
+        if (this.currentChannel) {
+            this.currentChannel.onEnd();
+            this.currentChannel = null;
+        }
+    }
+
+    completeChannelling() {
+        if (this.currentChannel) {
+            this.currentChannel.onComplete();
+            this._stopChannel();
+        }
+    }
+
+    interruptChannelling() {
+        if (this.currentChannel) {
+            this.currentChannel.onInterrupt();
+            this._stopChannel();
+        }
+    }
+
+    get isChannelling() {
+        return this.currentChannel !== null;
     }
 
     moveTo(loc: BoardPosition) {
         this.board.moveUnit(this, loc);
+        this.interruptChannelling();
+    }
+
+    _onDie(killer: Unit) {
+        this.onDie(killer);
+    }
+
+    onDie(killer: Unit) {
+
     }
 }

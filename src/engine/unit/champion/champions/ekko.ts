@@ -26,6 +26,7 @@ class EkkoR extends SelfTargetedAbility {
     description =
         "Ekko travels back in time, returning to where he was four turns ago, *displacing* any units where he lands, dealing [DAMAGE] magic damage and healing for [HEALING] HP";
     identifier = AbilityIdentifier.R;
+    requiresMobility = true;
 
     setMetrics() {
         this.addMetric(AbilityMetricType.Damage, AbilityMetric.withBaseAmount(150).setAPScaling(1.5));
