@@ -1,7 +1,9 @@
 import { DamageType } from "../../../damage";
+import { CCRooted } from "../../../status_effects_common/crowd_control";
 import AbilityTarget from "../ability/ability_target";
-import { AbilityIdentifier, AbilityMetric, AbilityMetricType } from "../ability/base_ability";
+import { AbilityEffectMask, AbilityIdentifier, AbilityMetric, AbilityMetricType } from "../ability/base_ability";
 import { LocationTargetedAbility } from "../ability/location_target_ability";
+import { UnitTargetedAbility } from "../ability/unit_targeted_ability";
 import Champion from "../champion";
 
 export class LeblancW extends LocationTargetedAbility {
@@ -30,9 +32,27 @@ export class LeblancW extends LocationTargetedAbility {
     }
 }
 
+export class LeblancE extends UnitTargetedAbility {
+    name = "Ethreal Chains";
+    description = "LeBlanc roots a chosen target for its next two active turns and deals [DAMAGE] magic damage";
+    maxRange = 2;
+    validTargets = AbilityEffectMask.allEnemyUnits();
+    identifier = AbilityIdentifier.E;
+    setMetrics() {
+        this.addMetric(AbilityMetricType.Damage, AbilityMetric.withBaseAmount(50).setAPScaling(0.4));
+    }
+
+    onCast(target: AbilityTarget) {
+        let unit = target.getUnit();
+        this.dealDamage(this.computeMetric(AbilityMetricType.Damage), unit, DamageType.Magic);
+        this.caster.applyStatusEffectTo(CCRooted, unit, 4);
+    }
+}
+
 export class ChampionLeblanc extends Champion {
     name = "leblanc";
     displayName = "LeBlanc";
+    riotName = "Leblanc";
     championTitle = "The Deceiver";
     displayedQuote = "For a moment I thought I'd broken a sweat.";
     constructor() {
@@ -47,5 +67,7 @@ export class ChampionLeblanc extends Champion {
         });
 
         this.nicknames = ["lb", "lebonk"];
+        this.abilityW = new LeblancW(this);
+        this.abilityE = new LeblancE(this);
     }
 }

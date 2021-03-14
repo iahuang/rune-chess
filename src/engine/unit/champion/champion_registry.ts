@@ -27,4 +27,8 @@ export class ChampionRegistry {
     allChampionNames() {
         return Object.keys(this._registry);
     }
+
+    instantiateChampion(name: string) {
+        return new (this.getConstructor(name))();
+    }
 }

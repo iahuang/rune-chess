@@ -319,6 +319,16 @@ export class RunechessBot extends Discord.Client {
             },
         });
 
+        this.registerCommand({
+            name: "champions",
+            description: "Lists all playable champions",
+            format: new ArgumentFormat(),
+            callback: (args, command) => {
+                let channel = command.message.channel;
+                channel.send(this.embeds.makeChampionRegistryEmbed(this.config.prefix))
+            }
+        })
+
         registerGameCommands(this);
 
         //this.onCommand("help", new ArgumentFormat().addOptional("command", ArgumentType.String), (args, command) => {});

@@ -181,4 +181,19 @@ export class EmbedGenerator {
         }
         return embed;
     }
+
+    makeChampionRegistryEmbed(prefix: string) {
+        let registry = Globals.championRegistry;
+        let embed = this.makeEmbedBase("Champions List");
+        let description = "";
+
+        for (let c of registry.allChampionNames().sort()) {
+            let champion = registry.instantiateChampion(c);
+            description+=`- ${champion.displayName}, ${champion.championTitle}`;
+            description+="\n";
+        }
+        description+=`Use ${prefix}info [champion] to learn more about a specific champion.`;
+        embed.setDescription(description);
+        return embed;
+    }
 }
