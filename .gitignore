@@ -110,5 +110,6 @@ test.png
 _cache
 bot_config.json
 personal
+lines_of_code.txt
 
 *.blend1

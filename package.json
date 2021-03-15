@@ -9,6 +9,7 @@
         "node-fetch": "^2.6.1"
     },
     "scripts": {
-        "start": "node --unhandled-rejections=strict build/main.js"
+        "start": "node --unhandled-rejections=strict build/main.js",
+        "loc": "find src -name '*.ts' | xargs wc -l > lines_of_code.txt"
     }
 }
