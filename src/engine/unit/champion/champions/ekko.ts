@@ -51,7 +51,7 @@ class EkkoQ extends LocationTargetedAbility {
 
                 // normalize vector
                 let dir = new Vector2(dx, dy).normalized();
-                
+
                 // make sure we don't have any decimals
                 dir.x = Math.ceil(dir.x);
                 dir.y = Math.ceil(dir.y);
@@ -72,13 +72,64 @@ class EkkoR extends SelfTargetedAbility {
         "Ekko travels back in time, returning to where he was four turns ago, *displacing* any units where he lands, dealing [DAMAGE] magic damage and healing for [HEALING] HP";
     identifier = AbilityIdentifier.R;
     requiresMobility = true;
+    _shadowEffect: Effect | null = null;
+    moveHistory: BoardPosition[] = [];
+    numTurnsRewind = 4;
 
     setMetrics() {
         this.addMetric(AbilityMetricType.Damage, AbilityMetric.withBaseAmount(150).setAPScaling(1.5));
         this.addMetric(AbilityMetricType.Healing, AbilityMetric.withBaseAmount(100).setAPScaling(0.6));
     }
 
-    onCast() {}
+    getLandLocation() {
+        let loc = this.moveHistory[0];
+        if (!loc) throw new Error("Cannot call getLandLocation when Ekko has not been placed on board!");
+        return loc;
+    }
+
+    _createShadow() {
+        if (!this._shadowEffect) {
+            this._shadowEffect = this.createAlliedEffect(EffectEkkoShadow, this.getLandLocation());
+        }
+    }
+
+    getShadowEffect() {
+        let s = this._shadowEffect;
+        if (!s) throw new Error("Ekko shadow effect has not been created!");
+        return s;
+    }
+
+    onCast() {
+        let landing = this.getLandLocation();
+        let unitThere = this.board.getUnitAt(landing);
+        if (unitThere) this.board.displace(unitThere);
+        this.caster.moveTo(landing);
+        // deal damage where Ekko lands
+        for (let adj of landing.directlyAdjacentSquares()) {
+            let unit = this.board.getUnitAt(adj);
+            let splashDamage = this.computeMetric(AbilityMetricType.Damage);
+            if (unit) {
+                this.dealDamageToEnemyUnit(splashDamage, unit, DamageType.Magic);
+            }
+        }
+        // heal
+        let healingAmt = this.computeMetric(AbilityMetricType.Healing);
+        this.caster.heal(healingAmt);
+    }
+
+    onUnitPlaced() {
+        this.moveHistory.push(this.caster.pos.copy());
+        this._createShadow();
+    }
+
+    passivelyOnActiveTurnEnd() {
+        this.moveHistory.push(this.caster.pos.copy());
+        if (this.moveHistory.length > this.numTurnsRewind) {
+            this.moveHistory.pop();
+        }
+        let eff = this.getShadowEffect();
+        eff.moveTo(this.getLandLocation());
+    }
 }
 
 export class ChampionEkko extends Champion {

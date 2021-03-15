@@ -286,4 +286,12 @@ export default class Unit {
     onDie(killer: Unit) {
 
     }
+
+    onPlace() {
+
+    }
+
+    _onPlace() {
+        this.onPlace();
+    }
 }

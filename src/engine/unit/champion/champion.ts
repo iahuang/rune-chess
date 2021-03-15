@@ -94,4 +94,11 @@ export default abstract class Champion extends Unit {
             ability._onTurnEnd(activeTurn);
         }
     }
+
+    _onPlace() {
+        for (let ability of this.allAbilities()) {
+            ability.onUnitPlaced();
+        }
+        super._onPlace();
+    }
 }

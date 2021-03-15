@@ -201,6 +201,8 @@ export abstract class BaseAbility {
 
     passivelyOnInactiveTurnEnd() {}
 
+    onUnitPlaced() {}
+
     canMaskAffect(unit: Unit, mask: AbilityEffectMask) {
         return mask.canAffect(this.caster, unit)
     }

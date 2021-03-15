@@ -37,12 +37,14 @@ export default class Board {
     }
 
     placeUnit(unit: Unit, pos: BoardPosition) {
+        if (unit.board) throw new Error("This unit has already been placed!");
         unit.linkBoard(this);
-        unit.pos = pos;
+        unit.pos = pos.copy();
         if (this.getUnitAt(pos)) {
             throw new Error("There is already a piece here");
         }
         this._units[this._boardDataIndex(pos)] = unit;
+        unit._onPlace();
     }
 
     popUnit(pos: BoardPosition) {
@@ -65,8 +67,11 @@ export default class Board {
             throw new Error("Cannot move a unit not linked to this board");
         }
 
-        this.popUnit(unit.pos);
-        this.placeUnit(unit, to);
+        to = to.copy();
+
+        this._units[this._boardDataIndex(unit.pos)] = null;
+        this._units[this._boardDataIndex(to)] = unit;
+        unit.pos = to;
     }
 
     getUnitAt(pos: BoardPosition) {
@@ -84,7 +89,7 @@ export default class Board {
 
     createEffect<T extends Effect>(E: new () => T, at: BoardPosition, team = TeamColor.Neutral) {
         let effect = new E();
-        effect.pos = at;
+        effect.pos = at.copy();
         effect.teamColor = team;
 
         this.effects.push(effect);
