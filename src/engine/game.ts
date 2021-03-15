@@ -11,6 +11,7 @@ import { ChampionDiana } from "./unit/champion/champions/diana";
 import { ChampionSenna } from "./unit/champion/champions/senna";
 import { DamageType } from "./damage";
 import { ChampionYone } from "./unit/champion/champions/yone";
+import { ChampionEkko } from "./unit/champion/champions/ekko";
 
 interface GEHandler<T> {
     function: GameEventCallback<T>;
@@ -88,7 +89,7 @@ export class RuneChess {
     }
 
     setDebugLayout() {
-        this.placeUnit(new ChampionYone(), new BoardPosition(0, 0), TeamColor.Red);
+        this.placeUnit(new ChampionEkko(), new BoardPosition(0, 0), TeamColor.Red);
         this.placeUnit(new ChampionDiana(), new BoardPosition(0, 7), TeamColor.Blue);
         for (let i = 0; i < 8; i++) {
             this.placeUnit(createMinion() as Unit, new BoardPosition(i, 1), TeamColor.Red);

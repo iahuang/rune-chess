@@ -79,7 +79,8 @@ export class GameRenderer {
     drawUnitIcon(unit: Unit) {
         let pos = this.boardPosToScreenPos(unit.pos);
         let unitIconAsset: ImageAsset;
-
+        const margin = 3;
+        // determine correct unit icon, either champion or minion
         if (unit.unitType === UnitType.Champion) {
             unitIconAsset = this.iconAssetForChampion(unit.name);
         } else if (unit.unitType === UnitType.Minion) {
@@ -91,17 +92,16 @@ export class GameRenderer {
         } else {
             throw new Error("Cannot draw unit of unknown type");
         }
+        // draw the icon, clpped to a circle shape
         this.display.clipped(
             () => {
                 this.display.context.beginPath();
                 this.display.circlePath(
                     pos.plus(Vector2.pair(this.metrics.cellSize / 2)),
-                    this.metrics.cellSize / 2 - 5
+                    this.metrics.cellSize / 2 - margin
                 );
             },
             () => {
-                this.display.context.fillStyle = "red";
-                //this.display.context.fillRect(pos.x, pos.y, cellSize, cellSize);
                 this.display.context.drawImage(
                     unitIconAsset.image,
                     pos.x,
@@ -111,6 +111,7 @@ export class GameRenderer {
                 );
             }
         );
+        // draw a colored border around the icon
         let teamColor = { [TeamColor.Blue]: "blue", [TeamColor.Red]: "red", [TeamColor.Neutral]: "white" }[
             unit.teamColor
         ];
@@ -119,7 +120,7 @@ export class GameRenderer {
                 //console.log(TeamColor[unit.teamColor], JSON.stringify(unit.pos))
                 this.display.circlePath(
                     pos.plus(Vector2.pair(this.metrics.cellSize / 2)),
-                    this.metrics.cellSize / 2 - 5
+                    this.metrics.cellSize / 2 - margin
                 );
             },
             { stroke: teamColor, lineWidth: 1 }
