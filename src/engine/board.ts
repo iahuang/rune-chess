@@ -90,6 +90,7 @@ export default class Board {
         this.effects.push(effect);
 
         effect.onPlace();
+        this._runEffectCollisions(effect);
         return effect;
     }
 
@@ -101,7 +102,7 @@ export default class Board {
     displace(unit: Unit) {
         // first try to move unit one square towards its starting side
         let dy = unit.teamColor === TeamColor.Red ? -1 : 1;
-        let behind = unit.pos.offsetBy(new BoardPosition(0, dy));
+        let behind = unit.pos.offsetBy(0, dy);
         if (behind.inBounds && this.getUnitAt(behind) === null) {
             this.moveUnit(unit, behind);
             return;
@@ -128,7 +129,18 @@ export default class Board {
 
     }
 
+    _runEffectCollisions(effect: Effect) {
+        let hitbox = effect.hitbox;
+
+        for (let unit of this.allUnits()) {
+            if (hitbox._checkCollision(effect.pos, unit)) {
+                effect.onCollision(unit);
+            }
+        }
+    }
+
     _moveEffect(effect: Effect, to: BoardPosition) {
         effect.pos = to.copy();
+        this._runEffectCollisions(effect);
     }
 }

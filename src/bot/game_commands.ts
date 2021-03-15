@@ -8,7 +8,7 @@ import Champion from "../engine/unit/champion/champion";
 import { ArgumentFormat, ArgumentType } from "./parser";
 import { GameCommandCallInfo, RunechessBot } from "./runechess_discord";
 
-export function interpretUnitTarget(arg: string, info: GameCommandCallInfo, alliedOnly = false) {
+export function parseUnitTargetArg(arg: string, info: GameCommandCallInfo, alliedOnly = false) {
     /*
         When a game command takes a unit as an argument, the unit can either be specified
         by name or by location on the board. Returns a BoardPosition or an Error instance
@@ -79,7 +79,7 @@ export function moveCommand(bot: RunechessBot, info: GameCommandCallInfo) {
     let to;
 
     try {
-        target = interpretUnitTarget(info.parsedArgs[0], info, true);
+        target = parseUnitTargetArg(info.parsedArgs[0], info, true);
         to = parseAsCoordinate(info.parsedArgs[1]);
 
         if (info.match.game.board.getUnitAt(to) !== null) {
@@ -110,7 +110,7 @@ export function castCommand(bot: RunechessBot, info: GameCommandCallInfo) {
     let channel = info.command.message.channel;
 
     try {
-        let caster = interpretUnitTarget(info.parsedArgs[0], info, true) as Champion;
+        let caster = parseUnitTargetArg(info.parsedArgs[0], info, true) as Champion;
         if (!caster.isChampion) throw new Error("Only champions can cast abilities");
         let queriedAbility: string = info.parsedArgs[1].toLowerCase();
         let abilityIdentifier = ({
@@ -138,7 +138,7 @@ export function castCommand(bot: RunechessBot, info: GameCommandCallInfo) {
                 target = AbilityTarget.atLocation(parseAsCoordinate(targetArg));
             }
             if (ability.targetType === TargetType.Unit) {
-                target = AbilityTarget.atUnit(interpretUnitTarget(targetArg, info));
+                target = AbilityTarget.atUnit(parseUnitTargetArg(targetArg, info));
             }
         }
 
@@ -146,6 +146,18 @@ export function castCommand(bot: RunechessBot, info: GameCommandCallInfo) {
     } catch (err) {
         channel.send(bot.embeds.makeErrorEmbed(err.message));
         return;
+    }
+}
+
+export function tpCommand(bot: RunechessBot, info: GameCommandCallInfo) {
+    let channel = info.command.message.channel;
+    try {
+        let target = parseUnitTargetArg(info.parsedArgs[0], info);
+        let to = parseAsCoordinate(info.parsedArgs[1]);
+
+        target.moveTo(to);
+    } catch (err) {
+        channel.send(bot.embeds.makeErrorEmbed(err.message));
     }
 }
 
@@ -173,4 +185,16 @@ export function registerGameCommands(bot: RunechessBot) {
             castCommand(bot, info);
         },
     });
+
+    if (bot.config.debug) {
+        bot.registerGameCommand({
+            name: "tp",
+            description: "Teleports a unit to the given location (debug only)",
+            format: new ArgumentFormat().add("unit", ArgumentType.String).add("to", ArgumentType.String),
+            callback: (info) => {
+                tpCommand(bot, info);
+                info.command.message.channel.send(bot.embeds.makeGameViewEmbed(bot.gameRenderer, info.match));
+            },
+        });
+    }
 }

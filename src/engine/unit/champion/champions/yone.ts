@@ -62,7 +62,7 @@ class YoneQ extends LocationTargetedAbility {
             let p = target.getLocation();
             let dx = p.x - this.caster.pos.x;
             let dy = p.y - this.caster.pos.y;
-            let unitBehind = this.caster.board.getUnitAt(this.caster.pos.offsetBy(new BoardPosition(dx * 2, dy * 2)));
+            let unitBehind = this.caster.board.getUnitAt(this.caster.pos.offsetBy(dx * 2, dy * 2));
 
             if (unitBehind) {
                 this.dealDamageToEnemyUnit(

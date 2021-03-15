@@ -66,7 +66,7 @@ export abstract class Effect {
     teamColor: TeamColor;
     private _board?: Board;
     abstract id: EffectId;
-    effect: EffectHitbox = EffectHitbox.none();
+    hitbox: EffectHitbox = EffectHitbox.none();
     parent: Unit | null = null;
 
     constructor() {
@@ -100,4 +100,10 @@ export abstract class Effect {
     onRemove() {}
 
     onPlace() {}
+
+    onCollision(withUnit: Unit) {}
+
+    moveTo(pos: BoardPosition) {
+        this.board._moveEffect(this, pos);
+    }
 }

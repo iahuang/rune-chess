@@ -1,15 +1,29 @@
-import { EffectEkkoTimewinder } from "../../../effects/ekko";
+import Vector2 from "../../../../util/vector2";
+import BoardPosition from "../../../board_position";
+import { DamageType } from "../../../damage";
+import { Effect, EffectId, EffectRectangularHitbox } from "../../../effect";
 import AbilityTarget from "../ability/ability_target";
 import { AbilityIdentifier, AbilityMetric, AbilityMetricType } from "../ability/base_ability";
 import { LocationTargetedAbility } from "../ability/location_target_ability";
 import { SelfTargetedAbility } from "../ability/self_targeted_ability";
 import Champion from "../champion";
 
+export class EffectEkkoShadow extends Effect {
+    id = EffectId.EkkoShadow;
+}
+
+export class EffectEkkoTimewinder extends Effect {
+    id = EffectId.EkkoTimewinder;
+    hitbox = EffectRectangularHitbox.square(1);
+    castedFrom: BoardPosition = BoardPosition.origin();
+}
+
 class EkkoQ extends LocationTargetedAbility {
     name = "Timewinder";
     description =
-        "Ekko places a temporal grenade two squares from him, immediately dealing [DAMAGE] magic damage, and on the next turn returning to the square from which it was casted, dealing [SECONDARY_DAMAGE] magic damage along the way.";
+        "Ekko places a temporal grenade, immediately dealing [DAMAGE] magic damage, and on the next turn returning to the square from which it was casted, dealing [SECONDARY_DAMAGE] magic damage along the way.";
     identifier = AbilityIdentifier.Q;
+    maxRange = 2;
 
     setMetrics() {
         this.addMetric(AbilityMetricType.Damage, AbilityMetric.withBaseAmount(60).setAPScaling(0.3));
@@ -17,7 +31,38 @@ class EkkoQ extends LocationTargetedAbility {
     }
 
     onCast(target: AbilityTarget) {
-        this.createAlliedEffect(EffectEkkoTimewinder, target.getLocation());
+        let effect = this.createAlliedEffect(EffectEkkoTimewinder, target.getLocation());
+
+        let castedFrom = this.caster.pos.copy();
+        effect.onInactiveTurnEnd = () => {
+            // return effect to the place it was casted from
+
+            // we set the collision event here so that the secondary damage
+            // only procs when the effect is set to return
+            effect.onCollision = (unit) => {
+                if (unit.alliedTo(this.caster)) return;
+                this.dealDamage(this.computeMetric(AbilityMetricType.SecondaryDamage), unit, DamageType.Magic);
+            };
+
+            // move the effect towards castedFrom
+            while (!effect.pos.equals(castedFrom)) {
+                let dx = effect.pos.x - castedFrom.x;
+                let dy = effect.pos.y - castedFrom.y;
+
+                // normalize vector
+                let dir = new Vector2(dx, dy).normalized();
+                
+                // make sure we don't have any decimals
+                dir.x = Math.ceil(dir.x);
+                dir.y = Math.ceil(dir.y);
+
+                let newPos = effect.pos.offsetBy(-dir.x, -dir.y);
+                // "drag" the effect back to the origin, colliding along the way
+                effect.moveTo(newPos);
+            }
+
+            effect.remove();
+        };
     }
 }
 

@@ -7,7 +7,7 @@ import UnitType from "../engine/unit/unit_type";
 import DataDragon from "../riot/data_dragon";
 import { AssetManager, ImageAsset } from "./asset_manager";
 import { Display, TextStyle } from "./display";
-import Vector2 from "./vector2";
+import Vector2 from "../util/vector2";
 import fs from "fs";
 import { Effect, EffectId } from "../engine/effect";
 import { EffectGFXRegistry } from "./effect_sprites";
@@ -179,10 +179,18 @@ export class GameRenderer {
     }
 
     drawEffect(effect: Effect) {
-        let asset = this.effectRegistry.getAssetByEffectID(effect.id);
-        let pos = this.boardPosToScreenPos(effect.pos);
-        let size = this.metrics.cellSize;
-        this.display.context.drawImage(asset.image, pos.x, pos.y, size, size);
+        if (this.effectRegistry.hasAssetForEffect(effect.id)) {
+            let asset = this.effectRegistry.getAssetByEffectID(effect.id);
+            let pos = this.boardPosToScreenPos(effect.pos);
+            let size = this.metrics.cellSize;
+            this.display.context.drawImage(asset.image, pos.x, pos.y, size, size);
+        } else {
+            console.warn(
+                `[GameRenderer] warning: unable to render effect with id ${
+                    EffectId[effect.id]
+                } - no asset was found and no drawing method was defined`
+            );
+        }
     }
 
     drawGrid() {

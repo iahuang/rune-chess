@@ -65,7 +65,7 @@ class MoonlightDebuff extends StatusEffect {
 
 export class ChampionDiana extends Champion {
     name = "diana";
-    championTitle = "Scorn of thee Moon";
+    championTitle = "Scorn of the Moon";
     displayName = "Diana";
     displayedQuote = "The moon will rise. The night will last forever.";
     constructor() {
@@ -78,7 +78,6 @@ export class ChampionDiana extends Champion {
             attackRange: 1,
             ranged: false,
         });
-        this.name = "Diana";
         this.abilityQ = new DianaQ(this);
         this.abilityR = new DianaUlt(this);
     }

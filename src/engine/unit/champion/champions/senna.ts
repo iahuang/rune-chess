@@ -40,7 +40,7 @@ class SennaQ extends UnitTargetedAbility {
         let dy = targetPos.y - this.caster.pos.y;
 
         for (let i = 0; i < 3; i++) {
-            let effectPos = new BoardPosition(dx * i, dy * i).offsetBy(this.caster.pos);
+            let effectPos = new BoardPosition(dx * i, dy * i).offsetByPos(this.caster.pos);
             if (!effectPos.inBounds) {
                 continue;
             }

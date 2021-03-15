@@ -25,6 +25,10 @@ export class EffectGFXRegistry {
         }
     }
 
+    hasAssetForEffect(id: EffectId) {
+        return Boolean(this.idTable.get(id));
+    }
+
     getAssetByEffectID(id: EffectId) {
         let assetRecord = this.idTable.get(id);
         if (!assetRecord) throw new Error(`Cannot find effect asset with ID ${EffectId[id]}`);

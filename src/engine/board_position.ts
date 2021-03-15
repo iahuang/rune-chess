@@ -39,8 +39,12 @@ export default class BoardPosition {
         return this.x === to.x && this.y === to.y;
     }
 
-    offsetBy(pos: BoardPosition) {
-        return new BoardPosition(pos.x + this.x, pos.y + this.y);
+    offsetBy(x: number, y: number) {
+        return new BoardPosition(x + this.x, y + this.y);
+    }
+
+    offsetByPos(pos: BoardPosition) {
+        return this.offsetBy(pos.x, pos.y);
     }
 
     copy() {

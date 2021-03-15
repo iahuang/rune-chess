@@ -1,6 +1,6 @@
 import { Canvas, CanvasGradient, CanvasRenderingContext2D, createCanvas } from "canvas";
 import { createWriteStream } from "fs";
-import Vector2 from "./vector2";
+import Vector2 from "../util/vector2";
 
 export interface DrawStyle {
     fill?: string;
