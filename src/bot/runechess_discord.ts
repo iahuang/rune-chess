@@ -207,6 +207,8 @@ export class RunechessBot extends Discord.Client {
 
         this.on("ready", () => {
             console.log(`[Runechess-Discord] Logged in as ${this.user?.username}#${this.user?.discriminator}`);
+            let time = Date.now()-Globals.programStartupTime;
+            console.log(`[Runechess-Discord] Ready in ${Math.round(time)}ms from startup`)
         });
     }
 

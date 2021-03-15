@@ -29,6 +29,8 @@ export default class Globals {
         .register(ChampionMalzahar)
         .register(ChampionLeblanc);
 
+    static programStartupTime = 0;
+
     static getAssetManager() {
         return _assetManager;
     }
