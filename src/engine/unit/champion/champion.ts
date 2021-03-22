@@ -3,7 +3,7 @@ import Unit from "../unit";
 import UnitAttributes from "../unit_attributes";
 import UnitType from "../unit_type";
 import AbilityTarget from "./ability/ability_target";
-import { AbilityIdentifier, BaseAbility, TargetType } from "./ability/base_ability";
+import { AbilityCastError, AbilityIdentifier, BaseAbility, TargetType } from "./ability/base_ability";
 
 export default abstract class Champion extends Unit {
     abilityQ: BaseAbility | null = null;
@@ -67,21 +67,15 @@ export default abstract class Champion extends Unit {
         if (!ability) {
             throw new Error(`Ability ${AbilityIdentifier[which]} does not exist on champion ${this.name}`);
         }
-        if (!ability.checkTargetTypeCompatibility(target)) {
-            throw new Error(`Ability target is of incorrect type; expected ${ability.targetType}`);
+        if (!ability._checkTargetTypeCompatibility(target)) {
+            throw new AbilityCastError(`Ability target is of incorrect type; expected ${ability.targetType}`);
         }
-        if (!ability.checkTargetValidity(target)) {
-            if (ability.targetType === TargetType.Location) {
-                throw new Error("Cannot cast ability here");
-            } else {
-                throw new Error("Cannot cast ability on this unit");
-            }
-        }
+
         if (!this.canCastAbilities) {
-            throw new Error("This unit is crowd-controlled and cannot cast abilities");
+            throw new AbilityCastError("This unit is crowd-controlled and cannot cast abilities");
         }
         if (ability.requiresMobility && !this.canMove) {
-            throw new Error("This ability cannot be cast while immobilized");
+            throw new AbilityCastError("This ability cannot be cast while immobilized");
         }
         this.interruptChannelling();
         ability._onCast(target);

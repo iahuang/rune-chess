@@ -66,6 +66,14 @@ export class AbilityMetric {
     }
 }
 
+export class AbilityCastError extends Error {
+    reason: string;
+    constructor(reason: string) {
+        super("Ability could not be casted! Reason: "+reason);
+        this.reason = reason;
+    }
+}
+
 export abstract class BaseAbility {
     abstract identifier: AbilityIdentifier;
     abstract name: string;
@@ -140,7 +148,7 @@ export abstract class BaseAbility {
         return this.identifier === AbilityIdentifier.R;
     }
 
-    checkTargetTypeCompatibility(target: AbilityTarget) {
+    _checkTargetTypeCompatibility(target: AbilityTarget) {
         if (this.targetType === TargetType.None) {
             return target.hasNoTarget;
         }
@@ -156,17 +164,7 @@ export abstract class BaseAbility {
         return false;
     }
 
-    checkTargetValidity(target: AbilityTarget) {
-        return true;
-    }
-
-    _onCast(target: AbilityTarget) {
-        let voiceLineProb = this.identifier === AbilityIdentifier.R ? 1.0 : 0.6;
-        if (Math.random() < voiceLineProb && this.voiceLines.length > 0) {
-            this.caster.sayRandom(this.voiceLines);
-        }
-        this.onCast(target);
-    }
+    abstract _onCast(target: AbilityTarget): void;
 
     dealDamage(amount: number, to: Unit, type: DamageType) {
         this.caster.dealDamage(amount, to, type);
@@ -181,8 +179,6 @@ export abstract class BaseAbility {
     get board() {
         return this.caster.board;
     }
-
-    abstract onCast(target: AbilityTarget): void;
 
     _onTurnEnd(activeTurn: boolean) {
         if (activeTurn) {
@@ -210,7 +206,8 @@ export abstract class BaseAbility {
 
 export abstract class PassiveAbility extends BaseAbility {
     identifier = AbilityIdentifier.P;
-    onCast() {
+
+    _onCast() {
         throw new Error("Cannot cast passive ability");
     }
     targetType = TargetType.None;

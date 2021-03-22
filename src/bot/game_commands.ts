@@ -3,7 +3,7 @@ import Board from "../engine/board";
 import BoardPosition from "../engine/board_position";
 import Globals from "../engine/globals";
 import AbilityTarget from "../engine/unit/champion/ability/ability_target";
-import { AbilityIdentifier, TargetType } from "../engine/unit/champion/ability/base_ability";
+import { AbilityCastError, AbilityIdentifier, TargetType } from "../engine/unit/champion/ability/base_ability";
 import Champion from "../engine/unit/champion/champion";
 import { ArgumentFormat, ArgumentType } from "./parser";
 import { GameCommandCallInfo, RunechessBot } from "./runechess_discord";
@@ -109,43 +109,47 @@ export function moveCommand(bot: RunechessBot, info: GameCommandCallInfo) {
 export function castCommand(bot: RunechessBot, info: GameCommandCallInfo) {
     let channel = info.command.message.channel;
 
+    let caster = parseUnitTargetArg(info.parsedArgs[0], info, true) as Champion;
+    if (!caster.isChampion) throw new Error("Only champions can cast abilities");
+    let queriedAbility: string = info.parsedArgs[1].toLowerCase();
+    let abilityIdentifier = ({
+        q: AbilityIdentifier.Q,
+        w: AbilityIdentifier.W,
+        e: AbilityIdentifier.E,
+        r: AbilityIdentifier.R,
+    } as { [k: string]: AbilityIdentifier })[queriedAbility];
+
+    if (abilityIdentifier === undefined) {
+        throw new Error(`Invalid ability identifier "${queriedAbility}"`);
+    }
+
+    let ability = caster.getAbilityByIdentifier(abilityIdentifier);
+    if (!ability)
+        throw new Error(
+            `${caster.name} does not have a ${
+                AbilityIdentifier[abilityIdentifier]
+            } ability. For a list of abilities on this champion, use \`.info ${caster.name.toLowerCase()}\``
+        );
+    let target = AbilityTarget.noTarget();
+    let targetArg: string | null = info.parsedArgs[2];
+    if (targetArg) {
+        if (ability.targetType === TargetType.Location) {
+            target = AbilityTarget.atLocation(parseAsCoordinate(targetArg));
+        }
+        if (ability.targetType === TargetType.Unit) {
+            target = AbilityTarget.atUnit(parseUnitTargetArg(targetArg, info));
+        }
+    }
+
     try {
-        let caster = parseUnitTargetArg(info.parsedArgs[0], info, true) as Champion;
-        if (!caster.isChampion) throw new Error("Only champions can cast abilities");
-        let queriedAbility: string = info.parsedArgs[1].toLowerCase();
-        let abilityIdentifier = ({
-            q: AbilityIdentifier.Q,
-            w: AbilityIdentifier.W,
-            e: AbilityIdentifier.E,
-            r: AbilityIdentifier.R,
-        } as { [k: string]: AbilityIdentifier })[queriedAbility];
-
-        if (abilityIdentifier === undefined) {
-            throw new Error(`Invalid ability identifier "${queriedAbility}"`);
-        }
-
-        let ability = caster.getAbilityByIdentifier(abilityIdentifier);
-        if (!ability)
-            throw new Error(
-                `${caster.name} does not have a ${
-                    AbilityIdentifier[abilityIdentifier]
-                } ability. For a list of abilities on this champion, use \`.info ${caster.name.toLowerCase()}\``
-            );
-        let target = AbilityTarget.noTarget();
-        let targetArg: string | null = info.parsedArgs[2];
-        if (targetArg) {
-            if (ability.targetType === TargetType.Location) {
-                target = AbilityTarget.atLocation(parseAsCoordinate(targetArg));
-            }
-            if (ability.targetType === TargetType.Unit) {
-                target = AbilityTarget.atUnit(parseUnitTargetArg(targetArg, info));
-            }
-        }
-
         caster.castAbility(abilityIdentifier, target);
     } catch (err) {
-        channel.send(bot.embeds.makeErrorEmbed(err.message));
-        return;
+        if (err instanceof AbilityCastError) {
+            channel.send(bot.embeds.makeErrorEmbed(err.reason));
+        } else {
+            channel.send("```An internal error occurred. Please check the program logs for more information```");
+            throw err;
+        }
     }
 }
 
