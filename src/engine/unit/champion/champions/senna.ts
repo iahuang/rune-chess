@@ -2,7 +2,7 @@ import BoardPosition from "../../../board_position";
 import { DamageType } from "../../../damage";
 import Unit from "../../unit";
 import AbilityTarget from "../ability/ability_target";
-import { AbilityEffectMask, AbilityIdentifier, AbilityMetric, AbilityMetricType } from "../ability/base_ability";
+import { AbilityCastError, AbilityEffectMask, AbilityIdentifier, AbilityMetric, AbilityMetricType } from "../ability/base_ability";
 import { UnitTargetedAbility } from "../ability/unit_targeted_ability";
 import Champion from "../champion";
 
@@ -34,8 +34,11 @@ class SennaQ extends UnitTargetedAbility {
         );
     }
 
-    onCast(target: AbilityTarget) {
-        let targetPos = target.getUnit().pos;
+    onCast(target: Unit) {
+        if (!this.unitFilter(target)) {
+            throw new AbilityCastError("Senna Q can only target units along the four cardinal directions");
+        }
+        let targetPos = target.pos;
         let dx = targetPos.x - this.caster.pos.x;
         let dy = targetPos.y - this.caster.pos.y;
 

@@ -1,7 +1,9 @@
+import BoardPosition from "../../../board_position";
 import { DamageType } from "../../../damage";
 import { CCRooted } from "../../../status_effects_common/crowd_control";
+import Unit from "../../unit";
 import AbilityTarget from "../ability/ability_target";
-import { AbilityEffectMask, AbilityIdentifier, AbilityMetric, AbilityMetricType } from "../ability/base_ability";
+import { AbilityCastError, AbilityEffectMask, AbilityIdentifier, AbilityMetric, AbilityMetricType } from "../ability/base_ability";
 import { LocationTargetedAbility } from "../ability/location_target_ability";
 import { UnitTargetedAbility } from "../ability/unit_targeted_ability";
 import Champion from "../champion";
@@ -18,10 +20,9 @@ export class LeblancW extends LocationTargetedAbility {
         this.addMetric(AbilityMetricType.Damage, AbilityMetric.withBaseAmount(75).setAPScaling(0.75));
     }
 
-    onCast(target: AbilityTarget) {
-        let landPos = target.getLocation();
+    onCast(landPos: BoardPosition) {
         let board = this.board;
-        if (board.hasUnitAt(landPos)) throw new Error("This ability cannot be cast where there is a unit");
+        if (board.hasUnitAt(landPos)) throw new AbilityCastError("This ability cannot be cast where there is a unit");
 
         for (let pos of landPos.directlyAdjacentSquares()) {
             let unit = board.getUnitAt(pos);
@@ -42,8 +43,7 @@ export class LeblancE extends UnitTargetedAbility {
         this.addMetric(AbilityMetricType.Damage, AbilityMetric.withBaseAmount(50).setAPScaling(0.4));
     }
 
-    onCast(target: AbilityTarget) {
-        let unit = target.getUnit();
+    onCast(unit: Unit) {
         this.dealDamage(this.computeMetric(AbilityMetricType.Damage), unit, DamageType.Magic);
         this.caster.applyStatusEffectTo(CCRooted, unit, 4);
     }

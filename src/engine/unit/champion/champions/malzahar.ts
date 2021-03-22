@@ -37,8 +37,7 @@ class MalzaharE extends UnitTargetedAbility {
     isLocationValid(pos: BoardPosition) {
         return false;
     }
-    onCast(target: AbilityTarget) {
-        let unit = target.getUnit();
+    onCast(unit: Unit) {
         let effect = this.caster.applyStatusEffectTo(MaleficVisions, unit, 4);
         effect.damagePerTurn = this.computeMetric(AbilityMetricType.Damage) / 4;
     }
@@ -71,10 +70,10 @@ class MalzaharR extends UnitTargetedAbility {
     setMetrics() {
         this.addMetric(AbilityMetricType.Damage, AbilityMetric.withBaseAmount(125).setAPScaling(0.8));
     }
-    onCast(target: AbilityTarget) {
+    onCast(target: Unit) {
         const duration = 4;
         let damagePerTurn = this.computeMetric(AbilityMetricType.Damage) / duration;
-        this.caster.beginChannelling(new UltChannel(damagePerTurn, target.getUnit()), duration);
+        this.caster.beginChannelling(new UltChannel(damagePerTurn, target), duration);
     }
     validTargets = new AbilityEffectMask().allowEnemyChampionTarget();
 }

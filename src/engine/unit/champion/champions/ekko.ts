@@ -30,8 +30,8 @@ class EkkoQ extends LocationTargetedAbility {
         this.addMetric(AbilityMetricType.SecondaryDamage, AbilityMetric.withBaseAmount(40).setAPScaling(0.6));
     }
 
-    onCast(target: AbilityTarget) {
-        let effect = this.createAlliedEffect(EffectEkkoTimewinder, target.getLocation());
+    onCast(at: BoardPosition) {
+        let effect = this.createAlliedEffect(EffectEkkoTimewinder, at);
 
         let castedFrom = this.caster.pos.copy();
         effect.onInactiveTurnEnd = () => {

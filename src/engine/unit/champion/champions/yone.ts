@@ -5,6 +5,7 @@ import EffectAirborne from "../../../status_effects_common/airborne";
 import Unit from "../../unit";
 import AbilityTarget from "../ability/ability_target";
 import {
+    AbilityCastError,
     AbilityEffectMask,
     AbilityIdentifier,
     AbilityMetric,
@@ -49,8 +50,8 @@ class YoneQ extends LocationTargetedAbility {
         return loc.directlyAdjacentTo(this.caster.pos);
     }
 
-    onCast(target: AbilityTarget) {
-        let unit = this.caster.board.getUnitAt(target.getLocation());
+    onCast(at: BoardPosition) {
+        let unit = this.caster.board.getUnitAt(at);
         let qEffect = this.caster.getStatusEffect(GatheringStorm)!;
         if (unit) this.dealDamageToEnemyUnit(this.computeMetric(AbilityMetricType.Damage), unit, DamageType.Physical);
 
@@ -59,7 +60,7 @@ class YoneQ extends LocationTargetedAbility {
             this.caster.sayRandom(["Piercing winds!", "Storm of blades!", "Steel gale!"]);
         } else {
             // get space behind the targeted pos
-            let p = target.getLocation();
+            let p = at;
             let dx = p.x - this.caster.pos.x;
             let dy = p.y - this.caster.pos.y;
             let unitBehind = this.caster.board.getUnitAt(this.caster.pos.offsetBy(dx * 2, dy * 2));
@@ -103,8 +104,12 @@ class YoneE extends LocationTargetedAbility {
         return BoardPosition.withinSquare(this.caster.pos, loc, 1) && this.board.getUnitAt(loc) === null;
     }
 
-    onCast(target: AbilityTarget) {
-        let to = target.getLocation();
+    onCast(to: BoardPosition) {
+        if (!this.isLocationValid(to)) {
+            // either ability is out of range or is there already a unit
+            // where he is trying to cast E
+            throw new AbilityCastError("You cannot cast this ability there");
+        }
         this.caster.moveTo(to!);
 
         let effect = this.caster.applySelfStatusEffect(SoulUnbound, 4);

@@ -5,21 +5,6 @@ import { AbilityCastError, AbilityEffectMask, BaseAbility, TargetType } from "./
 
 export abstract class UnitTargetedAbility extends BaseAbility {
     abstract validTargets: AbilityEffectMask;
-
-    unitFilter(unit: Unit) {
-        return true;
-    }
-
-    _checkTargetValidity(target: AbilityTarget) {
-        if (this.maxRange !== null) {
-            if (BoardPosition.manhattanDistance(this.caster.pos, target.getUnit().pos) > this.maxRange) {
-                return false;
-            }
-        }
-        if (!this.canMaskAffect(target.getUnit(), this.validTargets)) return false;
-        return this.unitFilter(target.getUnit());
-    }
-
     abstract onCast(target: Unit): void;
 
     _onCast(target: AbilityTarget) {
@@ -30,6 +15,9 @@ export abstract class UnitTargetedAbility extends BaseAbility {
                 throw new AbilityCastError("Target out of range");
             }
         }
+        if (!this.canMaskAffect(target.getUnit(), this.validTargets)) {
+            throw new AbilityCastError("This unit cannot be targed with this ability");
+        } 
         this.onCast(target.getUnit());
     }
 

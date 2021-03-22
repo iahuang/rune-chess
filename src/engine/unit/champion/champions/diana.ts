@@ -29,9 +29,12 @@ class DianaQ extends LocationTargetedAbility {
         return (dx === 2 && dy === 1) || (dx === 1 && dy === 2);
     }
 
-    onHitUnit(hit: Unit) {
-        this.dealDamage(90, hit, DamageType.Magic);
-        this.caster.applyStatusEffectTo(MoonlightDebuff, hit, 1);
+    onCast(to: BoardPosition) {
+        let hit = this.board.getUnitAt(to);
+        if (!hit?.alliedTo(this.caster) && hit) {
+            this.dealDamage(90, hit, DamageType.Magic);
+            this.caster.applyStatusEffectTo(MoonlightDebuff, hit, 1);
+        }
     }
 }
 
