@@ -18,6 +18,7 @@ npm start
 - Run `rm -rf node_modules` to clean the current installation
 - **Ubuntu/WSL:** `sudo apt-get install build-essential libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev`
 - **Mac OS X:** `brew install pkg-config cairo pango libpng jpeg giflib librsvg`
+
 *See the `node-canvas` [README](https://www.npmjs.com/package/canvas) for more information*
 - Retry `npm install`
 
