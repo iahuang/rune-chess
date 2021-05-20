@@ -107,6 +107,10 @@ export default class Unit {
         return this.getGameInstance().getTeamWithColor(this.teamColor);
     }
 
+    isLinkedToBoard() {
+        return this._board !== undefined;
+    }
+
     get board() {
         if (!this._board) {
             throw new Error("Unit has not been placed on a board yet");

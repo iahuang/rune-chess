@@ -10,9 +10,12 @@ export class Team {
     champions: Champion[];
     color: TeamColor;
 
+    actionPointsRemaining: number;
+
     constructor(color: TeamColor) {
         this.champions = [];
         this.color = color;
+        this.actionPointsRemaining = 2;
     }
 
     opposingTeamColor() {

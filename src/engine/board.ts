@@ -37,7 +37,7 @@ export default class Board {
     }
 
     placeUnit(unit: Unit, pos: BoardPosition) {
-        if (unit.board) throw new Error("This unit has already been placed!");
+        if (unit.isLinkedToBoard()) throw new Error("This unit has already been placed!");
         unit.linkBoard(this);
         unit.pos = pos.copy();
         if (this.getUnitAt(pos)) {
@@ -67,11 +67,11 @@ export default class Board {
             throw new Error("Cannot move a unit not linked to this board");
         }
 
-        to = to.copy();
-
+        // local variable "unit" maintains a reference to the underlying Unit instance;
+        // should not be garbage collected.
         this._units[this._boardDataIndex(unit.pos)] = null;
         this._units[this._boardDataIndex(to)] = unit;
-        unit.pos = to;
+        unit.pos = to.copy();
     }
 
     getUnitAt(pos: BoardPosition) {

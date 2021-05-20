@@ -79,6 +79,7 @@ export abstract class BaseAbility {
     abstract name: string;
     abstract targetType: TargetType;
     abstract description: string;
+    costsActionPoint: boolean = true;
     maxRange: number | null = null;
     caster: Champion;
     private _castingDisabled: boolean = false;

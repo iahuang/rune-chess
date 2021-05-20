@@ -6,7 +6,7 @@ import AbilityTarget from "../engine/unit/champion/ability/ability_target";
 import { AbilityCastError, AbilityIdentifier, TargetType } from "../engine/unit/champion/ability/base_ability";
 import Champion from "../engine/unit/champion/champion";
 import { ArgumentFormat, ArgumentType } from "./parser";
-import { GameCommandCallInfo, RunechessBot } from "./runechess_discord";
+import { CommandError, GameCommandCallInfo, RunechessBot } from "./runechess_discord";
 
 export function parseUnitTargetArg(arg: string, info: GameCommandCallInfo, alliedOnly = false) {
     /*
@@ -38,7 +38,7 @@ export function parseUnitTargetArg(arg: string, info: GameCommandCallInfo, allie
                 let champion = unit as Champion;
                 if (champion.name.toLowerCase() === arg || champion.nicknames.includes(arg)) {
                     if (queriedChamp) {
-                        throw new Error("There are multiple units on the board with this name");
+                        throw new CommandError("There are multiple units on the board with this name");
                     }
 
                     queriedChamp = champion;
@@ -47,7 +47,7 @@ export function parseUnitTargetArg(arg: string, info: GameCommandCallInfo, allie
         }
 
         if (queriedChamp === null) {
-            throw new Error("The specified unit was not found");
+            throw new CommandError("The specified unit was not found");
         }
 
         return queriedChamp;
@@ -56,7 +56,7 @@ export function parseUnitTargetArg(arg: string, info: GameCommandCallInfo, allie
 
 export function parseAsCoordinate(arg: string) {
     if (!isCoordinate(arg)) {
-        throw new Error("Provided argument is not a coordinate");
+        throw new CommandError("Provided argument is not a coordinate");
     }
     let x = "abcdefghijklmop".indexOf(arg[0]);
     let y = Number.parseInt(arg[1]) - 1;
@@ -64,7 +64,7 @@ export function parseAsCoordinate(arg: string) {
     let pos = new BoardPosition(x, y);
 
     if (!pos.inBounds) {
-        throw new Error("Position is out of bounds");
+        throw new CommandError("Position is out of bounds");
     }
     return pos;
 }
@@ -78,30 +78,22 @@ export function moveCommand(bot: RunechessBot, info: GameCommandCallInfo) {
     let target;
     let to;
 
-    try {
-        target = parseUnitTargetArg(info.parsedArgs[0], info, true);
-        to = parseAsCoordinate(info.parsedArgs[1]);
+    target = parseUnitTargetArg(info.parsedArgs[0], info, true);
+    to = parseAsCoordinate(info.parsedArgs[1]);
 
-        if (info.match.game.board.getUnitAt(to) !== null) {
-            channel.send(bot.embeds.makeErrorEmbed("There is already a unit where you are trying to move"));
-            return;
-        }
-
-        if (info.team !== target.teamColor) {
-            channel.send(bot.embeds.makeErrorEmbed("You can only move allied units"));
-            return;
-        }
-
-        if (!BoardPosition.withinSquare(target.pos, to, 1) || to.equals(target.pos)) {
-            channel.send(bot.embeds.makeErrorEmbed("You can only move one square at a time"));
-            return;
-        }
-
-        //console.log("Moving unit at",target.pos,"to",to);
-    } catch (err) {
-        channel.send(bot.embeds.makeErrorEmbed(err.message));
-        return;
+    if (info.match.game.board.getUnitAt(to) !== null) {
+        bot.throwCommandError("There is already a unit where you are trying to move");
     }
+
+    if (info.team !== target.teamColor) {
+        bot.throwCommandError("You can only move allied units");
+    }
+
+    if (!BoardPosition.withinSquare(target.pos, to, 1) || to.equals(target.pos)) {
+        bot.throwCommandError("You can only move one square at a time");
+    }
+
+    //console.log("Moving unit at",target.pos,"to",to);
 
     info.match.game.board.moveUnit(target, to);
 }
@@ -109,30 +101,40 @@ export function moveCommand(bot: RunechessBot, info: GameCommandCallInfo) {
 export function castCommand(bot: RunechessBot, info: GameCommandCallInfo) {
     let channel = info.command.message.channel;
 
+    // Make sure that the target is a champion
     let caster = parseUnitTargetArg(info.parsedArgs[0], info, true) as Champion;
     if (!caster.isChampion) throw new Error("Only champions can cast abilities");
+
+    // Obtain an Ability Identifier enum type from
+    // the user input
     let queriedAbility: string = info.parsedArgs[1].toLowerCase();
-    let abilityIdentifier = ({
-        q: AbilityIdentifier.Q,
-        w: AbilityIdentifier.W,
-        e: AbilityIdentifier.E,
-        r: AbilityIdentifier.R,
-    } as { [k: string]: AbilityIdentifier })[queriedAbility];
+    let abilityIdentifier = (
+        {
+            q: AbilityIdentifier.Q,
+            w: AbilityIdentifier.W,
+            e: AbilityIdentifier.E,
+            r: AbilityIdentifier.R,
+        } as { [k: string]: AbilityIdentifier }
+    )[queriedAbility];
 
     if (abilityIdentifier === undefined) {
-        throw new Error(`Invalid ability identifier "${queriedAbility}"`);
+        throw new CommandError(`Invalid ability identifier "${queriedAbility}"`);
     }
 
+    // Obtain the corresponding ability object (make sure it exists)
     let ability = caster.getAbilityByIdentifier(abilityIdentifier);
     if (!ability)
-        throw new Error(
+        throw new CommandError(
             `${caster.name} does not have a ${
                 AbilityIdentifier[abilityIdentifier]
             } ability. For a list of abilities on this champion, use \`.info ${caster.name.toLowerCase()}\``
         );
-    let target = AbilityTarget.noTarget();
+
+    // Create an AbilityTarget object based on the user input
+    let target = AbilityTarget.noTarget(); // default to "no target"
     let targetArg: string | null = info.parsedArgs[2];
     if (targetArg) {
+        // if a target argument is provided, try to parse it based on the type of ability target required
         if (ability.targetType === TargetType.Location) {
             target = AbilityTarget.atLocation(parseAsCoordinate(targetArg));
         }
@@ -145,23 +147,20 @@ export function castCommand(bot: RunechessBot, info: GameCommandCallInfo) {
         caster.castAbility(abilityIdentifier, target);
     } catch (err) {
         if (err instanceof AbilityCastError) {
-            channel.send(bot.embeds.makeErrorEmbed(err.reason));
-        } else {
-            channel.send("```An internal error occurred. Please check the program logs for more information```");
-            throw err;
+            bot.throwCommandError(err.reason);
         }
+        throw err;
     }
 }
 
 export function tpCommand(bot: RunechessBot, info: GameCommandCallInfo) {
-    let channel = info.command.message.channel;
     try {
         let target = parseUnitTargetArg(info.parsedArgs[0], info);
         let to = parseAsCoordinate(info.parsedArgs[1]);
 
         target.moveTo(to);
     } catch (err) {
-        channel.send(bot.embeds.makeErrorEmbed(err.message));
+        bot.throwCommandError(err.message);
     }
 }
 
@@ -186,6 +185,8 @@ export function registerGameCommands(bot: RunechessBot) {
             .add("ability", ArgumentType.String)
             .addOptional("target", ArgumentType.String),
         callback: (info) => {
+            // ensure that the casting team has available action points
+
             castCommand(bot, info);
         },
     });

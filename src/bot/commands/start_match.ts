@@ -7,13 +7,11 @@ export function startMatchCommand(bot: RunechessBot, args: any[], command: Parse
     let channel = command.message.channel;
 
     if (!(channel instanceof Discord.TextChannel)) {
-        channel.send(bot.embeds.makeErrorEmbed("Cannot create match in this channel"));
-        return;
+        bot.throwCommandError("Cannot create match in this channel");
     }
 
     if (bot.hasOngoingMatchInChannel(channel)) {
-        channel.send(bot.embeds.makeErrorEmbed("There is already an ongoing match in this channel"));
-        return;
+        bot.throwCommandError("There is already an ongoing match in this channel");
     }
 
     let playerRed: Discord.GuildMember = args[0];
@@ -22,12 +20,12 @@ export function startMatchCommand(bot: RunechessBot, args: any[], command: Parse
     // validate users
 
     if (playerRed.id === playerBlue.id) {
-        channel.send(bot.embeds.makeErrorEmbed("The two users must be different"));
+        bot.throwCommandError("The two users must be different");
         return;
     }
 
     if (bot.isUserInMatch(playerRed) || bot.isUserInMatch(playerBlue)) {
-        channel.send(bot.embeds.makeErrorEmbed("One or more of the given players is already in a match"));
+        bot.throwCommandError("One or more of the given players is already in a match");
         return;
     }
 
