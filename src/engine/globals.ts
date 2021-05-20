@@ -18,9 +18,15 @@ const _assetManager = new AssetManager()
         "https://static.wikia.nocookie.net/leagueoflegends/images/1/10/Red_Caster_MinionSquare.png/"
     );
 
+/*
+    A list of global constants and objects for Runechess and the engine.
+*/
 export default class Globals {
-    static readonly boardSize = 8;
+    static readonly boardSize = 8; // changing this from its default (8) may have unintended side-effects.
+    static readonly actionPointsPerTurn = 2;
+
     static readonly gameVersion = "0.1 indev";
+    
     static readonly championRegistry = new ChampionRegistry()
         .register(ChampionDiana)
         .register(ChampionSenna)

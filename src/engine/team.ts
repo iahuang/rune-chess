@@ -1,3 +1,4 @@
+import Globals from "./globals";
 import Champion from "./unit/champion/champion";
 
 export enum TeamColor {
@@ -26,5 +27,9 @@ export class Team {
             return TeamColor.Blue;
         }
         return TeamColor.Neutral;
+    }
+
+    refreshActionPoints() {
+        this.actionPointsRemaining = Globals.actionPointsPerTurn;
     }
 }

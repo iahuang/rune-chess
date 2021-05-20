@@ -31,7 +31,7 @@ export function parseUnitTargetArg(arg: string, info: GameCommandCallInfo, allie
 
         for (let unit of info.match.game.board.allUnits()) {
             if (unit.isChampion) {
-                if (alliedOnly && info.team !== unit.teamColor) {
+                if (alliedOnly && info.teamColor !== unit.teamColor) {
                     continue;
                 }
 
@@ -85,7 +85,7 @@ export function moveCommand(bot: RunechessBot, info: GameCommandCallInfo) {
         bot.throwCommandError("There is already a unit where you are trying to move");
     }
 
-    if (info.team !== target.teamColor) {
+    if (info.teamColor !== target.teamColor) {
         bot.throwCommandError("You can only move allied units");
     }
 
@@ -165,17 +165,25 @@ export function tpCommand(bot: RunechessBot, info: GameCommandCallInfo) {
 }
 
 export function registerGameCommands(bot: RunechessBot) {
+    /* Move command */
     bot.registerGameCommand({
         name: "move",
         aliases: ["m", "mv", "mov"],
         description: "Moves a piece to the specified square",
         format: new ArgumentFormat().add("piece", ArgumentType.String).add("to", ArgumentType.String),
         callback: (info) => {
+            // ensure that the casting team has available action points
+            let team = info.match.game.getTeamWithColor(info.teamColor);
+
+            if (team.actionPointsRemaining === 0) {
+                bot.throwCommandError("You have no remaining action points!");
+            }
             moveCommand(bot, info);
             info.command.message.channel.send(bot.embeds.makeGameViewEmbed(bot.gameRenderer, info.match));
         },
     });
 
+    /* Cast command */
     bot.registerGameCommand({
         name: "cast",
         aliases: ["c"],
@@ -186,11 +194,51 @@ export function registerGameCommands(bot: RunechessBot) {
             .addOptional("target", ArgumentType.String),
         callback: (info) => {
             // ensure that the casting team has available action points
+            let team = info.match.game.getTeamWithColor(info.teamColor);
 
+            if (team.actionPointsRemaining === 0) {
+                bot.throwCommandError("You have no remaining action points!");
+            }
             castCommand(bot, info);
         },
     });
 
+    /* End turn command */
+    bot.registerGameCommand({
+        name: "end",
+        aliases: ["endturn", "et"],
+        description: "Ends your turn",
+        format: ArgumentFormat.none(),
+        callback: (info) => {
+            // We don't need to ensure that it is actually
+            // the turn of whoever is calling this command
+            // as the GameCommand handler takes care of that already
+
+            let apr = info.match.game.getTeamWithColor(info.teamColor).actionPointsRemaining;
+
+            // warn the user if they still have action points left
+            if (apr > 0) {
+                let playerState = info.match.getPlayerStateWithColor(info.teamColor);
+
+                if (!playerState.hasGottenEarlyTurnEndWarning) {
+                    info.command.message.channel.send(
+                        `You have not spent all your action points! (${apr} remaining)\nTo end your turn early, run \`${bot.config.prefix}end\` again.`
+                    );
+
+                    playerState.hasGottenEarlyTurnEndWarning = true;
+                    return;
+                } else {
+                    // reset flag
+                    playerState.hasGottenEarlyTurnEndWarning = false;
+                }
+            }
+
+            info.match.game.endCurrentTurn();
+            info.command.message.channel.send(bot.embeds.makeGameViewEmbed(bot.gameRenderer, info.match));
+        },
+    });
+
+    // debug only
     if (bot.config.debug) {
         bot.registerGameCommand({
             name: "tp",

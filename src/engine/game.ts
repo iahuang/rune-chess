@@ -118,7 +118,7 @@ export class RuneChess {
         return this.getTeamWithColor(this.turn);
     }
 
-    endTurn() {
+    endCurrentTurn() {
         for (let unit of this.board.allUnits()) {
             unit._onTurnEnd(unit.teamColor === this.turn);
         }
@@ -126,7 +126,8 @@ export class RuneChess {
         for (let effect of this.board.effects) {
             effect._onTurnEnd(effect.teamColor === this.turn);
         }
-
+        
         this.turn = this.getActiveTeam().opposingTeamColor();
+        this.getActiveTeam().refreshActionPoints();
     }
 }

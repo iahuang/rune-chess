@@ -6,7 +6,7 @@ import DataDragon from "../riot/data_dragon";
 import { startMatchCommand } from "./commands/start_match";
 import { EmbedGenerator } from "./embed";
 import { registerGameCommands } from "./game_commands";
-import Match from "./match";
+import { Match } from "./match";
 import { ArgumentFormat, ArgumentType, CommandParser, ParsedCommand } from "./parser";
 
 /*
@@ -34,7 +34,7 @@ export interface GameCommandCallInfo {
     parsedArgs: any[];
     command: ParsedCommand;
     match: Match;
-    team: TeamColor;
+    teamColor: TeamColor;
 }
 
 export type GameCommandCallback = (info: GameCommandCallInfo) => void;
@@ -198,7 +198,7 @@ export class RunechessBot extends Discord.Client {
                 parsedArgs: args,
                 command: commandData,
                 match: userMatch!.match,
-                team: userMatch!.teamColor,
+                teamColor: userMatch!.teamColor,
             });
         });
     }
