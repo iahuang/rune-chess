@@ -19,8 +19,6 @@ async function main() {
     let dataDragon = new DataDragon();
     await dataDragon.useLatestGameVersion();
     let bot = new RunechessBot(dataDragon, config);
-    let fasd: any;
-    fasd();
     bot.run();
 }
 
