@@ -263,9 +263,9 @@ export class RunechessBot extends Discord.Client {
         });
 
         this.on("ready", () => {
-            Globals.log.getNamespace("Runechess-Discord").info(`Logged in as ${this.user?.username}#${this.user?.discriminator}`);
+            Globals.log.getNamespace("Runechess-Discord").write(`Logged in as ${this.user?.username}#${this.user?.discriminator}`);
             let time = Date.now() - Globals.programStartupTime;
-            Globals.log.getNamespace("Runechess-Discord").info(`Ready in ${Math.round(time)}ms from startup`);
+            Globals.log.getNamespace("Runechess-Discord").write(`Ready in ${Math.round(time)}ms from startup`);
         });
     }
 
@@ -396,7 +396,7 @@ export class RunechessBot extends Discord.Client {
     }
 
     run() {
-        if (this.config.debug) Globals.log.getNamespace("Runechess-Discord").info(`Starting in ${chalk.magenta("debug")} mode...`);
+        if (this.config.debug) Globals.log.getNamespace("Runechess-Discord").write(`Starting in ${chalk.magenta("debug")} mode...`);
 
         this.login(this.config.token);
     }

@@ -33,7 +33,7 @@ export default class DataDragon {
     async useLatestGameVersion() {
         let versions = await loadJSON("https://ddragon.leagueoflegends.com/api/versions.json");
         this.useGameVersion(versions[0]);
-        Globals.log.getNamespace("DataDragon").info(`Using game assets from League of Legends version ${chalk.magenta(this.gameVersion)}`);
+        Globals.log.getNamespace("DataDragon").write(`Using game assets from League of Legends version ${chalk.magenta(this.gameVersion)}`);
     }
 
     private getVersionedCDN() {

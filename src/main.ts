@@ -8,11 +8,11 @@ import Globals from "./engine/globals";
 const CONFIG_PATH = "./bot_config.json";
 
 async function main() {
-    Globals.log.getNamespace("Main").info(`Runechess ${Globals.gameVersion}`);
+    Globals.log.getNamespace("Main").write(`Runechess ${Globals.gameVersion}`);
     Globals.programStartupTime = Date.now();
     if (!fs.existsSync(CONFIG_PATH)) {
         fs.writeFileSync(CONFIG_PATH, JSON.stringify(new BotConfig()));
-        Globals.log.getNamespace("Runechess-Discord").info("Config file does not exist, creating...");
+        Globals.log.getNamespace("Runechess-Discord").write("Config file does not exist, creating...");
         process.exit(0);
     }
     let config = JSON.parse(fs.readFileSync(CONFIG_PATH, "utf8"));

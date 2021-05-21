@@ -35,7 +35,7 @@ export class AssetManager {
                 let resp = await fetch(asset.path);
                 let buffer = await resp.arrayBuffer();
                 this.cache.cache(asset.path, Buffer.from(buffer));
-                Globals.log.getNamespace("AssetManager").info("Caching "+chalk.cyan(asset.path));
+                Globals.log.getNamespace("AssetManager").write("Caching "+chalk.cyan(asset.path));
             }
         }
         return new Promise((resolve, reject) => {
@@ -50,10 +50,10 @@ export class AssetManager {
                         asset.image = image;
                         this.assetsLoaded += 1;
                         if (uri !== asset.path) {
-                            Globals.log.getNamespace("AssetManager").info(`Loaded ${chalk.cyan(asset.path)}`);
-                            Globals.log.getNamespace("AssetManager").info(`(cached: ${chalk.greenBright(uri)})`);
+                            Globals.log.getNamespace("AssetManager").write(`Loaded ${chalk.cyan(asset.path)}`);
+                            Globals.log.getNamespace("AssetManager").write(`(cached: ${chalk.greenBright(uri)})`);
                         } else {
-                            Globals.log.getNamespace("AssetManager").info(`Loaded ${chalk.cyan(asset.path)}`);
+                            Globals.log.getNamespace("AssetManager").write(`Loaded ${chalk.cyan(asset.path)}`);
                         }
                         
                         if (this.assetsLoaded === this.size) {

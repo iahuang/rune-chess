@@ -44,8 +44,11 @@ export default class Globals {
 
     static readonly log = new Logger()
         .addNamespace("Main")
+        .addNamespace("Debug")
         .addNamespace("GameRenderer")
         .addNamespace("Runechess-Discord")
         .addNamespace("AssetManager")
         .addNamespace("DataDragon");
+    
+    static readonly debugLog = Globals.log.getNamespace("Debug");
 }

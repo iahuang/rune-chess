@@ -13,7 +13,7 @@ interface Namespace {
     name: string;
     color: string;
     parent: Logger;
-    info: (message: string) => void;
+    write: (message: string) => void;
 }
 
 const COLORS = ["#ffde8c", "#ff9959", "#c7ff8c", "#8cffd7", "#8cd5ff", "#d58cff", "#ff8ce4"];
@@ -27,7 +27,7 @@ export class Logger {
     constructor() {
         this._longestNamespaceLength = 0;
         this.termWidth = Math.max(process.stdout.columns || 120, 60);
-        fs.writeFileSync(logPath, `Runechess Log\r\nCreated on ${new Date().toLocaleDateString("en-US")}`);
+        fs.writeFileSync(logPath, `Runechess Log | Created on ${new Date().toLocaleDateString("en-US")}`);
     }
 
     _nextColor() {
@@ -57,7 +57,7 @@ export class Logger {
             name: name,
             color: this._nextColor(),
             parent: this,
-            info: function (message) {
+            write: function (message) {
                 let prefix = `[${this.name}]`;
                 // pad with spaces
                 let maxlen = this.parent._longestNamespaceLength;

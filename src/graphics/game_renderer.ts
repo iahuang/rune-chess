@@ -49,7 +49,7 @@ export class GameRenderer {
         this.dataDragon = dataDragon;
 
         this.config = JSON.parse(fs.readFileSync(CONFIG_PATH, "utf8"));
-        Globals.log.getNamespace("GameRenderer").info(`Config loaded from ${CONFIG_PATH}`);
+        Globals.log.getNamespace("GameRenderer").write(`Config loaded from ${CONFIG_PATH}`);
 
         this.display = Display.create(this.config.imageSize, this.config.imageSize);
 
@@ -302,6 +302,6 @@ export class GameRenderer {
 
         await this.assetManager.loadAll();
         this.ready = true;
-        Globals.log.getNamespace("GameRenderer").info("Initialized successfully");
+        Globals.log.getNamespace("GameRenderer").write("Initialized successfully");
     }
 }
