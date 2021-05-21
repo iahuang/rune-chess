@@ -3,7 +3,11 @@
 */
 
 import chalk from "chalk";
+import fs from "fs";
 
+function removeAnsi(fromString: string) {
+    return fromString.replace(/[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g, "");
+}
 
 interface Namespace {
     name: string;
@@ -13,6 +17,7 @@ interface Namespace {
 }
 
 const COLORS = ["#ffde8c", "#ff9959", "#c7ff8c", "#8cffd7", "#8cd5ff", "#d58cff", "#ff8ce4"];
+const logPath = "logs/latest.log";
 
 export class Logger {
     _namespaces = new Map<string, Namespace>();
@@ -22,6 +27,7 @@ export class Logger {
     constructor() {
         this._longestNamespaceLength = 0;
         this.termWidth = Math.max(process.stdout.columns || 120, 60);
+        fs.writeFileSync(logPath, `Runechess Log\r\nCreated on ${new Date().toLocaleDateString("en-US")}`);
     }
 
     _nextColor() {
@@ -57,13 +63,12 @@ export class Logger {
                 let maxlen = this.parent._longestNamespaceLength;
 
                 prefix += " ".repeat(maxlen - this.name.length + 1);
-                // let prefixLength = prefix.length;
-                // let messageLength = message.length;
-                // let overflow = prefixLength + messageLength - this.parent.termWidth;
-                // if (overflow > 0) {
-                //     message = message.substring(0, this.parent.termWidth - prefixLength - 4) + chalk.gray("...");
-                // }
                 console.log(chalk.hex(this.color)(prefix) + message);
+
+                // add to log file
+                let now = new Date();
+                let timestamp = `[${now.toLocaleTimeString("en-US", { hour12: false })}]`;
+                fs.appendFileSync(logPath, "\r\n"+timestamp + " " + prefix + removeAnsi(message));
             },
         });
         this._longestNamespaceLength = this._maxNSLength();

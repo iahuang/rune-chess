@@ -11,7 +11,6 @@ import Vector2 from "../util/vector2";
 import fs from "fs";
 import { Effect, EffectId } from "../engine/effect";
 import { EffectGFXRegistry } from "./effect_sprites";
-import Champion from "../engine/unit/champion/champion";
 
 const CONFIG_PATH = "gfx_config.json";
 

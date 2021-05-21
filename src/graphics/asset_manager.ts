@@ -50,7 +50,8 @@ export class AssetManager {
                         asset.image = image;
                         this.assetsLoaded += 1;
                         if (uri !== asset.path) {
-                            Globals.log.getNamespace("AssetManager").info(`Loaded ${chalk.cyan(asset.path)} (cache: ${chalk.cyan(uri)})`);
+                            Globals.log.getNamespace("AssetManager").info(`Loaded ${chalk.cyan(asset.path)}`);
+                            Globals.log.getNamespace("AssetManager").info(`(cached: ${chalk.greenBright(uri)})`);
                         } else {
                             Globals.log.getNamespace("AssetManager").info(`Loaded ${chalk.cyan(asset.path)}`);
                         }
