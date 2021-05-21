@@ -3,7 +3,9 @@
 */
 
 import chalk from "chalk";
+import columnify from "columnify";
 import fs from "fs";
+import * as traceParser from "stacktrace-parser";
 
 function removeAnsi(fromString: string) {
     return fromString.replace(/[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g, "");
@@ -52,6 +54,43 @@ export class Logger {
         return this._namespaces.get(withName)!;
     }
 
+    logError(error: Error) {
+        let stack = traceParser.parse(error.stack!);
+        let tableData = stack.map((line) => {
+            let sourcePreview = "";
+            if (fs.existsSync(line.file || "") && line.lineNumber) {
+                sourcePreview = fs.readFileSync(line.file!, "utf-8").split("\n")[line.lineNumber - 1];
+                sourcePreview = sourcePreview.trim();
+            }
+            return [
+                " ",
+                "at " + line.methodName,
+                line.file,
+                line.lineNumber ? `line ${line.lineNumber}` : "",
+                sourcePreview,
+            ];
+        });
+        let data = columnify(tableData, {
+            config: { 0: { minWidth: 4 } },
+            maxLineWidth: "auto" as any,
+            showHeaders: false,
+            columnSplitter: "  ",
+        });
+
+        console.error(chalk.red(error.toString() + "\n" + data));
+        fs.appendFileSync(
+            logPath,
+            "\n" +
+                error.toString() +
+                "\n" +
+                columnify(tableData, {
+                    config: { 0: { minWidth: 4 } },
+                    showHeaders: false,
+                    columnSplitter: "  ",
+                })
+        );
+    }
+
     addNamespace(name: string) {
         this._namespaces.set(name, {
             name: name,
@@ -68,7 +107,7 @@ export class Logger {
                 // add to log file
                 let now = new Date();
                 let timestamp = `[${now.toLocaleTimeString("en-US", { hour12: false })}]`;
-                fs.appendFileSync(logPath, "\r\n"+timestamp + " " + prefix + removeAnsi(message));
+                fs.appendFileSync(logPath, "\n" + timestamp + " " + prefix + removeAnsi(message));
             },
         });
         this._longestNamespaceLength = this._maxNSLength();
