@@ -12,7 +12,6 @@ import fs from "fs";
 import { Effect, EffectId } from "../engine/effect";
 import { EffectGFXRegistry } from "./effect_sprites";
 import Champion from "../engine/unit/champion/champion";
-import { timeStamp } from "node:console";
 
 const CONFIG_PATH = "gfx_config.json";
 
@@ -51,7 +50,7 @@ export class GameRenderer {
         this.dataDragon = dataDragon;
 
         this.config = JSON.parse(fs.readFileSync(CONFIG_PATH, "utf8"));
-        console.log(`[GameRenderer] Config loaded from ${CONFIG_PATH}`);
+        Globals.log.getNamespace("GameRenderer").info(`Config loaded from ${CONFIG_PATH}`);
 
         this.display = Display.create(this.config.imageSize, this.config.imageSize);
 
@@ -304,6 +303,6 @@ export class GameRenderer {
 
         await this.assetManager.loadAll();
         this.ready = true;
-        console.log("[GameRenderer] Initialized successfully");
+        Globals.log.getNamespace("GameRenderer").info("Initialized successfully");
     }
 }

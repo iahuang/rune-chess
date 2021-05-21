@@ -1,3 +1,4 @@
+import chalk from "chalk";
 import Discord from "discord.js";
 import Globals from "../engine/globals";
 import { TeamColor } from "../engine/team";
@@ -262,9 +263,9 @@ export class RunechessBot extends Discord.Client {
         });
 
         this.on("ready", () => {
-            console.log(`[Runechess-Discord] Logged in as ${this.user?.username}#${this.user?.discriminator}`);
+            Globals.log.getNamespace("Runechess-Discord").info(`Logged in as ${this.user?.username}#${this.user?.discriminator}`);
             let time = Date.now() - Globals.programStartupTime;
-            console.log(`[Runechess-Discord] Ready in ${Math.round(time)}ms from startup`);
+            Globals.log.getNamespace("Runechess-Discord").info(`Ready in ${Math.round(time)}ms from startup`);
         });
     }
 
@@ -395,7 +396,7 @@ export class RunechessBot extends Discord.Client {
     }
 
     run() {
-        if (this.config.debug) console.log("[Runechess-Discord] Starting in DEBUG mode...");
+        if (this.config.debug) Globals.log.getNamespace("Runechess-Discord").info(`Starting in ${chalk.magenta("debug")} mode...`);
 
         this.login(this.config.token);
     }

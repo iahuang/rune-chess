@@ -8,6 +8,7 @@ used by third-party developers."
 */
 
 import fetch from "node-fetch";
+import Globals from "../engine/globals";
 import { AbilityIdentifier, BaseAbility } from "../engine/unit/champion/ability/base_ability";
 
 async function loadJSON(url: string) {
@@ -31,7 +32,7 @@ export default class DataDragon {
     async useLatestGameVersion() {
         let versions = await loadJSON("https://ddragon.leagueoflegends.com/api/versions.json");
         this.useGameVersion(versions[0]);
-        console.log(`[DataDragon] Using game assets from League of Legends version ${this.gameVersion}`);
+        Globals.log.getNamespace("DataDragon").info(`Using game assets from League of Legends version ${this.gameVersion}`);
     }
 
     private getVersionedCDN() {

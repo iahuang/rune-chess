@@ -1,4 +1,5 @@
 import { AssetManager } from "../graphics/asset_manager";
+import { Logger } from "./logger";
 import { ChampionDiana } from "./unit/champion/champions/diana";
 import { ChampionEkko } from "./unit/champion/champions/ekko";
 import { ChampionLeblanc } from "./unit/champion/champions/leblanc";
@@ -26,7 +27,7 @@ export default class Globals {
     static readonly actionPointsPerTurn = 2;
 
     static readonly gameVersion = "0.1 indev";
-    
+
     static readonly championRegistry = new ChampionRegistry()
         .register(ChampionDiana)
         .register(ChampionSenna)
@@ -40,4 +41,11 @@ export default class Globals {
     static getAssetManager() {
         return _assetManager;
     }
+
+    static readonly log = new Logger()
+        .addNamespace("Main")
+        .addNamespace("GameRenderer")
+        .addNamespace("Runechess-Discord")
+        .addNamespace("AssetManager")
+        .addNamespace("DataDragon");
 }
