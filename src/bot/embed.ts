@@ -1,4 +1,4 @@
-import { CommandHandlerTable, GameCommandHandlerTable, RunechessBot } from "./runechess_discord";
+import { CommandHandlerTable, GameCommandHandlerTable, RunechessBot } from "./bot";
 
 import Discord from "discord.js";
 import { Match } from "./match";

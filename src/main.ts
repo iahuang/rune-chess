@@ -9,7 +9,7 @@
 
 console.log(`Loading modules...`);
 
-import { BotConfig, RunechessBot } from "./bot/runechess_discord";
+import { BotConfig, RunechessBot } from "./bot/bot";
 import fs from "fs";
 import DataDragon from "./riot/data_dragon";
 import Globals from "./engine/globals";

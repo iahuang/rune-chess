@@ -4,7 +4,7 @@ import Globals from "../engine/globals";
 import { TeamColor } from "../engine/team";
 import { GameRenderer } from "../graphics/game_renderer";
 import DataDragon from "../riot/data_dragon";
-import { startMatchCommand } from "./commands/start_match";
+import { registerCommands } from "./commands/commands";
 import { EmbedGenerator } from "./embed";
 import { registerGameCommands } from "./game_commands";
 import { Match } from "./match";
@@ -79,8 +79,8 @@ export class RunechessBot extends Discord.Client {
     parser: CommandParser;
     config: BotConfig;
     embeds: EmbedGenerator;
-    private commandHandlers: CommandHandlerTable;
-    private gameCommandHandlers: GameCommandHandlerTable;
+    _commandHandlers: CommandHandlerTable;
+    _gameCommandHandlers: GameCommandHandlerTable;
 
     gameRenderer: GameRenderer;
 
@@ -89,8 +89,8 @@ export class RunechessBot extends Discord.Client {
     constructor(dataDragon: DataDragon, config: BotConfig) {
         super();
         this.config = config;
-        this.commandHandlers = {};
-        this.gameCommandHandlers = {};
+        this._commandHandlers = {};
+        this._gameCommandHandlers = {};
         this.ongoingMatches = [];
 
         this.parser = new CommandParser(config.prefix);
@@ -107,7 +107,7 @@ export class RunechessBot extends Discord.Client {
     }
 
     registerCommand(args: CommandHandlerArgs) {
-        this.commandHandlers[args.name] = {
+        this._commandHandlers[args.name] = {
             callback: args.callback,
             format: args.format,
             description: args.description,
@@ -116,7 +116,7 @@ export class RunechessBot extends Discord.Client {
     }
 
     registerGameCommand(args: GameCommandHandlerArgs) {
-        this.gameCommandHandlers[args.name] = {
+        this._gameCommandHandlers[args.name] = {
             callback: args.callback,
             format: args.format,
             description: args.description,
@@ -125,7 +125,7 @@ export class RunechessBot extends Discord.Client {
     }
 
     resolveCommandHandler(command: string) {
-        for (let [name, handler] of Object.entries(this.commandHandlers)) {
+        for (let [name, handler] of Object.entries(this._commandHandlers)) {
             if (name === command) {
                 return handler;
             }
@@ -134,7 +134,7 @@ export class RunechessBot extends Discord.Client {
     }
 
     resolveGameCommand(command: string) {
-        for (let [name, handler] of Object.entries(this.gameCommandHandlers)) {
+        for (let [name, handler] of Object.entries(this._gameCommandHandlers)) {
             if (name === command || handler.aliases.includes(command)) {
                 return handler;
             }
@@ -326,91 +326,7 @@ export class RunechessBot extends Discord.Client {
     }
 
     private initCommandHandlers() {
-        this.registerCommand({
-            name: "test",
-            description: "a test command",
-            format: new ArgumentFormat()
-                .add("some_string_argument", ArgumentType.String)
-                .addOptional("a_user", ArgumentType.User),
-            callback: (args) => {
-                console.log(args);
-            },
-        });
-
-        this.registerCommand({
-            name: "startmatch",
-            description: "Starts a Runechess match in the current channel",
-            format: new ArgumentFormat().add("player1", ArgumentType.User).add("player2", ArgumentType.User),
-            requiresGuild: true,
-            callback: (args, command) => {
-                startMatchCommand(this, args, command);
-            },
-        });
-
-        this.registerCommand({
-            name: "help",
-            description: "displays this message",
-            format: new ArgumentFormat(),
-            callback: (args, command) => {
-                command.message.channel.send(
-                    this.embeds.makeHelpEmbed(this.config.prefix, this.commandHandlers, this.gameCommandHandlers)
-                );
-            },
-        });
-
-        this.registerCommand({
-            name: "matches",
-            description: "Lists the current matches in this server",
-            requiresGuild: true,
-            format: new ArgumentFormat(),
-            callback: (args, command) => {
-                command.message.channel.send(this.embeds.makeMatchListingEmbed(this, command.message.guild!.id));
-            },
-        });
-
-        this.registerCommand({
-            name: "info",
-            description: "Lists the info and abilities for a champion",
-            format: new ArgumentFormat().add("champion", ArgumentType.String),
-            callback: (args, command) => {
-                let query = (args[0] as string).toLowerCase();
-                let registry = Globals.championRegistry;
-
-                let internalChampName = registry.championNameByQuery(query);
-
-                if (internalChampName) {
-                    let championConstructor = registry.getConstructor(internalChampName);
-                    let champion = new championConstructor();
-
-                    command.message.channel.send(this.embeds.makeChampionInfoEmbed(champion));
-                } else {
-                    this.throwCommandError(
-                        `No champion with the name "${query}" exists`,
-                        `Use ${this.inlineCommandName("champions")} for a list of all champions.`
-                    );
-                }
-            },
-        });
-
-        this.registerCommand({
-            name: "debug_stop",
-            description: "Stops all matches",
-            format: new ArgumentFormat(),
-            callback: () => {
-                this.ongoingMatches = [];
-            },
-        });
-
-        this.registerCommand({
-            name: "champions",
-            description: "Lists all playable champions",
-            format: new ArgumentFormat(),
-            callback: (args, command) => {
-                let channel = command.message.channel;
-                channel.send(this.embeds.makeChampionRegistryEmbed(this.config.prefix));
-            },
-        });
-
+        registerCommands(this);
         registerGameCommands(this);
 
         //this.onCommand("help", new ArgumentFormat().addOptional("command", ArgumentType.String), (args, command) => {});

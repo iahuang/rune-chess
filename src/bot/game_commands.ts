@@ -6,7 +6,7 @@ import AbilityTarget from "../engine/unit/champion/ability/ability_target";
 import { AbilityCastError, AbilityIdentifier, TargetType } from "../engine/unit/champion/ability/base_ability";
 import Champion from "../engine/unit/champion/champion";
 import { ArgumentFormat, ArgumentType } from "./parser";
-import { CommandError, GameCommandCallInfo, RunechessBot } from "./runechess_discord";
+import { CommandError, GameCommandCallInfo, RunechessBot } from "./bot";
 
 export function parseUnitTargetArg(arg: string, info: GameCommandCallInfo, alliedOnly = false) {
     /*

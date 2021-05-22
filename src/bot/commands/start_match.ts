@@ -1,6 +1,6 @@
 import { ParsedCommand } from "../parser";
 import Discord from "discord.js";
-import { RunechessBot } from "../runechess_discord";
+import { RunechessBot } from "../bot";
 import { TeamColor } from "../../engine/team";
 
 export function startMatchCommand(bot: RunechessBot, args: any[], command: ParsedCommand) {
