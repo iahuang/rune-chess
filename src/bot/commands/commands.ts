@@ -27,7 +27,7 @@ export function registerCommands(bot: RunechessBot) {
 
     bot.registerCommand({
         name: "help",
-        description: "displays bot message",
+        description: "Displays this message",
         format: new ArgumentFormat(),
         callback: (args, command) => {
             command.message.channel.send(
@@ -38,7 +38,7 @@ export function registerCommands(bot: RunechessBot) {
 
     bot.registerCommand({
         name: "matches",
-        description: "Lists the current matches in bot server",
+        description: "Lists the current matches in this server",
         requiresGuild: true,
         format: new ArgumentFormat(),
         callback: (args, command) => {
