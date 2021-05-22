@@ -18,8 +18,11 @@ import { ArgumentFormat, ArgumentType, CommandParser, ParsedCommand } from "./pa
 */
 export class CommandError {
     message: string;
-    constructor(message: string) {
+    helpMessage: string;
+
+    constructor(message: string, helpMessage: string = "") {
         this.message = message;
+        this.helpMessage = helpMessage;
     }
 }
 
@@ -152,7 +155,7 @@ export class RunechessBot extends Discord.Client {
             executor();
         } catch (err) {
             if (err instanceof CommandError) {
-                channel.send(this.embeds.makeErrorEmbed(err.message));
+                channel.send(this.embeds.makeErrorEmbed(err.message, err.helpMessage));
                 return;
             }
             // if it's not specifically a command error that was caught
@@ -263,7 +266,9 @@ export class RunechessBot extends Discord.Client {
         });
 
         this.on("ready", () => {
-            Globals.log.getNamespace("Runechess-Discord").write(`Logged in as ${this.user?.username}#${this.user?.discriminator}`);
+            Globals.log
+                .getNamespace("Runechess-Discord")
+                .write(`Logged in as ${this.user?.username}#${this.user?.discriminator}`);
             let time = Date.now() - Globals.programStartupTime;
             Globals.log.getNamespace("Runechess-Discord").write(`Ready in ${Math.round(time)}ms from startup`);
         });
@@ -306,8 +311,18 @@ export class RunechessBot extends Discord.Client {
         return match;
     }
 
-    throwCommandError(message: string): never {
-        throw new CommandError(message);
+    throwCommandError(message: string, helpMessage: string = ""): never {
+        throw new CommandError(message, helpMessage);
+    }
+
+    inlineCommandName(commandName: string) {
+        /*
+            Returns the command name enclosed in backticks for code formatting
+            and prefixed with the proper command prefix, according to the
+            bot configuation.
+        */
+
+        return "`" + this.config.prefix + commandName + "`";
     }
 
     private initCommandHandlers() {
@@ -358,15 +373,21 @@ export class RunechessBot extends Discord.Client {
             description: "Lists the info and abilities for a champion",
             format: new ArgumentFormat().add("champion", ArgumentType.String),
             callback: (args, command) => {
-                let champName = (args[0] as string).toLowerCase();
+                let query = (args[0] as string).toLowerCase();
+                let registry = Globals.championRegistry;
 
-                if (Globals.championRegistry.allChampionNames().includes(champName)) {
-                    let championConstructor = Globals.championRegistry.getConstructor(champName);
+                let internalChampName = registry.championNameByQuery(query);
+
+                if (internalChampName) {
+                    let championConstructor = registry.getConstructor(internalChampName);
                     let champion = new championConstructor();
 
                     command.message.channel.send(this.embeds.makeChampionInfoEmbed(champion));
                 } else {
-                    this.throwCommandError(`No champion with the name "${champName}" exists`);
+                    this.throwCommandError(
+                        `No champion with the name "${query}" exists`,
+                        `Use ${this.inlineCommandName("champions")} for a list of all champions.`
+                    );
                 }
             },
         });
@@ -396,7 +417,8 @@ export class RunechessBot extends Discord.Client {
     }
 
     run() {
-        if (this.config.debug) Globals.log.getNamespace("Runechess-Discord").write(`Starting in ${chalk.magenta("debug")} mode...`);
+        if (this.config.debug)
+            Globals.log.getNamespace("Runechess-Discord").write(`Starting in ${chalk.magenta("debug")} mode...`);
 
         this.login(this.config.token);
     }

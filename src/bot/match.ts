@@ -1,7 +1,7 @@
 import Discord from "discord.js";
 import { RuneChess } from "../engine/game";
 import { TeamColor } from "../engine/team";
-import { randomChar } from "../util/rand";
+import { randomChar, randomItem } from "../util/rand";
 
 interface Params {
     playerRed: Discord.GuildMember;
@@ -21,6 +21,47 @@ export class PlayerState {
     hasGottenEarlyTurnEndWarning = false;
 }
 
+export class DraftState {
+    picking = randomItem([TeamColor.Red, TeamColor.Blue]);
+    pickStage = 0;
+
+    numChampionsPicking() {
+        /*
+            The champion select stage:
+            
+            (given that Team A picks first)
+
+            - Team A picks 1 (1/5) <- pickStage=0
+            - Team B picks 2 (2/5)
+            - Team A picks 2 (3/5)
+            - Team B picks 2 (4/5)
+            - Team A picks 2 (5/5)
+            - Team B picks 1 (5/5) <- pickStage=5
+
+            This function returns how many champions
+            should be picked during the given pick stage
+        */
+
+        return this.pickStage === 0 || this.pickStage === 5 ? 1 : 2;
+    }
+
+    // Arrays that represent the current champions that
+    // each team has picked (by champion internal name)
+    redTeamDraft: string[] = [];
+    blueTeamDraft: string[] = [];
+
+    // similar
+    bans: string[] = [];
+}
+
+/*
+    Describes where the match currently is at, in terms
+    of stage of the game
+*/
+export enum MatchStage {
+
+}
+
 export class Match {
     playerRed: Discord.GuildMember;
     playerBlue: Discord.GuildMember;
@@ -32,6 +73,8 @@ export class Match {
     game: RuneChess;
     id: string;
 
+    draftState: DraftState;
+
     constructor(params: Params) {
         this.playerRed = params.playerRed;
         this.playerBlue = params.playerBlue;
@@ -40,6 +83,8 @@ export class Match {
         this.channel = params.channel;
         this.game = new RuneChess();
         this.id = generateID();
+
+        this.draftState = new DraftState();
     }
 
     begin() {

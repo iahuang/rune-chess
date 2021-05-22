@@ -221,9 +221,10 @@ export function registerGameCommands(bot: RunechessBot) {
                 let playerState = info.match.getPlayerStateWithColor(info.teamColor);
 
                 if (!playerState.hasGottenEarlyTurnEndWarning) {
-                    info.command.message.channel.send(
-                        `You have not spent all your action points! (${apr} remaining)\nTo end your turn early, run \`${bot.config.prefix}end\` again.`
-                    );
+                    let message =
+                        `You have not spent all your action points! (${apr} remaining)\n` +
+                        `To end your turn early, run ${bot.inlineCommandName("end")} again.`;
+                    info.command.message.channel.send(message);
 
                     playerState.hasGottenEarlyTurnEndWarning = true;
                     return;

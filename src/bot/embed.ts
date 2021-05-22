@@ -68,9 +68,9 @@ export class EmbedGenerator {
         return embed;
     }
 
-    makeErrorEmbed(errorMessage: string) {
+    makeErrorEmbed(errorMessage: string, helpString: string = "") {
         let embed = this.makeEmbedBase("Command Error");
-        return embed.setDescription(`> ${errorMessage}\nUse the help command for more information`);
+        return embed.setDescription(`> ${errorMessage}\n${helpString}`);
     }
 
     makeMatchStartEmbed(match: Match) {
@@ -189,10 +189,10 @@ export class EmbedGenerator {
 
         for (let c of registry.allChampionNames().sort()) {
             let champion = registry.instantiateChampion(c);
-            description+=`- ${champion.displayName}, ${champion.championTitle}`;
-            description+="\n";
+            description += `- ${champion.displayName}, ${champion.championTitle}`;
+            description += "\n";
         }
-        description+=`Use ${prefix}info [champion] to learn more about a specific champion.`;
+        description += `Use ${prefix}info [champion] to learn more about a specific champion.`;
         embed.setDescription(description);
         return embed;
     }
