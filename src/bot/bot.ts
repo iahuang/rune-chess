@@ -6,7 +6,7 @@ import { GameRenderer } from "../graphics/game_renderer";
 import DataDragon from "../riot/data_dragon";
 import { registerCommands } from "./commands/commands";
 import { EmbedGenerator } from "./embed";
-import { registerGameCommands } from "./game_commands";
+import { registerGameCommands } from "./commands/game_commands";
 import { Match } from "./match";
 import { ArgumentFormat, ArgumentType, CommandParser, ParsedCommand } from "./parser";
 
